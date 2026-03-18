@@ -1,0 +1,99 @@
+<section class="container-fluid py-3 px-3">
+  <header class="row mb-4">
+    <div class="col-12">
+      <div class="primary-header">
+        <h1 class="mb-0">Devolucion de Ahorros</h1>
+      </div>
+    </div>
+  </header>
+  <section class="row mb-4" aria-labelledby="descripcion-ahorro">
+    <div class="col-12">
+      <p id="descripcion-ahorro" class="fw-bold"></p>
+      <ul>
+        <li>
+          Para realizar el retiro de su ahorro voluntario en linea, escriba el valor requerido en el campo dispobile.
+        </li>
+        <li>
+          Verifique el valor escrito antes de darle aceptar.
+        </li>
+        <li>
+          Esta solicitud estara sujeta a la previa verificacion de su estado de cuenta y
+          a lo establecido en el <strong>Reglamento de Ahorro y Credito</strong>.
+        </li>
+        <li>
+          Las consignaciones se realizan los lunes, miercoles y viernes de cada semana en la cuenta del asociado.
+        </li>
+        <li>
+          Recuerde verificar el estado de esta transaccion en su cuenta de ahorros de nomina.
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="titleAhorrosDevolucion">
+
+  </section>
+
+  <section class="row mb-3">
+    <div class="col-12">
+      <div class="app-paper elevation-4 p-4">
+
+
+        <section class="row mb-2 fw-bold text-center d-none d-md-flex border-bottom pb-2 table-headers"
+          id="headerSection">
+        </section>
+
+
+        <div id="listado-ahorros">
+
+        </div>
+
+      </div>
+    </div>
+  </section>
+</section>
+
+<!-- Modal -->
+<div class="modal fade app-modal" id="modalConfirmacion" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content app-modal__content">
+
+      <div class="app-modal__header">
+        <h5 class="app-modal__title">Devolucion ahorro</h5>
+        <button type="button" class="app-modal__close" data-bs-dismiss="modal" aria-label="Cerrar">×</button>
+      </div>
+
+      <div class="app-modal__body" id="modalInfo"></div>
+
+      <div class="app-modal__footer">
+        <button type="button" class="app-button" data-bs-dismiss="modal">
+          Cancelar
+        </button>
+        <button type="button" class="app-button btn-confirmar" id="btnSolicitar">
+          Solicitar
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="modal fade app-modal" id="modalInformativo" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content app-modal__content">
+
+      <div class="app-modal__header">
+        <button type="button" class="app-modal__close" data-bs-dismiss="modal" aria-label="Cerrar">×</button>
+      </div>
+      <div class="app-modal__body" id="mensajeModalInformativo"></div>
+      <div class="app-modal__footer">
+        <button type="button" class="app-button btn-confirmar" id="btnAceptar">
+          Aceptar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="/javascripts/devolucionAhorro.js"></script>

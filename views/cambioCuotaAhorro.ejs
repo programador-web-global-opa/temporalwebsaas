@@ -1,0 +1,96 @@
+<section class="container-fluid py-3 px-3">
+
+  <!-- Título -->
+  <header class="row mb-4">
+    <div class="col-12">
+      <div class="primary-header">
+        <h1 class="mb-0">Ahorros disponibles para cambio de cuota</h1>
+      </div>
+    </div>
+  </header>
+
+  <!-- Descripción -->
+  <section class="row mb-4" aria-labelledby="descripcion-ahorro">
+    <div class="col-12">
+      <p id="descripcion-ahorro" class="fw-bold"></p>
+      <ul>
+        <li>
+          Aquí podrás cambiar las cuotas de tus ahorros
+          <strong>a la vista y contractuales</strong>.
+          Haz clic en <strong>"Cambiar cuota"</strong> para diligenciar la nueva cuota.
+        </li>
+        <li>
+          Después de cambiar la cuota aparecerá la fecha en la cual podrás solicitar un nuevo cambio.
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="titleAhorrosCambioCuota">
+
+  </section>
+
+  <section class="row mb-3">
+    <div class="col-12">
+      <div class="app-paper elevation-4 p-4">
+
+
+        <section class="row mb-2 fw-bold text-center d-none d-xl-flex border-bottom pb-2 table-headers"
+          id="headerSection">
+
+        </section>
+
+
+        <div id="listado-ahorros">
+
+        </div>
+
+      </div>
+    </div>
+  </section>
+</section>
+
+<!-- Modal -->
+<div class="modal fade app-modal" id="modalConfirmacion" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content app-modal__content">
+
+      <div class="app-modal__header">
+        <h5 class="app-modal__title">Cambio de cuota</h5>
+        <button type="button" class="app-modal__close" data-bs-dismiss="modal" aria-label="Cerrar">×</button>
+      </div>
+
+      <div class="app-modal__body" id="modalInfo"></div>
+
+      <div class="app-modal__footer">
+        <button type="button" class="app-button" data-bs-dismiss="modal">
+          Cancelar
+        </button>
+        <button type="button" class="app-button btn-confirmar" id="btnConfirmar">
+          Confirmar
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="modal fade app-modal" id="modalInformativo" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content app-modal__content">
+
+      <div class="app-modal__header">
+        <button type="button" class="app-modal__close" data-bs-dismiss="modal" aria-label="Cerrar">×</button>
+      </div>
+      <div class="app-modal__body" id="mensajeModalInformativo"></div>
+      <div class="app-modal__footer">
+        <button type="button" class="app-button btn-confirmar" id="btnAceptar">
+          Aceptar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="/javascripts/cambioCuotaAhorro.js"></script>

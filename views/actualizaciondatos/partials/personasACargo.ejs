@@ -1,0 +1,138 @@
+<div>
+    <div class="secondary-header mb-4 p-2">
+        <h3 class="mb-0">Personas a Cargo</h3>
+    </div>
+    <p class="text-left">
+        <button class="app-button primary" data-bs-toggle="modal" data-bs-target="#modalAgregarPersonaACargo">Agregar
+            Persona a Cargo <i class="material-icons">add</i></button>
+    </p>
+
+
+    <section class="row mb-3">
+        <div class="col-12">
+            <div class="app-paper elevation-4 p-4">
+                <div id="list-peopleincharge-new"></div>
+                <div id="list-peopleincharge-real"></div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- agrega modal para nueva persona a cargo -->
+<div class="modal fade app-modal" id="modalAgregarPersonaACargo" tabindex="-1" aria-hidden="true"
+    data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-xl modal-dialog-centered">
+        <div class="modal-content app-modal__content">
+            <div class="app-modal__header">
+                <h5 class="app-modal__title">Persona a Cargo</h5>
+                <button type="button" class="app-modal__close" data-bs-dismiss="modal" aria-label="Cerrar"
+                    id="cerrarModalAgregarPersonaACargo">×</button>
+            </div>
+            <form id="formAgregarPersonaACargo">
+                <div class="app-modal__body" id="mensajeModalNuevaPersonaACargo">
+                    <div class="row g-3">
+                        <div class="col-12 col-md-3">
+                            <div class="app-field select">
+                                <select class="app-select" id="tipoDocumentoPersonaACargo" required>
+                                    <option value="" selected></option>
+                                    <option value="CC">CC</option>
+                                    <option value="CE">CE</option>
+                                    <option value="RUT">RUT</option>
+                                    <option value="PA">PA</option>
+                                </select>
+                                <label for="tipoDocumentoPersonaACargo">Tipo de Documento</label>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <div class="app-field">
+                                <input type="text" class="app-input" id="numeroDocumentoPersonaACargo" placeholder=" "
+                                    required>
+                                <label for="numeroDocumentoPersonaACargo">Numero de Documento</label>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="app-field">
+                                <input type="text" class="app-input" id="nombresPersonaACargo" placeholder=" " required>
+                                <label for="nombresPersonaACargo">Nombres Completos</label>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <div class="app-field select">
+                                <select class="app-select" id="parentescoPersonaACargo" required>
+                                    <option value="" selected></option>
+                                    <option value="FAMILIAR">FAMILIAR</option>
+                                    <option value="AMISTAD">AMISTAD</option>
+                                    <option value="COMPAÑERO">COMPAÑERO</option>
+                                    <option value="CONOCIDO">CONOCIDO</option>
+                                    <option value="VECINO">VECINO</option>
+                                    <option value="OTRO">OTRO</option>
+                                </select>
+                                <label for="parentescoPersonaACargo">Parentesco</label>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <div class="app-field select">
+                                <select class="app-select" id="generoPersonaACargo" required>
+                                    <option value="" selected></option>
+                                    <option value="MASCULINO">MASCULINO</option>
+                                    <option value="FEMENINO">FEMENINO</option>
+                                    <option value="OTRO">OTRO</option>
+                                </select>
+                                <label for="generoPersonaACargo">Genero</label>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="app-field">
+                                <input type="date" class="app-input" id="fechaExpedicionDocumentoPersonaACargo"
+                                    placeholder=" " required>
+                                <label for="fechaExpedicionDocumentoPersonaACargo">Expedición de Documento</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="app-modal__footer">
+                    <button type="submit" class="app-button btn-confirmar" data-default-text="Agregar Persona a Cargo">
+                        Agregar persona a cargo
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- agrega modal para editar persona a cargo -->
+<div class="modal fade app-modal" id="modalEditarPersonaACargo" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-xl modal-dialog-centered">
+        <div class="modal-content app-modal__content">
+            <div class="app-modal__header">
+                <h5 class="app-modal__title">Editar Persona a Cargo</h5>
+                <button type="button" class="app-modal__close" data-bs-dismiss="modal" aria-label="Cerrar">×</button>
+            </div>
+            <div class="app-modal__body" id="mensajeModalInformativo"></div>
+            <div class="app-modal__footer">
+                <button type="button" class="app-button btn-confirmar" id="btnAceptar">
+                    Aceptar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- agrega modal para eliminar persona a cargo -->
+<div class="modal fade app-modal" id="modalEliminarPersonaACargo" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-lg modal-dialog-centered">
+        <div class="modal-content app-modal__content">
+            <div class="app-modal__header">
+                <h5 class="app-modal__title">Eliminar Persona a Cargo</h5>
+                <button type="button" class="app-modal__close" data-bs-dismiss="modal" aria-label="Cerrar">×</button>
+            </div>
+            <div class="app-modal__body" id="mensajeModalEliminarPersonaACargo"></div>
+            <div class="app-modal__footer">
+                <button type="button" class="app-button btn-cancelar" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="app-button btn-confirmar" id="btnAceptarEliminarPersonaACargo">
+                    Aceptar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

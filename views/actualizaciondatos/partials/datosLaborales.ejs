@@ -1,0 +1,74 @@
+<div id="datosLaborales" class="app-paper elevation-2 p-4">
+    <div class="secondary-header mb-4 p-2">
+        <h3 class="mb-0">Información Laboral</h3>
+    </div>
+
+    <form>
+        <div class="row g-3">
+
+            <div class="col-12 col-md-6">
+                <div class="app-field select">
+                    <select class="app-select" id="empresaTrabajo" name="empresaTrabajo" data-combo="empresatrabajo"
+                        required>
+                        <option value="" selected></option>
+                    </select>
+                    <label for="empresaTrabajo">Trabaja en</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="app-field select">
+                    <select class="app-select" id="cargoTrabajo" name="cargoTrabajo" data-combo="profesiones" required>
+                        <option value="" selected></option>
+                    </select>
+                    <label for="cargoTrabajo">Cargo</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="app-field select">
+                    <select class="app-select" id="dependenciaTrabajo" name="dependenciaTrabajo"
+                        data-combo="dependencia" data-depende="empresaTrabajo" data-param="empresa" required>
+                        <option value="" selected></option>
+                    </select>
+                    <label for="dependenciaTrabajo">Dependencia</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="app-field select">
+                    <select class="app-select" id="tipoContrato" name="tipoContrato" data-combo="tipocontrato">
+                        <option value="" selected></option>
+                    </select>
+                    <label for="tipoContrato">Tipo de Contrato</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="app-field">
+                    <input type="date" class="app-input" id="fechaIngreso" name="fechaIngreso" placeholder=" " required>
+                    <label for="fechaIngreso">Fecha de Ingreso</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="app-field select">
+                    <select class="app-select" id="pagaduria" name="pagaduria" data-combo="pagaduria" required>
+                        <option value="" selected></option>
+
+                    </select>
+                    <label for="pagaduria">Pagaduria</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="app-field">
+                    <input type="text" class="app-input" id="periodoDeduccion" name="periodoDeduccion" placeholder=" ">
+                    <label for="periodoDeduccion">Periodo de Deducción</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="app-field">
+                    <input type="text" class="app-input" id="salario" name="salario" placeholder=" ">
+                    <label for="salario">Salario</label>
+                </div>
+            </div>
+
+
+        </div>
+    </form>
+</div>

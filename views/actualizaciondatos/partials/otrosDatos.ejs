@@ -1,0 +1,728 @@
+<div id="otrosDatos" class="app-paper elevation-2 p-4">
+    <div class="secondary-header mb-4 p-2">
+        <h3 class="mb-0">Otros Datos Identificacion</h3>
+    </div>
+    <form>
+        <div class="row g-3">
+
+            <div class="col-12 col-md-3">
+                <div class="app-field select">
+                    <select class="app-select" id="estudios" name="estudios" data-combo="estudios" required>
+                        <option value="" selected></option>
+                    </select>
+                    <label for="estudios">Estudios</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="app-field select">
+                    <select class="app-select" id="genero" name="genero" required>
+                        <option value="" selected></option>
+                        <option value="M">MASCULINO</option>
+                        <option value="F">FEMENINO</option>
+                        <option value="O">OTRO</option>
+                    </select>
+                    <label for="genero">Genero</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="app-field select">
+                    <select class="app-select" id="estadoCivil" name="estadoCivil" required>
+                        <option value="" selected></option>
+                        <option value="S">SOLTERO(A)</option>
+                        <option value="C">CASADO(A)</option>
+                        <option value="D">VIUDO(A)</option>
+                        <option value="U">DIVORCIADO</option>
+                        <option value="V">UNION LIBRE</option>
+                        <option value="F">MADRE SOLTERA</option>
+                        <option value="P">MUJER CABEZA FAMILIA</option>
+                    </select>
+                    <label for="estadoCivil">Estado Civil</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="app-field select">
+                    <select class="app-select" id="ocupacion" name="ocupacion" required>
+                        <option value="" selected></option>
+                    </select>
+                    <label for="ocupacion">Ocupacion</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="app-field select">
+                    <select class="app-select" id="profesion" name="profesion" data-combo="profesiones" required>
+                        <option value="" selected></option>
+                    </select>
+                    <label for="profesion">Profesion</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="app-field">
+                    <input type="text" class="app-input" id="numeroCuenta" name="numeroCuenta" placeholder=" ">
+                    <label for="numeroCuenta">Numero de Cuenta</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="app-field select">
+                    <select class="app-select" id="tipoCuenta" name="tipoCuenta">
+                        <option value="" selected></option>
+                        <option value="A">AHORRO</option>
+                        <option value="C">CORRIENTE</option>
+                    </select>
+                    <label for="tipoCuenta">Tipo de Cuenta</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="app-field select">
+                    <select class="app-select" id="bancoCuenta" name="bancoCuenta" data-combo="bancos">
+                        <option value="" selected></option>
+                    </select>
+                    <label for="bancoCuenta">Banco</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="app-field select">
+                    <select class="app-select" id="tipoVivienda" name="tipoVivienda" data-combo="tipovivienda" required>
+                        <option value="" selected></option>
+                    </select>
+                    <label for="tipoVivienda">Tipo de Vivienda</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="app-field">
+                    <input type="text" class="app-input" id="numeroPersonasHabitantes" name="numeroPersonasHabitantes"
+                        placeholder=" " required>
+                    <label for="numeroPersonasHabitantes">Numero de personas con las que habita</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="app-field select">
+                    <select class="app-select" id="dependeEconomicamente" name="dependeEconomicamente" required>
+                        <option value="" selected></option>
+                        <option value="S">SI</option>
+                        <option value="N">NO</option>
+                    </select>
+                    <label for="dependeEconomicamente">¿Depende Economicamente de un Tercero?</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="app-field select">
+                    <select class="app-select" id="declarante" name="declarante" required>
+                        <option value="" selected></option>
+                        <option value="S">SI</option>
+                        <option value="N">NO</option>
+                    </select>
+                    <label for="declarante">¿Es declarante?</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <button type="button" class="app-button" id="btnGrupoProteccion">Grupo de protección</button>
+            </div>
+            <div class="modal fade app-modal" id="modalGrupoProteccion" tabindex="-1" aria-hidden="true"
+                data-bs-backdrop="static" data-bs-keyboard="false">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content app-modal__content">
+
+                        <div class="app-modal__header">
+                            <h5 class="app-modal__title">Grupo de protección</h5>
+                        </div>
+
+                        <div class="app-modal__body" id="modalGrupoProteccionInfo">
+                            <div class="row g-3">
+                                <div class="col-12 col-md-12">
+                                    <div>
+                                        <label for="nombreGrupoProteccion">¿Pertenece a algun grupo de
+                                            protección?</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-12 col-md-12">
+                                    <div class="form-check">
+                                        <input class="form-check-input app-checkbox" type="checkbox" value=""
+                                            id="checkNiños">
+                                        <label class="form-check-label" for="checkNiños">
+                                            Niños, niñas y adolescentes
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input app-checkbox" type="checkbox" value=""
+                                            id="checkMayores">
+                                        <label class="form-check-label" for="checkMayores">
+                                            Mayores de 60 años
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input app-checkbox" type="checkbox" value=""
+                                            id="checkDiscapacidad">
+                                        <label class="form-check-label" for="checkDiscapacidad">
+                                            Persona con discapacidad fisica, mental o sensorial
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input app-checkbox" type="checkbox" value=""
+                                            id="checkMujer">
+                                        <label class="form-check-label" for="checkMujer">
+                                            Mujer cabeza de familia
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input app-checkbox" type="checkbox" value=""
+                                            id="checkVictima">
+                                        <label class="form-check-label" for="checkVictima">
+                                            Victima del conflicto armado
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input app-checkbox" type="checkbox" value=""
+                                            id="checkPobreza">
+                                        <label class="form-check-label" for="checkPobreza">
+                                            Persona en condicion de pobreza extrema
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input app-checkbox" type="checkbox" value=""
+                                            id="checkNAAR">
+                                        <label class="form-check-label" for="checkNAAR">
+                                            NAAR/Pueblos indigenas
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input app-checkbox" type="checkbox" value=""
+                                            id="checkDiversa">
+                                        <label class="form-check-label" for="checkDiversa">
+                                            Poblacion diversa/LGBTIQ+
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input app-checkbox" type="checkbox" value=""
+                                            id="checkAfrodescendiente">
+                                        <label class="form-check-label" for="checkAfrodescendiente">
+                                            Poblacion afrodescendiente
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input app-checkbox" type="checkbox" value=""
+                                            id="checkOtro">
+                                        <label class="form-check-label" for="checkOtro">
+                                            ¿Otro? ¿Cuál?
+                                        </label>
+                                    </div>
+
+                                    <div id="inputExtra" style="display: none;" class="mt-2">
+                                        <input type="text" class="form-control" placeholder="Especifique aquí..."
+                                            id="textoOtro">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="app-modal__footer text-end">
+                            <button type="button"
+                                class="app-button btn-confirmar d-inline-flex align-items-center gap-2"
+                                id="btnAceptarGrupoProteccion">
+
+                                <i class="material-icons">subdirectory_arrow_left</i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </form>
+
+    <div class="secondary-header mb-4 p-2" style="margin-top: 2rem;">
+        <h3 class="mb-0">Operaciones en moneda extranjera</h3>
+    </div>
+
+    <form>
+        <div class="row g-3">
+
+            <div class="col-12 col-md-4">
+                <div class="app-field select">
+                    <select class="app-select" id="operacionesMonedaExtranjera" name="operacionesMonedaExtranjera">
+                        <option value="" selected></option>
+                        <option value="S">SI</option>
+                        <option value="N">NO</option>
+                    </select>
+                    <label for="operacionesMonedaExtranjera">¿Realiza operaciones en moneda extranjera?</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-3 mb-3">
+                <div class="app-field">
+                    <input type="text" class="app-input" id="cualesOperacionesMonedaExtranjera"
+                        name="cualesOperacionesMonedaExtranjera" placeholder=" ">
+                    <label for="cualesOperacionesMonedaExtranjera">¿Cuáles operaciones realiza?</label>
+                </div>
+            </div>
+        </div>
+        <div class="row g-3">
+            <div class="col-12 col-md-3">
+                <div class="app-field select">
+                    <select class="app-select" id="poseeCuentasMonedaExtranjera" name="poseeCuentasMonedaExtranjera">
+                        <option value="" selected></option>
+                        <option value="S">SI</option>
+                        <option value="N">NO</option>
+                    </select>
+                    <label for="poseeCuentasMonedaExtranjera">¿Posee cuentas en moneda extranjera?</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="app-field select">
+                    <select class="app-select" id="paisMonedaExtranjera" name="paisMonedaExtranjera">
+                        <option value="" selected></option>
+                        <option value="1">EJEMPLO</option>
+                        <option value="2">EJEMPLO</option>
+                    </select>
+                    <label for="paisMonedaExtranjera">¿Pais de la moneda extranjera?</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="app-field select">
+                    <select class="app-select" id="ciudadMonedaExtranjera" name="ciudadMonedaExtranjera">
+                        <option value="" selected></option>
+                        <option value="1">EJEMPLO</option>
+                        <option value="2">EJEMPLO</option>
+                    </select>
+                    <label for="ciudadMonedaExtranjera">¿Ciudad de la moneda extranjera?</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="app-field">
+                    <input type="text" class="app-input" id="monedaExtranjera" name="monedaExtranjera" placeholder=" ">
+                    <label for="monedaExtranjera">Moneda extranjera</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="app-field">
+                    <input type="text" class="app-input" id="bancoMonedaExtranjera" name="bancoMonedaExtranjera"
+                        placeholder=" ">
+                    <label for="bancoMonedaExtranjera">Banco de la moneda extranjera</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="app-field">
+                    <input type="text" class="app-input" id="numeroCuentaMonedaExtranjera"
+                        name="numeroCuentaMonedaExtranjera" placeholder=" ">
+                    <label for="numeroCuentaMonedaExtranjera">Numero de cuenta en moneda extranjera</label>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <div class="secondary-header mb-4 p-2" style="margin-top: 2rem;">
+        <h3 class="mb-0">Información PEP'S (Personas expuestas politicamente)</h3>
+    </div>
+
+    <form>
+        <div class="row g-3 mb-3">
+            <div class="col-12 col-md-4">
+                <div class="app-field select">
+                    <select class="app-select" id="esPep" name="esPep" required>
+                        <option value="" selected></option>
+                        <option value="S">SI</option>
+                        <option value="N">NO</option>
+                    </select>
+                    <label for="esPep">¿Persona expuesta politicamente?</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="app-field select">
+                    <select class="app-select" id="tipoPep" name="tipoPep" required>
+                        <option value="" selected></option>
+                        <option value="1">Persona natural</option>
+                        <option value="2">Persona juridica</option>
+                        <option value="3">Ambas</option>
+                    </select>
+                    <label for="tipoPep">¿Tipo de PEP?</label>
+                </div>
+            </div>
+        </div>
+        <div class="row g-3">
+            <!-- Columna familiar empleado -->
+            <div class="col-12 col-md-4">
+                <div class="col-12 col-md-12">
+                    <div class="app-field select">
+                        <select class="app-select" id="familiarEmpleadoEntidad" name="familiarEmpleadoEntidad" required>
+                            <option value="" selected></option>
+                            <option value="S">SI</option>
+                            <option value="N">NO</option>
+                        </select>
+                        <label for="familiarEmpleadoEntidad">¿Tiene algún familiar empleado de la entidad
+                            solidaria?</label>
+                    </div>
+                </div>
+                <div class="row g-3 mt-2">
+                    <div class="col-12 col-md-6">
+                        <div class="app-field">
+                            <input type="text" class="app-input" id="identificacionEmpleadoEntidad"
+                                name="identificacionEmpleadoEntidad" placeholder=" " required disabled
+                                style="background-color: #e9ecef;">
+                            <label for="identificacionEmpleadoEntidad">Identificación</label>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="app-field select">
+                            <select class="app-select" id="tipoIdentificacionEmpleadoEntidad"
+                                name="tipoIdentificacionEmpleadoEntidad" required disabled
+                                style="background-color: #e9ecef;">
+                                <option value="" selected></option>
+                                <option value="1">Cédula de ciudadanía</option>
+                                <option value="2">Cédula de extranjería</option>
+                                <option value="3">Pasaporte</option>
+                                <option value="4">Registro civil</option>
+                                <option value="5">Tarjeta de identidad</option>
+                                <option value="6">NIT</option>
+                            </select>
+                            <label for="tipoIdentificacionEmpleadoEntidad">Tipo de identificación</label>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="app-field">
+                            <input type="text" class="app-input" id="primerNombreEmpleadoEntidad"
+                                name="primerNombreEmpleadoEntidad" placeholder=" " required disabled
+                                style="background-color: #e9ecef;">
+                            <label for="primerNombreEmpleadoEntidad">Primer nombre</label>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="app-field">
+                            <input type="text" class="app-input" id="segundoNombreEmpleadoEntidad"
+                                name="segundoNombreEmpleadoEntidad" placeholder=" " disabled
+                                style="background-color: #e9ecef;">
+                            <label for="segundoNombreEmpleadoEntidad">Segundo nombre</label>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="app-field">
+                            <input type="text" class="app-input" id="primerApellidoEmpleadoEntidad"
+                                name="primerApellidoEmpleadoEntidad" placeholder=" " required disabled
+                                style="background-color: #e9ecef;">
+                            <label for="primerApellidoEmpleadoEntidad">Primer apellido</label>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="app-field">
+                            <input type="text" class="app-input" id="segundoApellidoEmpleadoEntidad"
+                                name="segundoApellidoEmpleadoEntidad" placeholder=" " disabled
+                                style="background-color: #e9ecef;">
+                            <label for="segundoApellidoEmpleadoEntidad">Segundo apellido</label>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="app-field select">
+                            <select class="app-select" id="parentescoEmpleadoEntidad" name="parentescoEmpleadoEntidad"
+                                required disabled style="background-color: #e9ecef;">
+                                <option value="" selected></option>
+                                <option value="1">Padre</option>
+                                <option value="2">Madre</option>
+                                <option value="3">Hijo</option>
+                                <option value="4">Hija</option>
+                                <option value="5">Hermano</option>
+                                <option value="6">Hermana</option>
+                                <option value="7">Otro</option>
+                            </select>
+                            <label for="parentescoEmpleadoEntidad">Parentesco</label>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="app-field">
+                            <input type="date" class="app-input" id="desdeCuandoFamiliarEmpleadoEntidad"
+                                name="desdeCuandoFamiliarEmpleadoEntidad" placeholder=" " required disabled
+                                style="background-color: #e9ecef;">
+                            <label for="desdeCuandoFamiliarEmpleadoEntidad">¿Desde cuando?</label>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="app-field">
+                            <input type="date" class="app-input" id="hastaCuandoFamiliarEmpleadoEntidad"
+                                name="hastaCuandoFamiliarEmpleadoEntidad" placeholder=" " required disabled
+                                style="background-color: #e9ecef;">
+                            <label for="hastaCuandoFamiliarEmpleadoEntidad">¿Hasta cuando?</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Columna familiar recursos publicos-->
+            <div class="col-12 col-md-4">
+                <div class="col-12 col-md-12">
+                    <div class="app-field select">
+                        <select class="app-select" id="familiarRecursosPublicos" name="familiarRecursosPublicos"
+                            required>
+                            <option value="" selected></option>
+                            <option value="S">SI</option>
+                            <option value="N">NO</option>
+                        </select>
+                        <label for="familiarRecursosPublicos">¿Tiene usted algún familiar que maneja recursos
+                            públicos</label>
+                    </div>
+                </div>
+                <div class="row g-3 mt-2">
+                    <div class="col-12 col-md-6">
+                        <div class="app-field">
+                            <input type="text" class="app-input" id="identificacionFamiliarRecursosPublicos"
+                                name="identificacionFamiliarRecursosPublicos" placeholder=" " required disabled
+                                style="background-color: #e9ecef;">
+                            <label for="identificacionFamiliarRecursosPublicos">Identificación</label>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="app-field select">
+                            <select class="app-select" id="tipoIdentificacionFamiliarRecursosPublicos"
+                                name="tipoIdentificacionFamiliarRecursosPublicos" required disabled
+                                style="background-color: #e9ecef;">
+                                <option value="" selected></option>
+                                <option value="1">Cédula de ciudadanía</option>
+                                <option value="2">Cédula de extranjería</option>
+                                <option value="3">Pasaporte</option>
+                                <option value="4">Registro civil</option>
+                                <option value="5">Tarjeta de identidad</option>
+                                <option value="6">NIT</option>
+                            </select>
+                            <label for="tipoIdentificacionFamiliarRecursosPublicos">Tipo de identificación</label>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="app-field">
+                            <input type="text" class="app-input" id="primerNombreFamiliarRecursosPublicos"
+                                name="primerNombreFamiliarRecursosPublicos" placeholder=" " required disabled
+                                style="background-color: #e9ecef;">
+                            <label for="primerNombreFamiliarRecursosPublicos">Primer nombre</label>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="app-field">
+                            <input type="text" class="app-input" id="segundoNombreFamiliarRecursosPublicos"
+                                name="segundoNombreFamiliarRecursosPublicos" placeholder=" " disabled
+                                style="background-color: #e9ecef;">
+                            <label for="segundoNombreFamiliarRecursosPublicos">Segundo nombre</label>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="app-field">
+                            <input type="text" class="app-input" id="primerApellidoFamiliarRecursosPublicos"
+                                name="primerApellidoFamiliarRecursosPublicos" placeholder=" " required disabled
+                                style="background-color: #e9ecef;">
+                            <label for="primerApellidoFamiliarRecursosPublicos">Primer apellido</label>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="app-field">
+                            <input type="text" class="app-input" id="segundoApellidoFamiliarRecursosPublicos"
+                                name="segundoApellidoFamiliarRecursosPublicos" placeholder=" " disabled
+                                style="background-color: #e9ecef;">
+                            <label for="segundoApellidoFamiliarRecursosPublicos">Segundo apellido</label>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="app-field select">
+                            <select class="app-select" id="parentescoFamiliarRecursosPublicos"
+                                name="parentescoFamiliarRecursosPublicos" required disabled
+                                style="background-color: #e9ecef;">
+                                <option value="" selected></option>
+                                <option value="1">Padre</option>
+                                <option value="2">Madre</option>
+                                <option value="3">Hijo</option>
+                                <option value="4">Hija</option>
+                                <option value="5">Hermano</option>
+                                <option value="6">Hermana</option>
+                                <option value="7">Otro</option>
+                            </select>
+                            <label for="parentescoFamiliarRecursosPublicos">Parentesco</label>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="app-field">
+                            <input type="text" class="app-input" id="cargoFamiliarRecursosPublicos"
+                                name="cargoFamiliarRecursosPublicos" placeholder=" " required disabled
+                                style="background-color: #e9ecef;">
+                            <label for="cargoFamiliarRecursosPublicos">¿Cargo?</label>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="app-field">
+                            <input type="date" class="app-input" id="desdeCuandoFamiliarRecursosPublicos"
+                                name="desdeCuandoFamiliarRecursosPublicos" placeholder=" " required disabled
+                                style="background-color: #e9ecef;">
+                            <label for="desdeCuandoFamiliarRecursosPublicos">¿Desde cuando?</label>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="app-field">
+                            <input type="date" class="app-input" id="hastaCuandoFamiliarRecursosPublicos"
+                                name="hastaCuandoFamiliarRecursosPublicos" placeholder=" " required disabled
+                                style="background-color: #e9ecef;">
+                            <label for="hastaCuandoFamiliarRecursosPublicos">¿Hasta cuando?</label>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="app-field">
+                            <input type="text" class="app-input" id="nombreEntidadFamiliarRecursosPublicos"
+                                name="nombreEntidadFamiliarRecursosPublicos" placeholder=" " required disabled
+                                style="background-color: #e9ecef;">
+                            <label for="nombreEntidadFamiliarRecursosPublicos">Nombre de la entidad del
+                                parentesco</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Columna familiar publicamente expuesto-->
+            <div class="col-12 col-md-4">
+                <div class="col-12 col-md-12">
+                    <div class="app-field select">
+                        <select class="app-select" id="familiarPublicamenteExpuesto" name="familiarPublicamenteExpuesto"
+                            required>
+                            <option value="" selected></option>
+                            <option value="S">SI</option>
+                            <option value="N">NO</option>
+                        </select>
+                        <label for="familiarPublicamenteExpuesto">¿Tiene usted algún familiar públicamente
+                            expuesto?</label>
+                    </div>
+                </div>
+                <div class="row g-3 mt-2">
+                    <div class="col-12 col-md-6">
+                        <div class="app-field">
+                            <input type="text" class="app-input" id="identificacionFamiliarPublicamenteExpuesto"
+                                name="identificacionFamiliarPublicamenteExpuesto" placeholder=" " required disabled
+                                style="background-color: #e9ecef;">
+                            <label for="identificacionFamiliarPublicamenteExpuesto">Identificación</label>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="app-field select">
+                            <select class="app-select" id="tipoIdentificacionFamiliarPublicamenteExpuesto"
+                                name="tipoIdentificacionFamiliarPublicamenteExpuesto" required disabled
+                                style="background-color: #e9ecef;">
+                                <option value="" selected></option>
+                                <option value="1">Cédula de ciudadanía</option>
+                                <option value="2">Cédula de extranjería</option>
+                                <option value="3">Pasaporte</option>
+                                <option value="4">Registro civil</option>
+                                <option value="5">Tarjeta de identidad</option>
+                                <option value="6">NIT</option>
+                            </select>
+                            <label for="tipoIdentificacionFamiliarPublicamenteExpuesto">Tipo de identificación</label>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="app-field">
+                            <input type="text" class="app-input" id="primerNombreFamiliarPublicamenteExpuesto"
+                                name="primerNombreFamiliarPublicamenteExpuesto" placeholder=" " required disabled
+                                style="background-color: #e9ecef;">
+                            <label for="primerNombreFamiliarPublicamenteExpuesto">Primer nombre</label>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="app-field">
+                            <input type="text" class="app-input" id="segundoNombreFamiliarPublicamenteExpuesto"
+                                name="segundoNombreFamiliarPublicamenteExpuesto" placeholder=" " disabled
+                                style="background-color: #e9ecef;">
+                            <label for="segundoNombreFamiliarPublicamenteExpuesto">Segundo nombre</label>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="app-field">
+                            <input type="text" class="app-input" id="primerApellidoFamiliarPublicamenteExpuesto"
+                                name="primerApellidoFamiliarPublicamenteExpuesto" placeholder=" " required disabled
+                                style="background-color: #e9ecef;">
+                            <label for="primerApellidoFamiliarPublicamenteExpuesto">Primer apellido</label>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="app-field">
+                            <input type="text" class="app-input" id="segundoApellidoFamiliarPublicamenteExpuesto"
+                                name="segundoApellidoFamiliarPublicamenteExpuesto" placeholder=" " disabled
+                                style="background-color: #e9ecef;">
+                            <label for="segundoApellidoFamiliarPublicamenteExpuesto">Segundo apellido</label>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="app-field select">
+                            <select class="app-select" id="parentescoFamiliarPublicamenteExpuesto"
+                                name="parentescoFamiliarPublicamenteExpuesto" required disabled
+                                style="background-color: #e9ecef;">
+                                <option value="" selected></option>
+                                <option value="1">Padre</option>
+                                <option value="2">Madre</option>
+                                <option value="3">Hijo</option>
+                                <option value="4">Hija</option>
+                                <option value="5">Hermano</option>
+                                <option value="6">Hermana</option>
+                                <option value="7">Otro</option>
+                            </select>
+                            <label for="parentescoFamiliarPublicamenteExpuesto">Parentesco</label>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="app-field">
+                            <input type="date" class="app-input" id="desdeCuandoFamiliarPublicamenteExpuesto"
+                                name="desdeCuandoFamiliarPublicamenteExpuesto" placeholder=" " required disabled
+                                style="background-color: #e9ecef;">
+                            <label for="desdeCuandoFamiliarPublicamenteExpuesto">¿Desde cuando?</label>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="app-field">
+                            <input type="date" class="app-input" id="hastaCuandoFamiliarPublicamenteExpuesto"
+                                name="hastaCuandoFamiliarPublicamenteExpuesto" placeholder=" " required disabled
+                                style="background-color: #e9ecef;">
+                            <label for="hastaCuandoFamiliarPublicamenteExpuesto">¿Hasta cuando?</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3" style="margin-top: 4rem;">
+            <div class="col-12 col-md-6">
+                <div class="app-field select">
+                    <select class="app-select" id="administraRecursosPublicos" name="administraRecursosPublicos"
+                        required>
+                        <option value="" selected></option>
+                        <option value="1">Si</option>
+                        <option value="2">No</option>
+                    </select>
+                    <label for="administraRecursosPublicos">¿Administra recursos públicos?</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="app-field">
+                    <input type="text" class="app-input" id="nombreEntidadAdministraRecursosPublicos"
+                        name="nombreEntidadAdministraRecursosPublicos" placeholder=" " required>
+                    <label for="nombreEntidadAdministraRecursosPublicos">¿Nombre de la entidad?</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="app-field select">
+                    <select class="app-select" id="cargoAdministraRecursosPublicos"
+                        name="cargoAdministraRecursosPublicos" required>
+                        <option value="" selected></option>
+                        <option value="1">Ejemplo 1</option>
+                        <option value="2">Ejemplo 2</option>
+                        <option value="3">Ejemplo 3</option>
+                        <option value="4">Ejemplo 4</option>
+                        <option value="5">Ejemplo 5</option>
+                    </select>
+                    <label for="cargoAdministraRecursosPublicos">¿Cargo?</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="app-field">
+                    <input type="date" class="app-input" id="fechaViculacionRecursosPublicos"
+                        name="fechaViculacionRecursosPublicos" placeholder=" " required>
+                    <label for="fechaViculacionRecursosPublicos">Fecha de Viculación</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="app-field">
+                    <input type="date" class="app-input" id="fechaRetiroRecursosPublicos"
+                        name="fechaRetiroRecursosPublicos" placeholder=" " required>
+                    <label for="fechaRetiroRecursosPublicos">Fecha de Desvinculacion o Actual</label>
+                </div>
+            </div>
+        </div>
+
+    </form>
+
+</div>

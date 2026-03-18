@@ -1,0 +1,288 @@
+<div id="datosPersonales" class="app-paper elevation-8 p-4">
+    <div class="secondary-header mb-4 p-2">
+        <h3 class="mb-0">Información Personal</h3>
+    </div>
+
+    <form>
+        <div class="row g-3">
+            <div class="col-12 col-md-2">
+                <div class="app-field select">
+                    <select class="app-select" id="tipoDocumento" name="tipoDocumento" required>
+                        <option value="" disabled selected hidden></option>
+                        <option value="CC">Cédula de Ciudadanía</option>
+                        <option value="TI">Tarjeta de Identidad</option>
+                        <option value="CE">Cédula de Extranjería</option>
+                        <option value="PAS">Pasaporte</option>
+                        <option value="NIT">NIT</option>
+                        <option value="RC">Registro Civil</option>
+                        <option value="MS">Menor de Edad Sin Identificación</option>
+                    </select>
+                    <label for="tipoDocumento">Tipo de Documento</label>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-2">
+                <div class="app-field">
+                    <input type="number" class="app-input" id="numeroDocumento" name="numeroDocumento" placeholder=" "
+                        required>
+                    <label for="numeroDocumento">Número de Documento</label>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-2">
+                <div class="app-field">
+                    <input type="date" class="app-input" id="fechaExpedicionDocumento" name="fechaExpedicionDocumento"
+                        placeholder=" " required>
+                    <label for="fechaExpedicionDocumento">Expedición de Documento</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-2">
+                <div class="app-field select">
+                    <select class="app-select" id="paisDocumento" name="paisDocumento" data-combo="paises" required>
+                        <option value="" selected></option>
+                    </select>
+                    <label for="paisDocumento">País Documento</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-2">
+                <div class="app-field select">
+                    <select class="app-select" id="departamentoDocumento" name="departamentoDocumento"
+                        data-combo="departamentos" data-depende="paisDocumento" data-param="pais" required>
+                        <option value="" selected></option>
+                    </select>
+                    <label for="departamentoDocumento">Departamento Documento</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-2">
+                <div class="app-field select">
+                    <select class="app-select" id="ciudadDocumento" name="ciudadDocumento" data-combo="ciudades"
+                        data-depende="departamentoDocumento" data-param="dpto" required>
+                        <option value="" selected></option>
+                    </select>
+                    <label for="ciudadDocumento">Ciudad Documento</label>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-3">
+                <div class="app-field">
+                    <input type="text" class="app-input" id="primerNombre" name="primerNombre" placeholder=" " required>
+                    <label for="primerNombre">Primer Nombre</label>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-3">
+                <div class="app-field">
+                    <input type="text" class="app-input" id="segundoNombre" name="segundoNombre" placeholder=" ">
+                    <label for="segundoNombre">Segundo Nombre</label>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-3">
+                <div class="app-field">
+                    <input type="text" class="app-input" id="primerApellido" name="primerApellido" placeholder=" "
+                        required>
+                    <label for="primerApellido">Primer Apellido</label>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-3">
+                <div class="app-field">
+                    <input type="text" class="app-input" id="segundoApellido" name="segundoApellido" placeholder=" ">
+                    <label for="segundoApellido">Segundo Apellido</label>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-3">
+                <div class="app-field">
+                    <input type="date" class="app-input" id="fechaNacimiento" name="fechaNacimiento" placeholder=" "
+                        required>
+                    <label for="fechaNacimiento">Fecha de Nacimiento</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-2">
+                <div class="app-field select">
+                    <select class="app-select" id="paisNacimiento" name="paisNacimiento" data-combo="paises" required>
+                        <option value="" selected></option>
+                    </select>
+                    <label for="paisNacimiento">País Nacimiento</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-2">
+                <div class="app-field select">
+                    <select class="app-select" id="departamentoNacimiento" name="departamentoNacimiento"
+                        data-combo="departamentos" data-depende="paisNacimiento" data-param="pais" required>
+                        <option value="" selected></option>
+                    </select>
+                    <label for="departamentoNacimiento">Departamento Nacimiento</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="app-field select">
+                    <select class="app-select" id="ciudadNacimiento" name="ciudadNacimiento" data-combo="ciudades"
+                        data-depende="departamentoNacimiento" data-param="dpto" required>
+                        <option value="" selected></option>
+                    </select>
+                    <label for="ciudadNacimiento">Ciudad Nacimiento</label>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-3">
+                <div class="app-field">
+                    <input type="number" class="app-input" id="nroHijos" name="nroHijos" placeholder=" " required>
+                    <label for="nroHijos">Nro de Hijos</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="app-field select">
+                    <select class="app-select" id="envioDocumentos" name="envioDocumentos" required>
+                        <option value="" disabled selected hidden></option>
+                        <option value="NO ENVIAR">NO ENVIAR</option>
+                        <option value="DIR RESIDENCIA">DIR RESIDENCIA</option>
+                        <option value="DIR EMPRESA">DIR EMPRESA</option>
+                        <option value="EMAIL">EMAIL</option>
+                    </select>
+                    <label for="envioDocumentos">Envio Documentos</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="app-field select">
+                    <select class="app-select" id="ciiu" name="ciiu" data-combo="ciiu" required>
+                    </select>
+                    <label for="ciiu">CIIU</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="app-field select">
+                    <select class="app-select" id="nacionalidad" name="nacionalidad" data-combo="nacionalidad" required>
+                        <option value="" selected></option>
+
+                    </select>
+                    <label for="nacionalidad">Nacionalidad</label>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <div class="secondary-header mb-4 p-2" style="margin-top: 2rem;">
+        <h3 class="mb-0">Información Residencial</h3>
+    </div>
+
+    <form>
+        <div class="row g-3">
+            <div class="col-12 col-md-3">
+                <div class="app-field select">
+                    <select class="app-select" id="tipoDireccionResidencia" name="tipoDireccionResidencia"
+                        data-combo="abreviaturadir" required>
+                        <option value="" selected></option>
+                    </select>
+                    <label for="tipoDireccionResidencia">Dirección</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="app-field">
+                    <input type="text" class="app-input" id="complementoDireccionResidencia"
+                        name="complementoDireccionResidencia" placeholder=" " required>
+                    <label for="complementoDireccionResidencia">Complemento</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="app-field select">
+                    <select class="app-select" id="paisResidencia" name="paisResidencia" data-combo="paises" required>
+                        <option value="" selected></option>
+                    </select>
+                    <label for="paisResidencia">País</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="app-field select">
+                    <select class="app-select" id="departamentoResidencia" name="departamentoResidencia"
+                        data-combo="departamentos" data-depende="paisResidencia" data-param="pais" placeholder=" "
+                        required>
+                        <option value="" selected></option>
+                    </select>
+                    <label for="departamentoResidencia">Departamento</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="app-field select">
+                    <select class="app-select" id="ciudadResidencia" name="ciudadResidencia" placeholder=" " required
+                        data-combo="ciudades" data-depende="departamentoResidencia" data-param="dpto">
+                        <option value="" selected></option>
+                    </select>
+                    <label for="ciudadResidencia">Ciudad</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="app-field select">
+                    <select class="app-select" id="tipoZonaResidencia" name="tipoZonaResidencia" required>
+                        <option value="" selected></option>
+                        <option value="R">RURAL</option>
+                        <option value="U">URBANO</option>
+                    </select>
+                    <label for="tipoZonaResidencia">Tipo de zona</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="app-field select">
+                    <select class="app-select" id="zonaResidencia" name="zonaResidencia" data-combo="zona"
+                        data-depende="ciudadResidencia" data-param="ciudad" required>
+                        <option value="" selected></option>
+                    </select>
+                    <label for="zonaResidencia">Zona</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="app-field select">
+                    <select class="app-select" id="comunaResidencia" name="comunaResidencia" placeholder=" "
+                        data-combo="comuna" data-depende="zonaResidencia,ciudadResidencia" data-param="zona,ciudad"
+                        required>
+                        <option value="" selected></option>
+                    </select>
+                    <label for="comunaResidencia">Comuna</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-2">
+                <div class="app-field select">
+                    <select class="app-select" id="barrioResidencia" name="barrioResidencia" data-combo="barrio"
+                        data-depende="comunaResidencia,zonaResidencia,ciudadResidencia" data-param="comuna,zona,ciudad"
+                        required>
+                        <option value="" selected></option>
+                    </select>
+                    <label for="barrioResidencia">Barrio</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-2">
+                <div class="app-field select">
+                    <select class="app-select" id="estratoResidencia" name="estratoResidencia" required>
+                        <option value="" disabled selected hidden></option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                    </select>
+                    <label for="estratoResidencia">Estrato</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="app-field">
+                    <input type="text" class="app-input" id="email" name="email" placeholder=" " required>
+                    <label for="email">Email</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-2">
+                <div class="app-field">
+                    <input type="text" class="app-input" id="telefono" name="telefono" placeholder=" " required>
+                    <label for="telefono">Teléfono</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="app-field">
+                    <input type="text" class="app-input" id="celular" name="celular" placeholder=" " required>
+                    <label for="celular">Celular</label>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

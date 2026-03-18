@@ -1,0 +1,46 @@
+<section class="container-fluid py-3 px-3">
+    <!-- Header -->
+    <header class="row mb-4">
+        <div class="col-12">
+            <div class="primary-header">
+                <h1 class="mb-0">Actualización de datos</h1>
+            </div>
+        </div>
+    </header>
+    <section class="app-tabs">
+        <a href="#" class="app-tab" id="tab-autorizaciones" data-tab="autorizaciones">Autorizaciones</a>
+        <a href="#" class="app-tab" id="tab-datosPersonales" data-tab="datosPersonales">Datos Personales</a>
+        <a href="#" class="app-tab" id="tab-datosLaborales" data-tab="datosLaborales">Datos Laborales</a>
+        <a href="#" class="app-tab" id="tab-otrosDatos" data-tab="otrosDatos">Otros Datos</a>
+        <a href="#" class="app-tab" id="tab-ingresosEgresos" data-tab="ingresosEgresos">Ingresos y Egresos</a>
+        <a href="#" class="app-tab" id="tab-adjuntos" data-tab="adjuntos">Adjuntos</a>
+        <a href="#" class="app-tab" id="tab-referencias" data-tab="referencias">Referencias</a>
+        <a href="#" class="app-tab" id="tab-personasACargo" data-tab="personasACargo">Personas a Cargo</a>
+        <a href="#" class="app-tab" id="tab-conyugue" data-tab="conyugue">Conyugue</a>
+        <a href="#" class="app-tab" id="tab-familiaresPeps" data-tab="familiaresPeps">Familiares Peps</a>
+        <a href="#" class="app-tab" id="tab-otrosDatosAdicionales" data-tab="otrosDatosAdicionales">Otros Datos
+            Adicionales</a>
+        <button class="app-button" id="btnFinalizar" style="width: 100px; height: 40px;">Finalizar
+            Actualización</button>
+    </section>
+
+    <div class="progress mb-3">
+        <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-personalized" role="progressbar"
+            style="width: 9.090909090909092%" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
+
+    <section>
+        <div class="alert alert-warning py-2">
+            La informacion marcada con <strong style="color: #f74a4a;">*</strong> es obligatoria
+        </div>
+    </section>
+    <section class="row mb-3">
+        <div class="col-12" id="tab-content">
+            <div class="app-paper elevation-2 p-4 text-center text-muted">
+                Seleccione una pestaña para comenzar
+            </div>
+        </div>
+    </section>
+
+</section>
+<script src="/javascripts/actualizacionDatos.js"></script>

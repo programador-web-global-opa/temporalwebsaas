@@ -1,0 +1,254 @@
+<div id="otrosDatosAdicionales" class="app-paper elevation-2 p-4">
+
+    <section id="apoderadoAsociado">
+        <div class="secondary-header mb-4 p-2">
+            <h3 class="mb-0">Apoderado del Asociado</h3>
+        </div>
+        <form>
+            <div class="row g-3">
+                <div class="col-12 col-md-4">
+                    <div class="app-field">
+                        <input type="text" class="app-input" id="cedulaApoderado" name="cedulaApoderado" placeholder=" "
+                            required>
+                        <label for="cedulaApoderado">Cedula Apoderado</label>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="app-field">
+                        <input type="text" class="app-input" id="nombreApoderado" name="nombreApoderado" placeholder=" "
+                            required>
+                        <label for="nombreApoderado">Nombre Apoderado</label>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="app-field">
+                        <input type="text" class="app-input" id="profesionApoderado" name="profesionApoderado"
+                            placeholder=" " required>
+                        <label for="profesionApoderado">Profesion Apoderado</label>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="app-field">
+                        <input type="text" class="app-input" id="direccionApoderado" name="direccionApoderado"
+                            placeholder=" " required>
+                        <label for="direccionApoderado">Direccion Apoderado</label>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="app-field">
+                        <input type="text" class="app-input" id="telefonoApoderado" name="telefonoApoderado"
+                            placeholder=" " required>
+                        <label for="telefonoApoderado">Telefono Apoderado</label>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="app-field">
+                        <input type="text" class="app-input" id="movilApoderado" name="movilApoderado" placeholder=" "
+                            required>
+                        <label for="movilApoderado">Movil Apoderado</label>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </section>
+
+    <section id="personaJuridica">
+        <div class="secondary-header mb-4 p-2" style="margin-top: 2rem;">
+            <h3 class="mb-0">Persona Juridica</h3>
+        </div>
+        <form>
+            <div class="row g-3">
+                <div class="col-6 col-md-6">
+                    <div class="app-field select">
+                        <select class="app-select" id="tipoPersonaJuridica" name="tipoPersonaJuridica" required>
+                            <option value="" selected></option>
+                            <option value="1">Personas Juridicas Derecho publico</option>
+                            <option value="2">Personas Juridicas Sector Cooperativo</option>
+                            <option value="3">Personas Juridicas Sin animo de lucro</option>
+                            <option value="4">Unidades Economicas</option>
+                            <option value="5">Otras</option>
+                        </select>
+                        <label for="tipoPersonaJuridica">Tipo Persona Juridica</label>
+                    </div>
+                </div>
+                <div class="col-6 col-md-6">
+                    <div class="app-field select">
+                        <select class="app-select" id="tieneRetencionPersonaJuridica"
+                            name="tieneRetencionPersonaJuridica" required>
+                            <option value="" selected></option>
+                            <option value="1">SI</option>
+                            <option value="2">NO</option>
+                        </select>
+                        <label for="tieneRetencionPersonaJuridica">¿Tiene Retencion?</label>
+                    </div>
+                </div>
+
+            </div>
+        </form>
+    </section>
+
+    <section id="datosRepresentanteLegal">
+        <div class="secondary-header mb-4 p-2" style="margin-top: 2rem;">
+            <h3 class="mb-0">Datos Representante Legal</h3>
+        </div>
+        <form>
+            <div class="row g-3">
+                <div class="col-6 col-md-6">
+                    <div class="app-field">
+                        <input type="text" class="app-input" id="fechaNombramientoRepresentanteLegal"
+                            name="fechaNombramientoRepresentanteLegal" placeholder=" " required>
+                        <label for="fechaNombramientoRepresentanteLegal">Fecha de nombramiento</label>
+                    </div>
+                </div>
+                <div class="col-6 col-md-6">
+                    <div class="app-field">
+                        <input type="text" class="app-input" id="numeroActaNombramientoRepresentanteLegal"
+                            name="numeroActaNombramientoRepresentanteLegal" placeholder=" " required>
+                        <label for="numeroActaNombramientoRepresentanteLegal">Numero de acta de nombramiento</label>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="app-field">
+                        <input type="text" class="app-input" id="numeroCamaraComercio" name="numeroCamaraComercio"
+                            placeholder=" " required>
+                        <label for="numeroCamaraComercio">Numero Camara de Comercio</label>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="app-field select">
+                        <select class="app-select" id="tipoEmpresaRepresentanteLegal"
+                            name="tipoEmpresaRepresentanteLegal" required>
+                            <option value="" selected></option>
+                            <option value="1">Privada</option>
+                            <option value="2">Publica</option>
+                            <option value="3">Mixta</option>
+                            <option value="4">Otra</option>
+                        </select>
+                        <label for="tipoEmpresaRepresentanteLegal">Tipo Empresa Representante Legal</label>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="app-field">
+                        <input type="text" class="app-input" id="detalleEmpresaRepresentanteLegal"
+                            name="detalleEmpresaRepresentanteLegal" placeholder=" " required>
+                        <label for="detalleEmpresaRepresentanteLegal">Detalle Empresa</label>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="app-field">
+                        <input type="text" class="app-input" id="totalActivosRepresentanteLegal"
+                            name="totalActivosRepresentanteLegal" placeholder=" " required>
+                        <label for="totalActivosRepresentanteLegal">Total Activos</label>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="app-field">
+                        <input type="text" class="app-input" id="totalPasivosRepresentanteLegal"
+                            name="totalPasivosRepresentanteLegal" placeholder=" " required>
+                        <label for="totalPasivosRepresentanteLegal">Total Pasivos</label>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="app-field">
+                        <input type="text" class="app-input" id="totalPatrimonioRepresentanteLegal"
+                            name="totalPatrimonioRepresentanteLegal" placeholder=" " required>
+                        <label for="totalPatrimonioRepresentanteLegal">Total Patrimonio</label>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="app-field">
+                        <input type="text" class="app-input" id="cedulaRepresentanteLegal"
+                            name="cedulaRepresentanteLegal" placeholder=" " required>
+                        <label for="cedulaRepresentanteLegal">Cedula</label>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="app-field">
+                        <input type="text" class="app-input" id="nombreRepresentanteLegal"
+                            name="nombreRepresentanteLegal" placeholder=" " required>
+                        <label for="nombreRepresentanteLegal">Nombre</label>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="app-field select">
+                        <select class="app-select" id="profesionRepresentanteLegal" name="profesionRepresentanteLegal"
+                            required>
+                            <option value="" selected></option>
+                            <option value="1">Ejemplo1</option>
+                            <option value="2">Ejemplo2</option>
+                            <option value="3">Ejemplo3</option>
+                            <option value="4">Ejemplo4</option>
+                        </select>
+                        <label for="profesionRepresentanteLegal">Profesion</label>
+                    </div>
+                </div>
+                <div class="col-12 col-md-3">
+                    <div class="app-field">
+                        <input type="text" class="app-input" id="direccionRepresentanteLegal"
+                            name="direccionRepresentanteLegal" placeholder=" " required>
+                        <label for="direccionRepresentanteLegal">Direccion</label>
+                    </div>
+                </div>
+                <div class="col-12 col-md-3">
+                    <div class="app-field select">
+                        <select class="app-select" id="paisRepresentanteLegal" name="paisRepresentanteLegal" required>
+                            <option value="" selected></option>
+                            <option value="1">Ejemplo1</option>
+                            <option value="2">Ejemplo2</option>
+                            <option value="3">Ejemplo3</option>
+                            <option value="4">Ejemplo4</option>
+                        </select>
+                        <label for="paisRepresentanteLegal">Pais</label>
+                    </div>
+                </div>
+                <div class="col-12 col-md-3">
+                    <div class="app-field select">
+                        <select class="app-select" id="departamentoRepresentanteLegal"
+                            name="departamentoRepresentanteLegal" required>
+                            <option value="" selected></option>
+                            <option value="1">Ejemplo1</option>
+                            <option value="2">Ejemplo2</option>
+                            <option value="3">Ejemplo3</option>
+                            <option value="4">Ejemplo4</option>
+                        </select>
+                        <label for="departamentoRepresentanteLegal">Departamento</label>
+                    </div>
+                </div>
+                <div class="col-12 col-md-3">
+                    <div class="app-field select">
+                        <select class="app-select" id="ciudadRepresentanteLegal" name="ciudadRepresentanteLegal"
+                            required>
+                            <option value="" selected></option>
+                            <option value="1">Ejemplo1</option>
+                            <option value="2">Ejemplo2</option>
+                            <option value="3">Ejemplo3</option>
+                            <option value="4">Ejemplo4</option>
+                        </select>
+                        <label for="ciudadRepresentanteLegal">Ciudad</label>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="app-field">
+                        <input type="text" class="app-input" id="telefonoRepresentanteLegal"
+                            name="telefonoRepresentanteLegal" placeholder=" " required>
+                        <label for="telefonoRepresentanteLegal">Telefono</label>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="app-field">
+                        <input type="text" class="app-input" id="indicativoRepresentanteLegal"
+                            name="indicativoRepresentanteLegal" placeholder=" " required>
+                        <label for="indicativoRepresentanteLegal">Indicativo</label>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="app-field">
+                        <input type="text" class="app-input" id="movilRepresentanteLegal" name="movilRepresentanteLegal"
+                            placeholder=" " required>
+                        <label for="movilRepresentanteLegal">Movil</label>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </section>
+</div>

@@ -1,0 +1,259 @@
+<div>
+    <div class="secondary-header mb-4 p-2">
+        <h3 class="mb-0">Referencias</h3>
+    </div>
+    <p class="text-left">
+        <button class="app-button primary" data-bs-toggle="modal" data-bs-target="#modalAgregarReferencia">Agregar
+            Referencia <i class="material-icons">add</i></button>
+    </p>
+
+    <!-- Contenedor de las referencias -->
+    <section class="row mb-3">
+        <div class="col-12">
+            <div class="app-paper elevation-4 p-4">
+                <div id="list-references-new"></div>
+                <div id="list-references-real"></div>
+            </div>
+        </div>
+    </section>
+</div>
+
+
+<!-- Modal para nueva referencia -->
+<div class="modal fade app-modal" id="modalAgregarReferencia" tabindex="-1" aria-hidden="true" data-bs-backdrop="static"
+    data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-xl modal-dialog-centered">
+        <div class="modal-content app-modal__content">
+            <div class="app-modal__header">
+                <h5 class="app-modal__title">Referencia</h5>
+                <button type="button" class="app-modal__close" id="cerrarModalAgregarReferencia" data-bs-dismiss="modal"
+                    aria-label="Cerrar">×</button>
+            </div>
+            <form id="formAgregarReferencia">
+                <div class="app-modal__body" id="mensajeModalAgregarReferencia">
+                    <div class="row g-3">
+                        <div class="col-4 col-md-3">
+                            <div class="app-field select">
+                                <select class="app-select" id="tipoReferencia" required>
+                                    <option value="" selected></option>
+                                    <option value="BANCARIA">BANCARIA</option>
+                                    <option value="PERSONAL">PERSONAL</option>
+                                    <option value="FAMILIAR">FAMILIAR</option>
+                                    <option value="LABORAL">LABORAL</option>
+                                    <option value="OTRO">OTRO</option>
+                                </select>
+                                <label for="tipoReferencia">Tipo de Referencia</label>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-3">
+                            <div class="app-field">
+                                <input type="text" class="app-input" id="cedulaReferencia" placeholder=" " required>
+                                <label for="cedulaReferencia">Cedula</label>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="app-field">
+                                <input type="text" class="app-input" id="nombresReferencia" placeholder=" " required>
+                                <label for="nombresReferencia">Nombres Completos</label>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <div class="app-field select">
+                                <select class="app-select" id="parentescoReferencia" required>
+                                    <option value="" selected></option>
+                                    <option value="FAMILIAR">FAMILIAR</option>
+                                    <option value="AMISTAD">AMISTAD</option>
+                                    <option value="COMPAÑERO">COMPAÑERO</option>
+                                    <option value="CONOCIDO">CONOCIDO</option>
+                                    <option value="VECINO">VECINO</option>
+                                    <option value="OTRO">OTRO</option>
+                                </select>
+                                <label for="parentescoReferencia">Parentesco</label>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <div class="app-field select">
+                                <select class="app-select" id="paisReferencia" required>
+                                    <option value="" selected></option>
+                                    <option value="EJEMPLO1">EJEMPLO1</option>
+                                    <option value="EJEMPLO2">EJEMPLO2</option>
+                                    <option value="EJEMPLO3">EJEMPLO3</option>
+                                    <option value="EJEMPLO4">EJEMPLO4</option>
+                                    <option value="EJEMPLO5">EJEMPLO5</option>
+                                    <option value="EJEMPLO6">EJEMPLO6</option>
+                                </select>
+                                <label for="paisReferencia">Pais</label>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <div class="app-field select">
+                                <select class="app-select" id="departamentoReferencia" required>
+                                    <option value="" selected></option>
+                                    <option value="EJEMPLO1">EJEMPLO1</option>
+                                    <option value="EJEMPLO2">EJEMPLO2</option>
+                                    <option value="EJEMPLO3">EJEMPLO3</option>
+                                    <option value="EJEMPLO4">EJEMPLO4</option>
+                                    <option value="EJEMPLO5">EJEMPLO5</option>
+                                    <option value="EJEMPLO6">EJEMPLO6</option>
+                                </select>
+                                <label for="departamentoReferencia">Departamento</label>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <div class="app-field select">
+                                <select class="app-select" id="ciudadReferencia" required>
+                                    <option value="" selected></option>
+                                    <option value="EJEMPLO1">EJEMPLO1</option>
+                                    <option value="EJEMPLO2">EJEMPLO2</option>
+                                    <option value="EJEMPLO3">EJEMPLO3</option>
+                                    <option value="EJEMPLO4">EJEMPLO4</option>
+                                    <option value="EJEMPLO5">EJEMPLO5</option>
+                                    <option value="EJEMPLO6">EJEMPLO6</option>
+                                </select>
+                                <label for="ciudadReferencia">Ciudad</label>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <div class="app-field select">
+                                <select class="app-select" id="zonaReferencia" required>
+                                    <option value="" selected></option>
+                                    <option value="EJEMPLO1">EJEMPLO1</option>
+                                    <option value="EJEMPLO2">EJEMPLO2</option>
+                                    <option value="EJEMPLO3">EJEMPLO3</option>
+                                    <option value="EJEMPLO4">EJEMPLO4</option>
+                                    <option value="EJEMPLO5">EJEMPLO5</option>
+                                    <option value="EJEMPLO6">EJEMPLO6</option>
+                                </select>
+                                <label for="zonaReferencia">Zona</label>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <div class="app-field select">
+                                <select class="app-select" id="comunaReferencia" required>
+                                    <option value="" selected></option>
+                                    <option value="EJEMPLO1">EJEMPLO1</option>
+                                    <option value="EJEMPLO2">EJEMPLO2</option>
+                                    <option value="EJEMPLO3">EJEMPLO3</option>
+                                    <option value="EJEMPLO4">EJEMPLO4</option>
+                                    <option value="EJEMPLO5">EJEMPLO5</option>
+                                    <option value="EJEMPLO6">EJEMPLO6</option>
+                                </select>
+                                <label for="comunaReferencia">Comuna</label>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <div class="app-field select">
+                                <select class="app-select" id="barrioReferencia" required>
+                                    <option value="" selected></option>
+                                    <option value="EJEMPLO1">EJEMPLO1</option>
+                                    <option value="EJEMPLO2">EJEMPLO2</option>
+                                    <option value="EJEMPLO3">EJEMPLO3</option>
+                                    <option value="EJEMPLO4">EJEMPLO4</option>
+                                    <option value="EJEMPLO5">EJEMPLO5</option>
+                                    <option value="EJEMPLO6">EJEMPLO6</option>
+                                </select>
+                                <label for="barrioReferencia">Barrio</label>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="app-field">
+                                <input type="text" class="app-input" id="direccionReferencia" placeholder=" ">
+                                <label for="direccionReferencia">Direccion</label>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <div class="app-field">
+                                <input type="text" class="app-input" id="telefonoReferencia" placeholder=" ">
+                                <label for="telefonoReferencia">Telefono</label>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <div class="app-field">
+                                <input type="text" class="app-input" id="celularReferencia" placeholder=" ">
+                                <label for="celularReferencia">Celular</label>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <div class="app-field">
+                                <input type="text" class="app-input" id="trabajaEnReferencia" placeholder=" ">
+                                <label for="trabajaEnReferencia">Trabaja en</label>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <div class="app-field">
+                                <input type="text" class="app-input" id="telefonoOficinaReferencia" placeholder=" ">
+                                <label for="telefonoOficinaReferencia">Telefono Oficina</label>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="app-modal__footer">
+                    <button type="submit" class="app-button btn-confirmar" data-default-text="Agregar Referencia">
+                        Agregar referencia
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- agrega modal para editar referencias de base de datos -->
+<div class="modal fade app-modal" id="modalEditarReferenciaReal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-xl modal-dialog-centered">
+        <div class="modal-content app-modal__content">
+            <div class="app-modal__header">
+                <h5 class="app-modal__title">Editar Referencia</h5>
+                <button type="button" class="app-modal__close" data-bs-dismiss="modal" aria-label="Cerrar">×</button>
+            </div>
+            <div class="app-modal__body" id="mensajeModalEditarReferenciaReal"></div>
+            <div class="app-modal__footer">
+                <button type="button" class="app-button btn-confirmar" id="btnAceptarEditarReferenciaReal">
+                    Aceptar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- agrega modal para editar referencias -->
+<div class="modal fade app-modal" id="modalEditarReferencia" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-xl modal-dialog-centered">
+        <div class="modal-content app-modal__content">
+            <div class="app-modal__header">
+                <h5 class="app-modal__title">Editar Referencia</h5>
+                <button type="button" class="app-modal__close" data-bs-dismiss="modal" aria-label="Cerrar">×</button>
+            </div>
+            <div class="app-modal__body" id="mensajeModalEditarReferencia"></div>
+            <div class="app-modal__footer">
+                <button type="button" class="app-button btn-confirmar" id="btnAceptarEditarReferencia">
+                    Aceptar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- agrega modal para eliminar referencias -->
+<div class="modal fade app-modal" id="modalEliminarReferencia" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-lg modal-dialog-centered">
+        <div class="modal-content app-modal__content">
+
+            <div class="app-modal__header">
+                <h5 class="app-modal__title">Eliminar Referencia</h5>
+                <button type="button" class="app-modal__close" data-bs-dismiss="modal" aria-label="Cerrar">×</button>
+            </div>
+            <div class="app-modal__body" id="mensajeModalEliminarReferencia"></div>
+            <div class="app-modal__footer">
+                <button type="button" class="app-button btn-cancelar" data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+                <button type="button" class="app-button btn-confirmar" id="btnAceptarEliminarReferencia">
+                    Aceptar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

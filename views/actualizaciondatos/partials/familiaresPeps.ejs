@@ -1,0 +1,169 @@
+<div>
+    <div class=" secondary-header mb-4 p-2">
+        <h3 class="mb-0">Familiares Pep's</h3>
+    </div>
+
+    <div class="alert app-info" role="alert">
+        <p class="text-center"><strong>Nota:</strong> "Usted es una persona expuesta políticamente y de acuerdo al
+            decreto 830 del 26 de julio de 2021, las Personas Expuestas Políticamente deberán, declarar los nombres e
+            identificación de las personas con las que tengan sociedad conyugal, de hecho, o de derecho, los nombres e
+            identificación de sus familiares hasta segundo grado de consanguinidad"</p>
+    </div>
+
+    <p class="text-left">
+        <button class="app-button primary" data-bs-toggle="modal" data-bs-target="#modalAgregarFamiliarPeps">Agregar
+            Familiares Pep's <i class="material-icons">add</i></button>
+    </p>
+
+    <!-- Contenedor de los familiares -->
+    <section class="row mb-3">
+        <div class="col-12">
+            <div class="app-paper elevation-4 p-4">
+
+                <div id="list-familiar-peps-new"></div>
+                <div id="list-familiar-peps-real"></div>
+            </div>
+        </div>
+    </section>
+</div>
+
+
+<!-- Modal para nuevo familiar peps -->
+<div class="modal fade app-modal" id="modalAgregarFamiliarPeps" tabindex="-1" aria-hidden="true"
+    data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-xl modal-dialog-centered">
+        <div class="modal-content app-modal__content">
+            <div class="app-modal__header">
+                <h5 class="app-modal__title">Familiar Pep's</h5>
+                <button type="button" class="app-modal__close" data-bs-dismiss="modal" aria-label="Cerrar"
+                    id="cerrarModalAgregarFamiliarPeps">×</button>
+            </div>
+            <form id="formAgregarFamiliarPeps">
+                <div class="app-modal__body" id="mensajeModalFamiliarPeps">
+                    <div class="row g-3">
+                        <div class="col-12 col-md-4">
+                            <div class="app-field select">
+                                <select class="app-select" id="tipoDocumentoFamiliarPeps" required>
+                                    <option value="" selected></option>
+                                    <option value="CC">CC</option>
+                                    <option value="CE">CE</option>
+                                    <option value="RUT">RUT</option>
+                                    <option value="PA">PA</option>
+                                </select>
+                                <label for="tipoDocumentoFamiliarPeps">Tipo de Documento</label>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <div class="app-field">
+                                <input type="text" class="app-input" id="numeroDocumentoFamiliarPeps" placeholder=" "
+                                    required>
+                                <label for="numeroDocumentoFamiliarPeps">Número de Documento</label>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <div class="app-field select">
+                                <select class="app-select" id="parentescoFamiliarPeps" required>
+                                    <option value="" selected></option>
+                                    <option value="CONYUGUE">CONYUGUE</option>
+                                    <option value="HIJO">HIJO</option>
+                                    <option value="PADRE">PADRE</option>
+                                    <option value="MADRE">MADRE</option>
+                                    <option value="HERMANO">HERMANO</option>
+                                    <option value="HERMANA">HERMANA</option>
+                                    <option value="OTRO">OTRO</option>
+                                </select>
+                                <label for="parentescoFamiliarPeps">Parentesco</label>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <div class="app-field">
+                                <input type="text" class="app-input" id="primerNombreFamiliarPeps" placeholder=" "
+                                    required>
+                                <label for="primerNombreFamiliarPeps">Primer Nombre</label>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <div class="app-field">
+                                <input type="text" class="app-input" id="segundoNombreFamiliarPeps" placeholder=" ">
+                                <label for="segundoNombreFamiliarPeps">Segundo Nombre</label>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <div class="app-field">
+                                <input type="text" class="app-input" id="primerApellidoFamiliarPeps" placeholder=" "
+                                    required>
+                                <label for="primerApellidoFamiliarPeps">Primer Apellido</label>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <div class="app-field">
+                                <input type="text" class="app-input" id="segundoApellidoFamiliarPeps" placeholder=" ">
+                                <label for="segundoApellidoFamiliarPeps">Segundo Apellido</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="app-modal__footer">
+                    <button type="submit" class="app-button btn-confirmar" data-default-text="Agregar Familiar Peps">
+                        Agregar Familiar Peps
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- agrega modal para editar referencias de base de datos -->
+<div class="modal fade app-modal" id="modalEditarReferenciaReal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-xl modal-dialog-centered">
+        <div class="modal-content app-modal__content">
+            <div class="app-modal__header">
+                <h5 class="app-modal__title">Editar Familiar Pep's</h5>
+                <button type="button" class="app-modal__close" data-bs-dismiss="modal" aria-label="Cerrar">×</button>
+            </div>
+            <div class="app-modal__body" id="mensajeModalInformativo"></div>
+            <div class="app-modal__footer">
+                <button type="button" class="app-button btn-confirmar" id="btnAgregarFamiliarPeps">
+                    Agregar familiar pep
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- agrega modal para editar referencias -->
+<div class="modal fade app-modal" id="modalEditarReferencia" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-xl modal-dialog-centered">
+        <div class="modal-content app-modal__content">
+            <div class="app-modal__header">
+                <h5 class="app-modal__title">Editar Familiar Pep's</h5>
+                <button type="button" class="app-modal__close" data-bs-dismiss="modal" aria-label="Cerrar">×</button>
+            </div>
+            <div class="app-modal__body" id="mensajeModalInformativo"></div>
+            <div class="app-modal__footer">
+                <button type="button" class="app-button btn-confirmar" id="btnAceptar">
+                    Aceptar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- agrega modal para eliminar familiar peps -->
+<div class="modal fade app-modal" id="modalEliminarFamiliarPeps" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-lg modal-dialog-centered">
+        <div class="modal-content app-modal__content">
+
+            <div class="app-modal__header">
+                <h5 class="app-modal__title">Eliminar Familiar Pep's</h5>
+                <button type="button" class="app-modal__close" data-bs-dismiss="modal" aria-label="Cerrar">×</button>
+            </div>
+            <div class="app-modal__body" id="mensajeModalEliminarFamiliarPeps"></div>
+            <div class="app-modal__footer">
+                <button type="button" class="app-button btn-confirmar" id="btnAceptarEliminarFamiliarPeps">
+                    Aceptar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

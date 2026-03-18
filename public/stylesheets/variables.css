@@ -1,0 +1,92 @@
+:root {
+
+  /* COLORS */
+
+  --primary-main: #1c6bff;
+  --primary-light: #85A3FF;
+  --primary-light-2: #E6F0FF;
+  --primary-light-3: #3366FF1F;
+  --primary-dark: #254EDB;
+
+  --button-shadow: rgba(9, 83, 83, 0.24);
+
+  --info-dark: #2563EB;
+  --info-main: #3B82F6;
+  --info-light: #93C5FD;
+  --info-fade: rgba(59, 130, 246, 0.12);
+
+
+  --success-main: #54D62C;
+  --warning-main: #eec84b;
+  --error-main: #FF4842;
+
+  --success-dark: #54D62C;
+  --warning-dark: #f0bc23;
+  --error-dark: #e22b25;
+
+
+  --grey-0: #FFFFFF;
+  --grey-100: #F9FAFB;
+  --grey-200: #F4F6F8;
+  --grey-300: #DFE3E8;
+  --grey-400: #C4CDD5;
+  --grey-500: #919EAB;
+  --grey-600: #637381;
+  --grey-700: #454F5B;
+  --grey-800: #212B36;
+  --grey-900: #161C24;
+
+  --text-primary: var(--grey-800);
+  --text-secondary: var(--grey-600);
+  --text-disabled: var(--grey-500);
+
+  --bg-default: #ffffff;
+  --bg-paper: #ffffffe0;
+  --bg-neutral: var(--grey-200);
+
+
+  /*ACTION STATES*/
+
+  --hover-opacity: 0.08;
+  --selected-opacity: 0.16;
+  --disabled-opacity: 0.48;
+
+  /*BORDER RADIUS */
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+
+  /*SHADOWS*/
+
+  --shadow-z0: none;
+  --shadow-z1: 0 1px 2px rgba(0, 0, 0, 0.12);
+  --shadow-z2: 0 2px 4px rgba(0, 0, 0, 0.14);
+  --shadow-z4: 0 4px 8px rgba(0, 0, 0, 0.16);
+  --shadow-z8: 0 8px 16px rgba(0, 0, 0, 0.18);
+  --shadow-z12: 0 12px 24px rgba(0, 0, 0, 0.20);
+  --shadow-z16: 0 16px 32px rgba(0, 0, 0, 0.22);
+  --shadow-z24: 0 24px 48px rgba(0, 0, 0, 0.24);
+}
+
+/* DARK MODE - Automático según preferencia del navegador/SO */
+/* @media (prefers-color-scheme: dark) {
+  :root {
+    --text-primary: var(--grey-100);
+    --text-secondary: var(--grey-400);
+    --text-disabled: var(--grey-500);
+    --bg-default: #121212;
+    --bg-paper: #1e1e1e;
+    --bg-neutral: var(--grey-800);
+  }
+} */
+
+/* Dark mode MANUAL  */
+/* [data-theme="dark"] {
+  --text-primary: var(--grey-100);
+  --text-secondary: var(--grey-400);
+  --text-disabled: var(--grey-500);
+  --bg-default: #121212;
+  --bg-paper: #1e1e1e;
+  --bg-neutral: var(--grey-800);
+} */

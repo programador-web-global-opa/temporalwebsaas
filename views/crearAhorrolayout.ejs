@@ -1,0 +1,124 @@
+<section class="container-fluid py-3 px-3">
+
+  <!-- Título -->
+  <header class="row mb-4">
+    <div class="col-12">
+      <div class="primary-header">
+        <h2 class="mb-0">Ahorros: creación de ficha</h2>
+      </div>
+    </div>
+  </header>
+
+  <!-- Descripción -->
+  <section class="row mb-4" aria-labelledby="descripcion-ahorro">
+    <div class="col-12">
+      <p id="descripcion-ahorro" class="fw-bold"></p>
+      <ul>
+        <li>
+          Este módulo te permitirá crear <strong>ahorros a la vista</strong> y
+          <strong>ahorros contractuales</strong>, seleccionando la línea de ahorros
+          que desea crear e ingresando la cuota mensual a pagar.
+        </li>
+        <li>
+          Es importante tener en cuenta que los ahorros solo se mostrarán en el
+          estado de cuentas cuando se haga el primer abono.
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Mensajes -->
+  <section class="row mb-3">
+    <div class="col-12">
+      <div
+        id="mensaje"
+        class="alert d-none text-center"
+        role="alert"
+        aria-live="polite">
+      </div>
+    </div>
+  </section>
+
+  <!-- Formulario -->
+  <section class="row justify-content-center">
+    <div class="col-md-5 col-lg-4">
+      <div class="app-paper elevation-4 p-4">
+
+        <form id="formAhorro" novalidate>
+
+          <div class="mb-3 app-field select">
+            <select
+              class="app-select"
+              id="lineaAhorro"
+              name="lineaAhorro"
+              required>
+              <option value="" selected></option>
+            </select>
+            <label for="lineaAhorro">Línea de Ahorro</label>
+          </div>
+
+          <div class="mb-4 app-field">
+            <input
+              type="text"
+              class="app-input"
+              id="cuota"
+              name="cuota"
+              placeholder=" "
+              required>
+            <label for="cuota">Cuota (mensual)</label>
+          </div>
+
+          <button type="submit" class="app-button w-100">
+            Crear Ahorro
+          </button>
+
+        </form>
+
+         <!-- modal -->
+          <div class="modal fade app-modal" id="modalConfirmarAhorro" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content app-modal__content">
+
+                <div class="app-modal__header">
+                  <h5 class="app-modal__title">Confirmar creación</h5>
+                  <button
+                    type="button"
+                    class="app-modal__close"
+                    data-bs-dismiss="modal">
+                    ×
+                  </button>
+                </div>
+
+                <div class="app-modal__body">
+                  ¿Está seguro que desea crear el ahorro?
+                </div>
+
+                <div class="app-modal__footer">
+                  <button
+                    type="button"
+                    class="app-button"
+                    data-bs-dismiss="modal">
+                    Cancelar
+                  </button>
+
+                  <button
+                    type="button"
+                    class="app-button"
+                    id="btnConfirmarAhorro">
+                    Confirmar
+                  </button>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+      </div>
+    </div>
+  </section>
+
+</section>
+
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="/javascripts/crearAhorro.js"></script>
