@@ -9,13 +9,15 @@
                 <div class="app-field select">
                     <select class="app-select" id="tipoDocumento" name="tipoDocumento" required>
                         <option value="" disabled selected hidden></option>
-                        <option value="CC">Cédula de Ciudadanía</option>
-                        <option value="TI">Tarjeta de Identidad</option>
-                        <option value="CE">Cédula de Extranjería</option>
-                        <option value="PAS">Pasaporte</option>
-                        <option value="NIT">NIT</option>
-                        <option value="RC">Registro Civil</option>
-                        <option value="MS">Menor de Edad Sin Identificación</option>
+                        <option value="C">CEDULA CIUDADANIA</option>
+                        <option value="N">NIT</option>
+                        <option value="P">PASAPORTE</option>
+                        <option value="E">CEDULA EXTRANJERIA</option>
+                        <option value="R">REGISTRO CIVIL</option>
+                        <option value="T">TARJETA DE IDENTIDAD</option>
+                        <option value="U">NRO UNICO IDENT. PERSONAL</option>
+                        <option value="O">OTRO</option>
+                        <option value="H">RUT</option>
                     </select>
                     <label for="tipoDocumento">Tipo de Documento</label>
                 </div>
@@ -206,7 +208,8 @@
             <div class="col-12 col-md-3">
                 <div class="app-field select">
                     <select class="app-select" id="ciudadResidencia" name="ciudadResidencia" placeholder=" " required
-                        data-combo="ciudades" data-depende="departamentoResidencia" data-param="dpto">
+                        data-combo="ciudades" data-depende="departamentoResidencia,paisResidencia"
+                        data-param="dpto,pais">
                         <option value="" selected></option>
                     </select>
                     <label for="ciudadResidencia">Ciudad</label>

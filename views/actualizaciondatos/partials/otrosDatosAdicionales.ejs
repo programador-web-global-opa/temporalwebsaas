@@ -62,11 +62,14 @@
                     <div class="app-field select">
                         <select class="app-select" id="tipoPersonaJuridica" name="tipoPersonaJuridica" required>
                             <option value="" selected></option>
-                            <option value="1">Personas Juridicas Derecho publico</option>
-                            <option value="2">Personas Juridicas Sector Cooperativo</option>
-                            <option value="3">Personas Juridicas Sin animo de lucro</option>
-                            <option value="4">Unidades Economicas</option>
-                            <option value="5">Otras</option>
+                            <option value="Personas Juridicas Derecho publico">Personas Juridicas Derecho publico
+                            </option>
+                            <option value="Personas Juridicas Sector Cooperativo">Personas Juridicas Sector Cooperativo
+                            </option>
+                            <option value="Personas Juridicas Sin animo de lucro">Personas Juridicas Sin animo de lucro
+                            </option>
+                            <option value="Unidades Economicas">Unidades Economicas </option>
+                            <option value="Otras">Otras </option>
                         </select>
                         <label for="tipoPersonaJuridica">Tipo Persona Juridica</label>
                     </div>
@@ -76,8 +79,8 @@
                         <select class="app-select" id="tieneRetencionPersonaJuridica"
                             name="tieneRetencionPersonaJuridica" required>
                             <option value="" selected></option>
-                            <option value="1">SI</option>
-                            <option value="2">NO</option>
+                            <option value="S">SI</option>
+                            <option value="N">NO</option>
                         </select>
                         <label for="tieneRetencionPersonaJuridica">¿Tiene Retencion?</label>
                     </div>
@@ -119,10 +122,10 @@
                         <select class="app-select" id="tipoEmpresaRepresentanteLegal"
                             name="tipoEmpresaRepresentanteLegal" required>
                             <option value="" selected></option>
-                            <option value="1">Privada</option>
-                            <option value="2">Publica</option>
-                            <option value="3">Mixta</option>
-                            <option value="4">Otra</option>
+                            <option value="P">PRIVADA</option>
+                            <option value="U">PÚBLICA</option>
+                            <option value="M">MIXTA</option>
+                            <option value="O">OTRA</option>
                         </select>
                         <label for="tipoEmpresaRepresentanteLegal">Tipo Empresa Representante Legal</label>
                     </div>
@@ -172,12 +175,8 @@
                 <div class="col-12 col-md-4">
                     <div class="app-field select">
                         <select class="app-select" id="profesionRepresentanteLegal" name="profesionRepresentanteLegal"
-                            required>
+                            data-combo="profesiones" required>
                             <option value="" selected></option>
-                            <option value="1">Ejemplo1</option>
-                            <option value="2">Ejemplo2</option>
-                            <option value="3">Ejemplo3</option>
-                            <option value="4">Ejemplo4</option>
                         </select>
                         <label for="profesionRepresentanteLegal">Profesion</label>
                     </div>
@@ -191,12 +190,9 @@
                 </div>
                 <div class="col-12 col-md-3">
                     <div class="app-field select">
-                        <select class="app-select" id="paisRepresentanteLegal" name="paisRepresentanteLegal" required>
+                        <select class="app-select" id="paisRepresentanteLegal" name="paisRepresentanteLegal"
+                            data-combo="paises" required>
                             <option value="" selected></option>
-                            <option value="1">Ejemplo1</option>
-                            <option value="2">Ejemplo2</option>
-                            <option value="3">Ejemplo3</option>
-                            <option value="4">Ejemplo4</option>
                         </select>
                         <label for="paisRepresentanteLegal">Pais</label>
                     </div>
@@ -204,12 +200,9 @@
                 <div class="col-12 col-md-3">
                     <div class="app-field select">
                         <select class="app-select" id="departamentoRepresentanteLegal"
-                            name="departamentoRepresentanteLegal" required>
+                            name="departamentoRepresentanteLegal" data-combo="departamentos"
+                            data-depende="paisRepresentanteLegal" data-param="pais" required>
                             <option value="" selected></option>
-                            <option value="1">Ejemplo1</option>
-                            <option value="2">Ejemplo2</option>
-                            <option value="3">Ejemplo3</option>
-                            <option value="4">Ejemplo4</option>
                         </select>
                         <label for="departamentoRepresentanteLegal">Departamento</label>
                     </div>
@@ -217,12 +210,9 @@
                 <div class="col-12 col-md-3">
                     <div class="app-field select">
                         <select class="app-select" id="ciudadRepresentanteLegal" name="ciudadRepresentanteLegal"
+                            data-combo="ciudades" data-depende="departamentoRepresentanteLegal" data-param="dpto"
                             required>
                             <option value="" selected></option>
-                            <option value="1">Ejemplo1</option>
-                            <option value="2">Ejemplo2</option>
-                            <option value="3">Ejemplo3</option>
-                            <option value="4">Ejemplo4</option>
                         </select>
                         <label for="ciudadRepresentanteLegal">Ciudad</label>
                     </div>

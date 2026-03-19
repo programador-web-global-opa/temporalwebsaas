@@ -34,13 +34,8 @@
                     <div class="row g-3">
                         <div class="col-4 col-md-3">
                             <div class="app-field select">
-                                <select class="app-select" id="tipoReferencia" required>
+                                <select class="app-select" id="tipoReferencia" data-combo="tiporeferencia" required>
                                     <option value="" selected></option>
-                                    <option value="BANCARIA">BANCARIA</option>
-                                    <option value="PERSONAL">PERSONAL</option>
-                                    <option value="FAMILIAR">FAMILIAR</option>
-                                    <option value="LABORAL">LABORAL</option>
-                                    <option value="OTRO">OTRO</option>
                                 </select>
                                 <label for="tipoReferencia">Tipo de Referencia</label>
                             </div>
@@ -62,96 +57,69 @@
                             <div class="app-field select">
                                 <select class="app-select" id="parentescoReferencia" required>
                                     <option value="" selected></option>
-                                    <option value="FAMILIAR">FAMILIAR</option>
-                                    <option value="AMISTAD">AMISTAD</option>
-                                    <option value="COMPAÑERO">COMPAÑERO</option>
-                                    <option value="CONOCIDO">CONOCIDO</option>
-                                    <option value="VECINO">VECINO</option>
-                                    <option value="OTRO">OTRO</option>
+                                    <option value="C">CONYUGUE</option>
+                                    <option value="H">HIJO</option>
+                                    <option value="P">PADRE</option>
+                                    <option value="E">HERMANO</option>
+                                    <option value="A">ABUELO</option>
+                                    <option value="T">TIO</option>
+                                    <option value="S">SOBRINO</option>
+                                    <option value="I">PRIMO</option>
+                                    <option value="O">OTRO</option>
                                 </select>
                                 <label for="parentescoReferencia">Parentesco</label>
                             </div>
                         </div>
                         <div class="col-12 col-md-3">
                             <div class="app-field select">
-                                <select class="app-select" id="paisReferencia" required>
+                                <select class="app-select" id="paisReferencia" data-combo="paises" required>
                                     <option value="" selected></option>
-                                    <option value="EJEMPLO1">EJEMPLO1</option>
-                                    <option value="EJEMPLO2">EJEMPLO2</option>
-                                    <option value="EJEMPLO3">EJEMPLO3</option>
-                                    <option value="EJEMPLO4">EJEMPLO4</option>
-                                    <option value="EJEMPLO5">EJEMPLO5</option>
-                                    <option value="EJEMPLO6">EJEMPLO6</option>
                                 </select>
                                 <label for="paisReferencia">Pais</label>
                             </div>
                         </div>
                         <div class="col-12 col-md-3">
                             <div class="app-field select">
-                                <select class="app-select" id="departamentoReferencia" required>
+                                <select class="app-select" id="departamentoReferencia" data-combo="departamentos"
+                                    data-depende="paisReferencia" data-param="pais" required>
                                     <option value="" selected></option>
-                                    <option value="EJEMPLO1">EJEMPLO1</option>
-                                    <option value="EJEMPLO2">EJEMPLO2</option>
-                                    <option value="EJEMPLO3">EJEMPLO3</option>
-                                    <option value="EJEMPLO4">EJEMPLO4</option>
-                                    <option value="EJEMPLO5">EJEMPLO5</option>
-                                    <option value="EJEMPLO6">EJEMPLO6</option>
                                 </select>
                                 <label for="departamentoReferencia">Departamento</label>
                             </div>
                         </div>
                         <div class="col-12 col-md-3">
                             <div class="app-field select">
-                                <select class="app-select" id="ciudadReferencia" required>
+                                <select class="app-select" id="ciudadReferencia" data-combo="ciudades"
+                                    data-depende="departamentoReferencia" data-param="dpto" required>
                                     <option value="" selected></option>
-                                    <option value="EJEMPLO1">EJEMPLO1</option>
-                                    <option value="EJEMPLO2">EJEMPLO2</option>
-                                    <option value="EJEMPLO3">EJEMPLO3</option>
-                                    <option value="EJEMPLO4">EJEMPLO4</option>
-                                    <option value="EJEMPLO5">EJEMPLO5</option>
-                                    <option value="EJEMPLO6">EJEMPLO6</option>
                                 </select>
                                 <label for="ciudadReferencia">Ciudad</label>
                             </div>
                         </div>
                         <div class="col-12 col-md-4">
                             <div class="app-field select">
-                                <select class="app-select" id="zonaReferencia" required>
+                                <select class="app-select" id="zonaReferencia" data-combo="zona"
+                                    data-depende="ciudadReferencia" data-param="ciudad" required>
                                     <option value="" selected></option>
-                                    <option value="EJEMPLO1">EJEMPLO1</option>
-                                    <option value="EJEMPLO2">EJEMPLO2</option>
-                                    <option value="EJEMPLO3">EJEMPLO3</option>
-                                    <option value="EJEMPLO4">EJEMPLO4</option>
-                                    <option value="EJEMPLO5">EJEMPLO5</option>
-                                    <option value="EJEMPLO6">EJEMPLO6</option>
                                 </select>
                                 <label for="zonaReferencia">Zona</label>
                             </div>
                         </div>
                         <div class="col-12 col-md-4">
                             <div class="app-field select">
-                                <select class="app-select" id="comunaReferencia" required>
+                                <select class="app-select" id="comunaReferencia" data-combo="comuna"
+                                    data-depende="zonaReferencia,ciudadReferencia" data-param="zona,ciudad" required>
                                     <option value="" selected></option>
-                                    <option value="EJEMPLO1">EJEMPLO1</option>
-                                    <option value="EJEMPLO2">EJEMPLO2</option>
-                                    <option value="EJEMPLO3">EJEMPLO3</option>
-                                    <option value="EJEMPLO4">EJEMPLO4</option>
-                                    <option value="EJEMPLO5">EJEMPLO5</option>
-                                    <option value="EJEMPLO6">EJEMPLO6</option>
                                 </select>
                                 <label for="comunaReferencia">Comuna</label>
                             </div>
                         </div>
                         <div class="col-12 col-md-4">
                             <div class="app-field select">
-                                <select class="app-select" id="barrioReferencia" required>
+                                <select class="app-select" id="barrioReferencia" data-combo="barrio"
+                                    data-depende="comunaReferencia,zonaReferencia,ciudadReferencia"
+                                    data-param="comuna,zona,ciudad" required>
                                     <option value="" selected></option>
-                                    <option value="EJEMPLO1">EJEMPLO1</option>
-                                    <option value="EJEMPLO2">EJEMPLO2</option>
-                                    <option value="EJEMPLO3">EJEMPLO3</option>
-                                    <option value="EJEMPLO4">EJEMPLO4</option>
-                                    <option value="EJEMPLO5">EJEMPLO5</option>
-                                    <option value="EJEMPLO6">EJEMPLO6</option>
                                 </select>
                                 <label for="barrioReferencia">Barrio</label>
                             </div>

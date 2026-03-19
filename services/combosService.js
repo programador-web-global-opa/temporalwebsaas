@@ -1,90 +1,53 @@
+const configCombos = {
+    paises: { tabla: "pais" },
+    departamentos: { tabla: "departamentos", condicion: ["pais"] },
+    ciudades: { tabla: "ciudad", condicion: ["dpto"] },
+    ciiu: { tabla: "ciiu" },
+    nacionalidad: { tabla: "nacionalidad" },
+    abreviaturadir: { tabla: "abreviaturasdirecciones" },
+    zona: { tabla: "zona", condicion: ["ciudad"] },
+    comuna: { tabla: "comunas", condicion: ["zona", "ciudad"] },
+    barrio: { tabla: "barrios", condicion: ["comuna", "zona", "ciudad"] },
+    empresatrabajo: { tabla: "empresatrabajo" },
+    profesiones: { tabla: "profesiones" },
+    dependencia: { tabla: "dependenciasempresas", condicion: ["empresa"] },
+    tipocontrato: { tabla: "tipocontrato" },
+    pagaduria: { tabla: "empresas" },
+    estudios: { tabla: "niveleducativo" },
+    bancos: { tabla: "cuentasbancos" },
+    tipovivienda: { tabla: "tipovivienda" },
+    paisesmonedaextranjera: { tabla: "paismonedaextranjera" },
+    ciudadesmonedaextranjera: { tabla: "ciudadmonedaextranjera", condicion: ["pais"] },
+    tipopep: { tabla: "tipopeps" },
+    tiporeferencia: { tabla: "referencia" }
+};
+
 exports.obtenerCombo = async (params) => {
 
-    const { tipo, pais, dpto, ciudad, zona, comuna, empresa } = params;
+    const { tipo } = params;
 
-    let tabla;
-    let condicion = "";
+    const config = configCombos[tipo];
 
-    switch (tipo) {
+    if (!config) return [];
 
-        case "paises":
-            tabla = "pais";
-            break;
+    const tabla = config.tabla ?? "";
+    const condicion = config.condicion ? config.condicion.map(condicion => params[condicion]).join("|") : "";
 
-        case "departamentos":
-            tabla = "departamentos";
-            condicion = pais;
-            break;
-
-        case "ciudades":
-            tabla = "ciudad";
-            condicion = dpto;
-            break;
-        case "ciiu":
-            tabla = "ciiu";
-            break;
-        case "nacionalidad":
-            tabla = "nacionalidad";
-            break;
-        case "abreviaturadir":
-            tabla = "abreviaturasdirecciones";
-            break;
-        case "zona":
-            tabla = "zona";
-            condicion = ciudad;
-            break;
-        case "comuna":
-            tabla = "comunas";
-            condicion = zona + "|" + ciudad;
-            break;
-        case "barrio":
-            tabla = "barrios";
-            condicion = comuna + "|" + zona + "|" + ciudad;
-            break;
-        case "empresatrabajo":
-            tabla = "empresatrabajo";
-            break;
-        case "profesiones":
-            tabla = "profesiones";
-            break;
-        case "dependencia":
-            tabla = "dependenciasempresas";
-            condicion = empresa;
-            break;
-        case "tipocontrato":
-            tabla = "tipocontrato";
-            break;
-        case "pagaduria":
-            tabla = "empresas";
-            break;
-        case "estudios":
-            tabla = "niveleducativo";
-            break;
-        case "profesiones":
-            tabla = "profesiones";
-            break;
-        case "bancos":
-            tabla = "cuentasbancos";
-            break;
-        case "tipovivienda":
-            tabla = "tipovivienda";
-            break;
-        default:
-            return [];
-    }
     const form = new URLSearchParams();
     form.append("tabla", tabla);
     form.append("condicion", condicion);
 
-    const response = await fetch("http://10.2.0.44:3013/public/api/General/CargarCombos", {
+    console.log("Body enviado", form);
+
+    const response = await fetch("http://10.2.0.44:3031/public/api/General/CargarCombos", {
         method: "POST",
         headers: {
             "Content-Type": "application/x-www-form-urlencoded"
         },
         body: form
     });
+
     const data = await response.json();
     return data;
-
 };
 

@@ -267,20 +267,19 @@
             </div>
             <div class="col-12 col-md-3">
                 <div class="app-field select">
-                    <select class="app-select" id="paisMonedaExtranjera" name="paisMonedaExtranjera">
+                    <select class="app-select" id="paisMonedaExtranjera" name="paisMonedaExtranjera"
+                        data-combo="paisesmonedaextranjera">
                         <option value="" selected></option>
-                        <option value="1">EJEMPLO</option>
-                        <option value="2">EJEMPLO</option>
                     </select>
                     <label for="paisMonedaExtranjera">¿Pais de la moneda extranjera?</label>
                 </div>
             </div>
             <div class="col-12 col-md-3">
                 <div class="app-field select">
-                    <select class="app-select" id="ciudadMonedaExtranjera" name="ciudadMonedaExtranjera">
+                    <select class="app-select" id="ciudadMonedaExtranjera" name="ciudadMonedaExtranjera"
+                        data-combo="ciudadesmonedaextranjera" data-depende="paisMonedaExtranjera" data-param="pais"
+                        required>
                         <option value="" selected></option>
-                        <option value="1">EJEMPLO</option>
-                        <option value="2">EJEMPLO</option>
                     </select>
                     <label for="ciudadMonedaExtranjera">¿Ciudad de la moneda extranjera?</label>
                 </div>
@@ -326,11 +325,8 @@
             </div>
             <div class="col-12 col-md-4">
                 <div class="app-field select">
-                    <select class="app-select" id="tipoPep" name="tipoPep" required>
+                    <select class="app-select" id="tipoPep" name="tipoPep" data-combo="tipopep" required>
                         <option value="" selected></option>
-                        <option value="1">Persona natural</option>
-                        <option value="2">Persona juridica</option>
-                        <option value="3">Ambas</option>
                     </select>
                     <label for="tipoPep">¿Tipo de PEP?</label>
                 </div>
@@ -365,12 +361,15 @@
                                 name="tipoIdentificacionEmpleadoEntidad" required disabled
                                 style="background-color: #e9ecef;">
                                 <option value="" selected></option>
-                                <option value="1">Cédula de ciudadanía</option>
-                                <option value="2">Cédula de extranjería</option>
-                                <option value="3">Pasaporte</option>
-                                <option value="4">Registro civil</option>
-                                <option value="5">Tarjeta de identidad</option>
-                                <option value="6">NIT</option>
+                                <option value="C">CEDULA CIUDADANIA</option>
+                                <option value="N">NIT</option>
+                                <option value="P">PASAPORTE</option>
+                                <option value="E">CEDULA EXTRANJERIA</option>
+                                <option value="R">REGISTRO CIVIL</option>
+                                <option value="T">TARJETA DE IDENTIDAD</option>
+                                <option value="U">NRO UNICO IDENT. PERSONAL</option>
+                                <option value="O">OTRO</option>
+                                <option value="H">RUT</option>
                             </select>
                             <label for="tipoIdentificacionEmpleadoEntidad">Tipo de identificación</label>
                         </div>
@@ -412,13 +411,15 @@
                             <select class="app-select" id="parentescoEmpleadoEntidad" name="parentescoEmpleadoEntidad"
                                 required disabled style="background-color: #e9ecef;">
                                 <option value="" selected></option>
-                                <option value="1">Padre</option>
-                                <option value="2">Madre</option>
-                                <option value="3">Hijo</option>
-                                <option value="4">Hija</option>
-                                <option value="5">Hermano</option>
-                                <option value="6">Hermana</option>
-                                <option value="7">Otro</option>
+                                <option value="C">CONYUGUE</option>
+                                <option value="H">HIJO</option>
+                                <option value="P">PADRE</option>
+                                <option value="E">HERMANO</option>
+                                <option value="A">ABUELO</option>
+                                <option value="T">TIO</option>
+                                <option value="S">SOBRINO</option>
+                                <option value="I">PRIMO</option>
+                                <option value="O">OTRO</option>
                             </select>
                             <label for="parentescoEmpleadoEntidad">Parentesco</label>
                         </div>
@@ -471,12 +472,15 @@
                                 name="tipoIdentificacionFamiliarRecursosPublicos" required disabled
                                 style="background-color: #e9ecef;">
                                 <option value="" selected></option>
-                                <option value="1">Cédula de ciudadanía</option>
-                                <option value="2">Cédula de extranjería</option>
-                                <option value="3">Pasaporte</option>
-                                <option value="4">Registro civil</option>
-                                <option value="5">Tarjeta de identidad</option>
-                                <option value="6">NIT</option>
+                                <option value="C">CEDULA CIUDADANIA</option>
+                                <option value="N">NIT</option>
+                                <option value="P">PASAPORTE</option>
+                                <option value="E">CEDULA EXTRANJERIA</option>
+                                <option value="R">REGISTRO CIVIL</option>
+                                <option value="T">TARJETA DE IDENTIDAD</option>
+                                <option value="U">NRO UNICO IDENT. PERSONAL</option>
+                                <option value="O">OTRO</option>
+                                <option value="H">RUT</option>
                             </select>
                             <label for="tipoIdentificacionFamiliarRecursosPublicos">Tipo de identificación</label>
                         </div>
@@ -519,13 +523,15 @@
                                 name="parentescoFamiliarRecursosPublicos" required disabled
                                 style="background-color: #e9ecef;">
                                 <option value="" selected></option>
-                                <option value="1">Padre</option>
-                                <option value="2">Madre</option>
-                                <option value="3">Hijo</option>
-                                <option value="4">Hija</option>
-                                <option value="5">Hermano</option>
-                                <option value="6">Hermana</option>
-                                <option value="7">Otro</option>
+                                <option value="C">CONYUGUE</option>
+                                <option value="H">HIJO</option>
+                                <option value="P">PADRE</option>
+                                <option value="E">HERMANO</option>
+                                <option value="A">ABUELO</option>
+                                <option value="T">TIO</option>
+                                <option value="S">SOBRINO</option>
+                                <option value="I">PRIMO</option>
+                                <option value="O">OTRO</option>
                             </select>
                             <label for="parentescoFamiliarRecursosPublicos">Parentesco</label>
                         </div>
@@ -595,12 +601,15 @@
                                 name="tipoIdentificacionFamiliarPublicamenteExpuesto" required disabled
                                 style="background-color: #e9ecef;">
                                 <option value="" selected></option>
-                                <option value="1">Cédula de ciudadanía</option>
-                                <option value="2">Cédula de extranjería</option>
-                                <option value="3">Pasaporte</option>
-                                <option value="4">Registro civil</option>
-                                <option value="5">Tarjeta de identidad</option>
-                                <option value="6">NIT</option>
+                                <option value="C">CEDULA CIUDADANIA</option>
+                                <option value="N">NIT</option>
+                                <option value="P">PASAPORTE</option>
+                                <option value="E">CEDULA EXTRANJERIA</option>
+                                <option value="R">REGISTRO CIVIL</option>
+                                <option value="T">TARJETA DE IDENTIDAD</option>
+                                <option value="U">NRO UNICO IDENT. PERSONAL</option>
+                                <option value="O">OTRO</option>
+                                <option value="H">RUT</option>
                             </select>
                             <label for="tipoIdentificacionFamiliarPublicamenteExpuesto">Tipo de identificación</label>
                         </div>
@@ -643,13 +652,15 @@
                                 name="parentescoFamiliarPublicamenteExpuesto" required disabled
                                 style="background-color: #e9ecef;">
                                 <option value="" selected></option>
-                                <option value="1">Padre</option>
-                                <option value="2">Madre</option>
-                                <option value="3">Hijo</option>
-                                <option value="4">Hija</option>
-                                <option value="5">Hermano</option>
-                                <option value="6">Hermana</option>
-                                <option value="7">Otro</option>
+                                <option value="C">CONYUGUE</option>
+                                <option value="H">HIJO</option>
+                                <option value="P">PADRE</option>
+                                <option value="E">HERMANO</option>
+                                <option value="A">ABUELO</option>
+                                <option value="T">TIO</option>
+                                <option value="S">SOBRINO</option>
+                                <option value="I">PRIMO</option>
+                                <option value="O">OTRO</option>
                             </select>
                             <label for="parentescoFamiliarPublicamenteExpuesto">Parentesco</label>
                         </div>
@@ -680,8 +691,8 @@
                     <select class="app-select" id="administraRecursosPublicos" name="administraRecursosPublicos"
                         required>
                         <option value="" selected></option>
-                        <option value="1">Si</option>
-                        <option value="2">No</option>
+                        <option value="S">SI</option>
+                        <option value="N">NO</option>
                     </select>
                     <label for="administraRecursosPublicos">¿Administra recursos públicos?</label>
                 </div>
@@ -696,13 +707,8 @@
             <div class="col-12 col-md-4">
                 <div class="app-field select">
                     <select class="app-select" id="cargoAdministraRecursosPublicos"
-                        name="cargoAdministraRecursosPublicos" required>
+                        name="cargoAdministraRecursosPublicos" data-combo="profesiones" required>
                         <option value="" selected></option>
-                        <option value="1">Ejemplo 1</option>
-                        <option value="2">Ejemplo 2</option>
-                        <option value="3">Ejemplo 3</option>
-                        <option value="4">Ejemplo 4</option>
-                        <option value="5">Ejemplo 5</option>
                     </select>
                     <label for="cargoAdministraRecursosPublicos">¿Cargo?</label>
                 </div>
