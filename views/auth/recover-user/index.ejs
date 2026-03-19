@@ -1,0 +1,63 @@
+
+<!-- IZQUIERDA (contenido login) -->
+<div class="main-container">
+  <div class="paper">
+    <form id="form-step-1" class="form" style="width: 100%;">
+      <div id="step-1" style="width: 60%;">
+        <h2 class="bienvenido">Recordar Usuario</h2>
+
+        <div class="contenedor-global">
+          <div class="contenedor-formulario">
+            
+            <div class="mui-textfield usuario">
+              <span class="material-icons mui-icon">document_scanner</span>
+              <input
+                type="text"
+                id="Cedula"
+                placeholder="Cedula"
+                required
+                autofocus
+                autocomplete="off"
+              />
+            </div>
+
+            <div class="mui-textfield usuario">
+              <span class="material-icons mui-icon">phone_android</span>
+              <input
+                type="text"
+                id="celular"
+                placeholder="Celular"
+                required
+                autocomplete="off"
+              />
+            </div>
+
+            <div class="contenedor-boton">
+              <button type="button" class="boton-nuevo" id="btnSiguiente">
+                Enviar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="urls-basicas-contenedor">
+        <a href="/auth/login" class="urls-basicas">¿Ya tienes una cuenta?</a>
+      </div>
+    </form>
+
+    <div id="loading" class="loading">
+      <div class="spinner"></div>
+    </div>
+
+  </div>
+
+  <p class="app-copy mt-4" style="text-align: center">
+    Copyright ©
+    <a class="app-copy-link" href="https://opa.com.co/"> OPA S.A.S </a>
+    <%= new Date().getFullYear() %>
+  </p>
+</div>
+
+<script>
+</script>

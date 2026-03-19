@@ -1,0 +1,120 @@
+
+<!-- IZQUIERDA (contenido login) -->
+<div class="main-container">
+  <div class="paper">
+    <form id="form-step-1" class="form" style="width: 100%;">
+      <div id="step-1" style="width: 60%;">
+        <h2 class="bienvenido">Registrar Usuario</h2>
+
+        <div class="contenedor-global">
+          <div class="contenedor-formulario">
+            
+            <div class="mui-textfield usuario">
+              <span class="material-icons mui-icon">document_scanner</span>
+              <input
+                type="text"
+                id="Cedula"
+                placeholder="Cedula"
+                required
+                autofocus
+                autocomplete="off"
+              />
+            </div>
+
+            <div class="mui-textfield usuario">
+              <span class="material-icons mui-icon">person_outline</span>
+              <input
+                type="text"
+                id="usuario"
+                placeholder="Usuario"
+                required
+                autofocus
+                autocomplete="off"
+              />
+            </div>
+            
+            <div class="mui-textfield" style="margin-top: 16px">
+              <span class="material-icons mui-icon">lock</span>
+              <input
+                type="text"
+                id="password"
+                placeholder="Password"
+                required
+                autocomplete="off"
+              />
+              <span class="material-icons mui-icon-eye" id="togglePassword" style="cursor: pointer; color: #757575;">
+                visibility_off
+              </span>
+            </div>
+
+            <div class="mui-textfield" style="margin-top: 16px">
+              <span class="material-icons mui-icon">lock</span>
+              <input
+                type="text"
+                id="confirm-password"
+                placeholder="Confirmar Password"
+                required
+                autocomplete="off"
+              />
+              <span class="material-icons mui-icon-eye" id="togglePassword" style="cursor: pointer; color: #757575;">
+                visibility_off
+              </span>
+            </div>
+
+            <div class="mui-textfield usuario">
+              <span class="material-icons mui-icon">phone_android</span>
+              <input
+                type="text"
+                id="celular"
+                placeholder="Celular"
+                required
+                autocomplete="off"
+              />
+            </div>
+
+            <div class="contenedor-boton">
+              <button type="button" class="boton-nuevo" id="btnSiguiente">
+                Registrarse
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="step-2" style="display: none">
+        <div class="mui-card">
+          <img
+            src="seguridad.jpg"
+            class="security-image"
+            alt="Imagen seguridad"
+          />
+          <div class="mui-card-content">
+            <label class="mui-checkbox-label checkbox">
+              <input type="checkbox" name="imagen" />
+              <span class="custom-checkbox"></span>
+              Confirme que esta es su imagen y frase registrada
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="urls-basicas-contenedor">
+        <a href="/auth/login" class="urls-basicas">¿Ya tienes una cuenta?</a>
+      </div>
+    </form>
+
+    <div id="loading" class="loading">
+      <div class="spinner"></div>
+    </div>
+
+  </div>
+
+  <p class="app-copy mt-4" style="text-align: center">
+    Copyright ©
+    <a class="app-copy-link" href="https://opa.com.co/"> OPA S.A.S </a>
+    <%= new Date().getFullYear() %>
+  </p>
+</div>
+
+<script>
+</script>
