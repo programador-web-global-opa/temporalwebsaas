@@ -36,11 +36,15 @@
                 <div class="app-field select">
                     <select class="app-select" id="tipoDocumentoConyugue" name="tipoDocumentoConyugue" required>
                         <option value="" selected></option>
-                        <option value="CC">CEDULA</option>
-                        <option value="PASAPORTE">PASAPORTE</option>
-                        <option value="TI">TARJETA DE IDENTIDAD</option>
-                        <option value="NIT">NIT</option>
-                        <option value="OTRO">OTRO</option>
+                        <option value="C">CEDULA CIUDADANIA</option>
+                        <option value="N">NIT</option>
+                        <option value="P">PASAPORTE</option>
+                        <option value="E">CEDULA EXTRANJERIA</option>
+                        <option value="R">REGISTRO CIVIL</option>
+                        <option value="T">TARJETA DE IDENTIDAD</option>
+                        <option value="U">NRO UNICO IDENT. PERSONAL</option>
+                        <option value="O">OTRO</option>
+                        <option value="H">RUT</option>
                     </select>
                     <label for="tipoDocumentoConyugue">Tipo de Documento</label>
                 </div>
@@ -54,11 +58,9 @@
             </div>
             <div class="col-12 col-md-2">
                 <div class="app-field select">
-                    <select class="app-select" id="paisNacimientoConyugue" name="paisNacimientoConyugue" required>
+                    <select class="app-select" id="paisNacimientoConyugue" name="paisNacimientoConyugue"
+                        data-combo="paises" required>
                         <option value="" selected></option>
-                        <option value="CO">COLOMBIA</option>
-                        <option value="VE">VENEZUELA</option>
-                        <option value="PE">PERU</option>
                     </select>
                     <label for="paisNacimientoConyugue">Pais de Nacimiento</label>
                 </div>
@@ -66,34 +68,26 @@
             <div class="col-12 col-md-3">
                 <div class="app-field select    ">
                     <select class="app-select" id="departamentoNacimientoConyugue" name="departamentoNacimientoConyugue"
-                        required>
+                        data-combo="departamentos" data-depende="paisNacimientoConyugue" data-param="pais" required>
                         <option value="" selected></option>
-                        <option value="ANTIOQUIA">ANTIOQUIA</option>
-                        <option value="VALLE">VALLE</option>
-                        <option value="MAGDALENA">MAGDALENA</option>
                     </select>
                     <label for="departamentoNacimientoConyugue">Departamento de Nacimiento</label>
                 </div>
             </div>
             <div class="col-12 col-md-2">
                 <div class="app-field select">
-                    <select class="app-select" id="ciudadNacimientoConyugue" name="ciudadNacimientoConyugue" required>
+                    <select class="app-select" id="ciudadNacimientoConyugue" name="ciudadNacimientoConyugue"
+                        data-combo="ciudades" data-depende="departamentoNacimientoConyugue" data-param="dpto" required>
                         <option value="" selected></option>
-                        <option value="MEDELLIN">MEDELLIN</option>
-                        <option value="CALI">CALI</option>
-                        <option value="BOGOTA">BOGOTA</option>
                     </select>
                     <label for="ciudadNacimientoConyugue">Ciudad de Nacimiento</label>
                 </div>
             </div>
             <div class="col-12 col-md-2">
                 <div class="app-field select">
-                    <select class="app-select" id="tipoDireccionConyugue" name="tipoDireccionConyugue" required>
+                    <select class="app-select" id="tipoDireccionConyugue" name="tipoDireccionConyugue"
+                        data-combo="abreviaturadir" required>
                         <option value="" selected></option>
-                        <option value="CARRERA">CARRERA</option>
-                        <option value="CALLE">CALLE</option>
-                        <option value="AVENIDA">AVENIDA</option>
-                        <option value="OTRO">OTRO</option>
                     </select>
                     <label for="tipoDireccionConyugue">Tipo de Direccion</label>
                 </div>
@@ -109,9 +103,9 @@
                 <div class="app-field select">
                     <select class="app-select" id="generoConyugue" name="generoConyugue" required>
                         <option value="" selected></option>
-                        <option value="1">MASCULINO</option>
-                        <option value="2">FEMENINO</option>
-                        <option value="3">OTRO</option>
+                        <option value="M">MASCULINO</option>
+                        <option value="F">FEMENINO</option>
+                        <option value="O">OTRO</option>
                     </select>
                     <label for="generoConyugue">Genero</label>
                 </div>
@@ -158,23 +152,16 @@
 
             <div class="col-12 col-md-3">
                 <div class="app-field select">
-                    <select class="app-select" id="tipoContratoConyugue" name="tipoContratoConyugue" required>
+                    <select class="app-select" id="tipoContratoConyugue" name="tipoContratoConyugue"
+                        data-combo="tipocontrato" required>
                         <option value="" selected></option>
-                        <option value="1">CONTRATO TERMINO INDEFINIDO</option>
-                        <option value="2">CONTRATO TEMPORAL</option>
-                        <option value="3">CONTRATO DE TRABAJO</option>
                     </select>
                     <label for="tipoContratoConyugue">Tipo de Contrato</label>
                 </div>
             </div>
             <div class="col-12 col-md-3">
-                <div class="app-field select">
-                    <select class="app-select" id="empresaConyugue" name="empresaConyugue">
-                        <option value="" selected></option>
-                        <option value="1">EMPRESA 1</option>
-                        <option value="2">EMPRESA 2</option>
-                        <option value="3">EMPRESA 3</option>
-                    </select>
+                <div class="app-field ">
+                    <input type="text" class="app-input" id="empresaConyugue" name="empresaConyugue" placeholder=" ">
                     <label for="empresaConyugue">Empresa</label>
                 </div>
             </div>
@@ -193,11 +180,9 @@
             </div>
             <div class="col-12 col-md-3">
                 <div class="app-field select">
-                    <select class="app-select" id="paisEmpresaConyugue" name="paisEmpresaConyugue" required>
+                    <select class="app-select" id="paisEmpresaConyugue" name="paisEmpresaConyugue" data-combo="paises"
+                        required>
                         <option value="" selected></option>
-                        <option value="1">PAIS 1</option>
-                        <option value="2">PAIS 2</option>
-                        <option value="3">PAIS 3</option>
                     </select>
                     <label for="paisEmpresaConyugue">Pais Empresa</label>
                 </div>
@@ -205,45 +190,35 @@
             <div class="col-12 col-md-3">
                 <div class="app-field select">
                     <select class="app-select" id="departamentoEmpresaConyugue" name="departamentoEmpresaConyugue"
-                        required>
+                        data-combo="departamentos" data-depende="paisEmpresaConyugue" data-param="pais" required>
                         <option value="" selected></option>
-                        <option value="1">DEPARTAMENTO 1</option>
-                        <option value="2">DEPARTAMENTO 2</option>
-                        <option value="3">DEPARTAMENTO 3</option>
                     </select>
                     <label for="departamentoEmpresaConyugue">Departamento Empresa</label>
                 </div>
             </div>
             <div class="col-12 col-md-3">
                 <div class="app-field select">
-                    <select class="app-select" id="ciudadEmpresaConyugue" name="ciudadEmpresaConyugue" required>
+                    <select class="app-select" id="ciudadEmpresaConyugue" name="ciudadEmpresaConyugue"
+                        data-combo="ciudades" data-depende="departamentoEmpresaConyugue" data-param="dpto" required>
                         <option value="" selected></option>
-                        <option value="1">CIUDAD 1</option>
-                        <option value="2">CIUDAD 2</option>
-                        <option value="3">CIUDAD 3</option>
                     </select>
                     <label for="ciudadEmpresaConyugue">Ciudad Empresa</label>
                 </div>
             </div>
             <div class="col-12 col-md-3">
                 <div class="app-field select">
-                    <select class="app-select" id="cargoConyugue" name="cargoConyugue" required>
+                    <select class="app-select" id="cargoConyugue" name="cargoConyugue" data-combo="profesiones"
+                        required>
                         <option value="" selected></option>
-                        <option value="1">CARGO 1</option>
-                        <option value="2">CARGO 2</option>
-                        <option value="3">CARGO 3</option>
                     </select>
                     <label for="cargoConyugue">Cargo</label>
                 </div>
             </div>
             <div class="col-12 col-md-2">
                 <div class="app-field select">
-                    <select class="app-select" id="tipoDireccionEmpresaConyugue" name="tipoDireccionEmpresaConyugue">
+                    <select class="app-select" id="tipoDireccionEmpresaConyugue" name="tipoDireccionEmpresaConyugue"
+                        data-combo="abreviaturadir" required>
                         <option value="" selected></option>
-                        <option value="1">CALLE</option>
-                        <option value="2">AVENIDA</option>
-                        <option value="3">PASAJE</option>
-                        <option value="10">CARRERA</option>
                     </select>
                     <label for="tipoDireccionEmpresaConyugue">Tipo Direccion Empresa</label>
                 </div>
@@ -257,11 +232,8 @@
             </div>
             <div class="col-12 col-md-2">
                 <div class="app-field select">
-                    <select class="app-select" id="ciuuEmpresaConyugue" name="ciuuEmpresaConyugue">
+                    <select class="app-select" id="ciuuEmpresaConyugue" name="ciuuEmpresaConyugue" data-combo="ciiu">
                         <option value="" selected></option>
-                        <option value="1">CIUU 1</option>
-                        <option value="2">CIUU 2</option>
-                        <option value="3">CIUU 3</option>
                     </select>
                     <label for="ciuuEmpresaConyugue">CIUU Empresa</label>
                 </div>

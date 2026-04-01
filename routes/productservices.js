@@ -7,6 +7,14 @@ router.get('/', (_, res) => {
     });
 });
 
+router.get('/tab/:tab', (req, res) => {
+    const { tab } = req.params;
+    res.render(`productservices/partials/${tab}`, {
+        title: 'Productos y Servicios',
+        layout: false
+    });
+});
+
 router.get('/details', (_, res) => {
     res.render('productservices/partials/details', {
         title: 'Productos y Servicios'

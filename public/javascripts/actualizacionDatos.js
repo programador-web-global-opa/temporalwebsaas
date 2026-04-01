@@ -1290,7 +1290,7 @@
             tipoVivienda: null,
             numeroPersonasHabitantes: null,
             dependeEconomicamente: null,
-            declaranteRenta: null,
+            declarante: null,
             grupoProteccion: null,
             operacionesMonedaExtranjera: null,
             cualesOperacionesMonedaExtranjera: null,
@@ -1351,6 +1351,8 @@
             comisiones: null,
             utilidadNegocio: null,
             bonificaciones: null,
+            sueldo: null,
+            interesInversiones: null,
             pensiones: null,
             dividendos: null,
             conceptoOtrosIngresos: null,
@@ -1455,235 +1457,6 @@
 
     }
 
-    //ESTO ES SOLO UN EJEMPLO PARA PROBAR INSERCION DE DATOS PROVENIENTES DEL BACKEND, SOLO PARA PRUEBAS
-    const datosBackendMock = {
-
-        datosPersonales: {
-            tipoDocumento: 'CC',
-            numeroDocumento: '1032456789',
-            fechaExpedicionDocumento: '2018-05-10',
-            paisDocumento: '169',
-            departamentoDocumento: '',
-            ciudadDocumento: '',
-            primerNombre: 'Juan',
-            segundoNombre: 'David',
-            primerApellido: 'Gomez',
-            segundoApellido: 'Martinez',
-            fechaNacimiento: '2005-03-12',
-            paisNacimiento: '',
-            departamentoNacimiento: '',
-            ciudadNacimiento: '',
-            nroHijos: '0',
-            envioDocumentos: 'NO ENVIAR',
-            ciiu: '6201',
-            nacionalidad: '',
-            tipoDireccionResidencia: 'AV',
-            complementoDireccionResidencia: 'Apto 402',
-            paisResidencia: '169',
-            departamentoResidencia: '',
-            ciudadResidencia: '',
-            tipoZonaResidencia: '',
-            zonaResidencia: '',
-            comunaResidencia: '',
-            barrioResidencia: '',
-            estratoResidencia: '',
-            email: 'juan.gomez@email.com',
-            celular: '3004567890',
-            telefono: '6044445566'
-        },
-
-        datosLaborales: {
-            empresaTrabajo: '9012',
-            cargoTrabajo: '',
-            dependenciaTrabajo: '',
-            tipoContrato: 'I',
-            fechaIngreso: '',
-            pagaduria: '',
-            periodoDeduccion: 'MENSUAL',
-            salario: '4500000'
-        },
-
-        otrosDatos: {
-            estudios: 'U',
-            genero: 'M',
-            estadoCivil: 'S',
-            ocupacion: 'INGENIERO',
-            profesion: 'Ingeniería de Sistemas',
-            numeroCuenta: '12345678901',
-            tipoCuenta: 'AHORROS',
-            bancoCuenta: 'BANCOLOMBIA',
-            tipoVivienda: 'ARRENDADA',
-            numeroPersonasHabitantes: '3',
-            dependeEconomicamente: 'NO',
-            declaranteRenta: 'SI',
-            grupoProteccion: 'NINGUNO',
-            operacionesMonedaExtranjera: 'NO',
-            cualesOperacionesMonedaExtranjera: '',
-            poseeCuentasMonedaExtranjera: 'NO',
-            paisMonedaExtranjera: '',
-            ciudadMonedaExtranjera: '',
-            monedaExtranjera: '',
-            bancoMonedaExtranjera: '',
-            numeroCuentaMonedaExtranjera: '',
-            esPep: 'NO',
-            tipoPep: '',
-
-            empleadoEntidadSolidaria: 'NO',
-            identificacionEmpleadoEntidadSolidaria: '',
-            tipoIdentificacionEmpleadoEntidadSolidaria: '',
-            primerNombreEmpleadoEntidadSolidaria: '',
-            segundoNombreEmpleadoEntidadSolidaria: '',
-            primerApellidoEmpleadoEntidadSolidaria: '',
-            segundoApellidoEmpleadoEntidadSolidaria: '',
-            parentescoEmpleadoEntidadSolidaria: '',
-            desdeCuandoFamiliarEmpleadoEntidadSolidaria: '',
-            hastaCuandoFamiliarEmpleadoEntidadSolidaria: '',
-
-            familiarRecursosPublicos: 'NO',
-            identificacionFamiliarRecursosPublicos: '',
-            tipoIdentificacionFamiliarRecursosPublicos: '',
-            primerNombreFamiliarRecursosPublicos: '',
-            segundoNombreFamiliarRecursosPublicos: '',
-            primerApellidoFamiliarRecursosPublicos: '',
-            segundoApellidoFamiliarRecursosPublicos: '',
-            parentescoFamiliarRecursosPublicos: '',
-            cargoFamiliarRecursosPublicos: '',
-            desdeCuandoFamiliarRecursosPublicos: '',
-            hastaCuandoFamiliarRecursosPublicos: '',
-            nombreEntidadFamiliarRecursosPublicos: '',
-
-            familiarPublicamenteExpuesto: 'NO',
-            identificacionFamiliarPublicamenteExpuesto: '',
-            tipoIdentificacionFamiliarPublicamenteExpuesto: '',
-            primerNombreFamiliarPublicamenteExpuesto: '',
-            segundoNombreFamiliarPublicamenteExpuesto: '',
-            primerApellidoFamiliarPublicamenteExpuesto: '',
-            segundoApellidoFamiliarPublicamenteExpuesto: '',
-            parentescoFamiliarPublicamenteExpuesto: '',
-            desdeCuandoFamiliarPublicamenteExpuesto: '',
-            hastaCuandoFamiliarPublicamenteExpuesto: '',
-
-            administraRecursosPublicos: 'NO',
-            nombreEntidadAdministraRecursosPublicos: '',
-            cargoAdministraRecursosPublicos: '',
-            fechaViculacionRecursosPublicos: '',
-            fechaRetiroRecursosPublicos: ''
-        },
-
-        ingresosEgresos: {
-            honorarios: '0',
-            arriendos: '0',
-            comisiones: '500000',
-            utilidadNegocio: '0',
-            bonificaciones: '200000',
-            pensiones: '0',
-            dividendos: '0',
-            conceptoOtrosIngresos: 'Freelance',
-            otrosIngresos: '300000',
-            totalIngresos: '5000000',
-
-            alimentacion: '600000',
-            educacion: '200000',
-            serviciosPublicos: '300000',
-            arriendo: '1200000',
-            transporte: '200000',
-            cuotaDomestica: '0',
-            salud: '150000',
-            otrosGastos: '100000',
-
-            otrasDeudas: '200000',
-            prestamoVivienda: '0',
-            otrosNegocios: '0',
-            prestamoVehiculo: '300000',
-            tajetaCredito: '250000',
-
-            conceptoOtrosEgresos: 'Gimnasio',
-            otrosPrestamos: '50000',
-
-            totalEgresos: '3350000',
-
-            totalActivos: '20000000',
-            totalPasivos: '5000000',
-            totalPatrimonio: '15000000',
-
-            saldoALaFecha: '3000000',
-
-            cooperativasSaldos: '1000000',
-            entidadesFinancierasCuotas: '300000',
-            cooperativasCuotas: '150000',
-            otrasObligacionesSaldos: '500000',
-            otrasObligacionesCuotas: '100000',
-            totalOtrasObligaciones: '1050000'
-        },
-
-        conyugue: {
-            primerNombreConyugue: 'Maria',
-            segundoNombreConyugue: 'Fernanda',
-            primerApellidoConyugue: 'Lopez',
-            segundoApellidoConyugue: 'Rios',
-            tipoDocumentoConyugue: 'CC',
-            documentoConyugue: '43219876',
-            paisNacimientoConyugue: 'CO',
-            departamentoNacimientoConyugue: '11',
-            ciudadNacimientoConyugue: '11001',
-            tipoDireccionConyugue: '',
-            complementoDireccionConyugue: 'Casa 2',
-            generoConyugue: 'F',
-            fechaNacimientoConyugue: '1990-07-22',
-            fechaExpedicionConyugue: '2008-03-12',
-            telefonoConyugue: '6015557788',
-            celularConyugue: '3105567788',
-            emailConyugue: 'maria.lopez@email.com',
-            tipoContratoConyugue: 'INDEFINIDO',
-            empresaConyugue: 'Banco XYZ',
-            oficioConyugue: 'Analista',
-            telefonoEmpresaConyugue: '6018889900',
-            paisEmpresaConyugue: 'CO',
-            departamentoEmpresaConyugue: '11',
-            ciudadEmpresaConyugue: '11001',
-            cargoConyugue: 'Analista Financiera',
-            tipoDireccionEmpresaConyugue: '1',
-            complementoDireccionEmpresaConyugue: 'Oficina 801',
-            ciuuEmpresaConyugue: '6419',
-            salarioConyugue: '3800000',
-            fechaIngresoEmpresaConyugue: '2019-04-10'
-        },
-
-        otrosDatosAdicionales: {
-
-            cedulaApoderado: '98765432',
-            nombreApoderado: 'Carlos Ruiz',
-            profesionApoderado: 'Abogado',
-            direccionApoderado: 'Cra 45 #10-23',
-            telefonoApoderado: '6043214567',
-            movilApoderado: '3116547890',
-
-            tipoPersonaJuridica: '',
-            tieneRetencionPersonaJuridica: '',
-
-            fechaNombramientoRepresentanteLegal: '',
-            numeroActaNombramientoRepresentanteLegal: '',
-            numeroCamaraComercio: '',
-            tipoEmpresaRepresentanteLegal: '',
-            detalleEmpresaRepresentanteLegal: '',
-            totalActivosRepresentanteLegal: '',
-            totalPasivosRepresentanteLegal: '',
-            totalPatrimonioRepresentanteLegal: '',
-            cedulaRepresentanteLegal: '',
-            nombreRepresentanteLegal: '',
-            profesionRepresentanteLegal: '',
-            direccionRepresentanteLegal: '',
-            paisRepresentanteLegal: '',
-            departamentoRepresentanteLegal: '',
-            ciudadRepresentanteLegal: '',
-            telefonoRepresentanteLegal: '',
-            movilRepresentanteLegal: '',
-            indicativoRepresentanteLegal: ''
-
-        }
-
-    };
-
     let modificado = false;
     //GUARDAR CAMBIOS DE INPUTS EN EL ESTADO GLOBAL
     $(document).on("input change", "input, select, textarea", function () {
@@ -1746,9 +1519,11 @@
         enviado = true;
     });
 
+
+
+
     //PRUEBA DE PERSISTENCIA EN SESSION STORAGE
     const STORAGE_KEY = "testSavingFormState";
-
     // GUARDA LOS DATOS DEL FORMSTATE EN SESSION STORAGE
     function guardarSessionStorage() {
         try {
@@ -1825,13 +1600,26 @@
     }
 
     // CARGA LOS DATOS DEL BACKEND AL FORMSTATE
-    function cargarDatosBackend() {
-        data = datosBackendMock;
-        if (data) {
-            formState = {
-                ...formState,
-                ...data
-            };
+    async function cargarDatosBackend() {
+        try {
+            const response = await fetch("/actualizaciondatos/informacionAsociado?Cedula=1128417092");
+            if (!response.ok) {
+                console.error("Error al obtener datos:", response.statusText);
+                return;
+            }
+            const resData = await response.json();
+
+            if (resData) {
+                formState = {
+                    ...formState,
+                    ...resData
+                };
+                console.log("Datos del backend asignados a formState:", formState);
+            } else {
+                console.log("No hay datos backend");
+            }
+        } catch (error) {
+            console.error("Excepción cargando datos del backend:", error);
         }
     }
 

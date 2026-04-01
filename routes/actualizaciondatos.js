@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const Controller = require("../controllers/actualizaciondatos.controller");
 
 router.get("/", (_, res) => {
     res.render("actualizaciondatos/index", {
@@ -14,5 +15,8 @@ router.get("/tab/:tab", (req, res) => {
         layout: false
     });
 });
+
+router.get("/informacionAsociado", Controller.getInformacionAsociado);
+
 
 module.exports = router;

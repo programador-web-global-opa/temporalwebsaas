@@ -39,7 +39,7 @@ exports.obtenerCombo = async (params) => {
 
     console.log("Body enviado", form);
 
-    const response = await fetch("http://10.2.0.44:3031/public/api/General/CargarCombos", {
+    const response = await fetch("http://10.2.0.44:3012/public/api/General/CargarCombos", {
         method: "POST",
         headers: {
             "Content-Type": "application/x-www-form-urlencoded"

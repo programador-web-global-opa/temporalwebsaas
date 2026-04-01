@@ -8,27 +8,43 @@
   </header>
 
   <div id="tab">
-    <div class="text-left">
-      <p class="fw-bold">Aquí podrás solicitar un producto o servicio.</p>
-      <p>A continuación encontraras la lista de las solicitudes que has realizado con su último estado, ordenadas de la más nueva a la más antigua. Si quieres ver cómo ha sido la evolución de alguna solicitud en especial te invitamos a dar clic en el botón "Ver más".</p>
-    </div>
+    <section class="row mb-4" aria-labelledby="descripcion-productos-servicios">
+      <div class="col-12">
+        <p id="descripcion-productos-servicios" class="fw-bold">Aquí podrás solicitar un producto o servicio.</p>
+        <ul>
+          <li>
+            Este módulo te permitirá realizar la solicitud de un producto o servicio ofrecido por la entidad o
+            visualizar el estado de cada una de tus solicitudes, da clic en la opción que desees.
+          </li>
+        </ul>
+      </div>
+    </section>
 
-    <!-- quiero centrar dos imagenes con bootstrap -->
-    <div class="d-flex flex-wrap justify-content-center gap-4 mt-4">
+    <div class="d-flex flex-wrap justify-content-center mt-5" id="botones-productos" style="gap: 10rem;">
       <div>
-        <!-- Visualizar el historial -->
-        <div class="degrade text-center w-100" onclick="window.location.href = '/products-services/details'">
+        <!-- generar solicitud -->
+        <div class="degrade text-center w-100 product-tab" data-tab="generate" style="cursor: pointer;">
           <img src="/images/products/1.png" class="img-productos">
         </div>
       </div>
 
       <div>
-        <!-- generar solicitud -->
-        <div class="degrade text-center w-100" onclick="window.location.href = '/products-services/generate'">
+        <!-- Visualizar el historial -->
+        <div class="degrade text-center w-100 product-tab" data-tab="details" style="cursor: pointer;">
           <img src="/images/products/2.png" class="img-productos">
         </div>
       </div>
+
     </div>
   </div>
+
+  <section class="row mt-5 mb-5 justify-content-center">
+    <div class="col-12 app-paper elevation-4 p-4 text-center" id="tab-content-generate" style="display: none;">
+      <%- include('partials/generate') %>
+    </div>
+    <div class="col-12 app-paper elevation-4 p-4 text-center" id="tab-content-details" style="display: none;">
+      <%- include('partials/details') %>
+    </div>
+  </section>
 </section>
-<script></script>
+<script src="/javascripts/productServices.js"></script>
