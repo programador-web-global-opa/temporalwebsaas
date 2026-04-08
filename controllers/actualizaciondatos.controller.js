@@ -1,5 +1,7 @@
 const actualizaciondatosService = require("../services/actualizaciondatosService");
 
+const cedulaEjemplo = "4335176";
+
 // FUNCION PARA LIMPIAR ESPACIOS Y EXTRAER DEL ARREGLO SI APLICA
 const parseVal = (val) => {
     if (Array.isArray(val)) return val[0] !== undefined ? String(val[0]).trim() : "";
@@ -99,7 +101,7 @@ const mapearInformacionAsociado = (jsonInfoAsociado) => {
             monedaExtranjera: parseVal(data.tipoopermonedaextranjera),
             bancoMonedaExtranjera: parseVal(data.banco),
             numeroCuentaMonedaExtranjera: parseVal(data.nrocuenta),
-            esPep: parseVal(data.PersonaExpuesta) === "1" ? "SI" : (parseVal(data.PersonaExpuesta) === "0" ? "NO" : parseVal(data.PersonaExpuesta)),
+            esPep: parseVal(data.PersonaExpuesta) === "1" ? "S" : (parseVal(data.PersonaExpuesta) === "0" ? "N" : parseVal(data.PersonaExpuesta)),
             tipoPep: parseVal(data.codpeps),
 
             familiarEmpleadoEntidad: parseVal(data.tienefamiliarempleadoentidad),
@@ -233,10 +235,138 @@ const mapearInformacionConyugue = (jsonInfoConyugue) => {
     };
 };
 
+const mapearAutorizaciones = (jsonInfoAutorizaciones) => {
+    if (!jsonInfoAutorizaciones || !Array.isArray(jsonInfoAutorizaciones)) return [];
+
+    return jsonInfoAutorizaciones.map(item => ({
+        codigo: item.codigo,
+        nombre: (item.titulo || "").trim(),
+        descripcion: item.descripcion || "",
+        obligatorio: item.respuesta === "S",
+        activo: item.estado === "A"
+    }));
+};
+
+const mapearReferencias = (jsonReferencias) => {
+    if (!jsonReferencias || !jsonReferencias[0] || !jsonReferencias[0].length) {
+        return [];
+    }
+
+    return jsonReferencias[0].map((ref) => ({
+
+        id: ref.registro,
+
+        tipoReferencia: parseVal(ref.codigoreferencia),
+        identification: parseVal(ref.cedula),
+        fullNames: parseVal(ref.nombre),
+
+        parentesco: parseVal(ref.parentesco),
+
+        pais: parseVal(ref.codpais),
+        departamento: parseVal(ref.coddepto),
+        ciudad: parseVal(ref.codciudad),
+        zona: parseVal(ref.codzona),
+        comuna: parseVal(ref.codcomuna),
+        barrio: parseVal(ref.codbarrio),
+
+        direccion: parseVal(ref.direccion),
+
+        telefono: parseVal(ref.telefono),
+        celular: parseVal(ref.celular),
+
+        trabajaEn: parseVal(ref.trabajaen),
+        telefonoOficina: parseVal(ref.telefonooficina)
+    }));
+};
+
+const mapearPersonasCargo = (jsonPersonasCargo) => {
+    if (!jsonPersonasCargo || !jsonPersonasCargo[0] || !jsonPersonasCargo[0].length) {
+        return [];
+    }
+
+    return jsonPersonasCargo[0].map((persona) => ({
+        id: persona.registro,
+        identification: parseVal(persona.cedula),
+        tipoDocumento: parseVal(persona.tipoidentificacion),
+        parentesco: parseVal(persona.parentesco),
+        fullNames: parseVal(persona.nombre),
+        fechaNacimiento: parseDate(persona.fechanacimiento),
+        genero: parseVal(persona.sexo)
+    }));
+};
+
+const mapearFamiliaresPeps = (jsonFamiliaresPeps) => {
+    if (!jsonFamiliaresPeps || !jsonFamiliaresPeps[0] || !jsonFamiliaresPeps[0].length) {
+        return [];
+    }
+
+    return jsonFamiliaresPeps[0].map((familiar) => ({
+        id: familiar.idfamiliarpeps,
+        identification: parseVal(familiar.cedula),
+        tipoDocumento: parseVal(familiar.tipoidentificacion),
+        firstName: parseVal(familiar.nombre1familiarpeps),
+        secondName: parseVal(familiar.nombre2familiarpeps),
+        firstLastName: parseVal(familiar.apellido1familiarpeps),
+        secondLastName: parseVal(familiar.apellido2familiarpeps),
+        parentesco: parseVal(familiar.codigoparentesco)
+    }));
+};
+
+
+//LOGICA PARA RESOLVER LOS ADJUNTOS QUE SE DEBEN MOSTRAR EN EL FORMULARIO
+function resolverAdjuntosParaVista(catalogo, relacionados) {
+    const listaCatalogo = Array.isArray(catalogo) ? catalogo : [];
+    const listaRelacionados = Array.isArray(relacionados) ? relacionados : [];
+    const hayRelacionados = listaRelacionados.length > 0;
+
+    return {
+        totalCatalogo: listaCatalogo.length,
+        items: listaCatalogo
+            .filter(item => parseVal(item.estado) === "A")
+            .reduce((acc, item) => {
+                const codigo = parseVal(item.codigoadjunto);
+                const nombre = parseVal(item.nombreadjunto);
+                const obligatorio = parseVal(item.obligatorio) === "S";
+                const solicitarSiempre = parseVal(item.solicitadjuntos) === "S";
+
+                const existeRelacionado = listaRelacionados.some(rel =>
+                    parseVal(rel.idCodigoAdjunto) === codigo &&
+                    parseVal(rel.NombreCodAdjunto) === nombre
+                );
+
+                let mostrar = false;
+
+                if (!hayRelacionados) {
+                    mostrar = true;
+                } else if (solicitarSiempre) {
+                    mostrar = true;
+                } else if (!existeRelacionado) {
+                    mostrar = true;
+                }
+
+                if (!mostrar) return acc;
+
+                acc.push({
+                    codigo,
+                    nombre,
+                    descripcion: parseVal(item.descripcion),
+                    obligatorio,
+                    solicitadjuntos: parseVal(item.solicitadjuntos),
+                    codadjunto: codigo,
+                    codnomadjunto: nombre
+                });
+
+                return acc;
+            }, [])
+    };
+}
+
+
+
 //JUNTAR LA INFORMACION Y DEVOLVERLA
 exports.getInformacionAsociado = async (req, res) => {
     try {
-        const { Cedula } = req.query;
+        const Cedula = cedulaEjemplo;
         const [datosCrudosInfo, datosCrudosConyugue] = await Promise.all([
             actualizaciondatosService.obtenerInformacionAsociado(Cedula),
             actualizaciondatosService.obtenerInformacionConyugue(Cedula)
@@ -250,7 +380,93 @@ exports.getInformacionAsociado = async (req, res) => {
         };
         res.status(200).json(datosAsociadoCompleto);
     } catch (error) {
-        //console.error("Error en getInformacionAsociado:", error.message);
+        console.error("Error en getInformacionAsociado:", error);
         res.status(500).json({ error: error.message || "Error interno al obtener asociado" });
     }
 };
+
+//INFORMACION DE LAS AUTORIZACIONES
+exports.getAutorizaciones = async (req, res) => {
+    try {
+        const datosCrudosAutorizaciones = await actualizaciondatosService.obtenerAutorizaciones();
+        const autorizacionesMapeadas = mapearAutorizaciones(datosCrudosAutorizaciones);
+        res.status(200).json(autorizacionesMapeadas);
+    } catch (error) {
+        console.error("Error en getAutorizaciones:", error);
+        res.status(500).json({ error: error.message || "Error interno al obtener autorizaciones" });
+    }
+};
+
+//DEVOLVER REFERENCIAS
+exports.getReferencias = async (req, res) => {
+    try {
+        const Cedula = cedulaEjemplo;
+
+        const datosCrudosReferencias =
+            await actualizaciondatosService.obtenerReferencias(Cedula);
+
+        const referencias = mapearReferencias(datosCrudosReferencias);
+
+        res.status(200).json(referencias);
+    } catch (error) {
+        console.error("Error en getReferencias:", error);
+        res.status(500).json({
+            error: error.message || "Error al obtener referencias"
+        });
+    }
+};
+
+exports.getPersonasCargo = async (req, res) => {
+    try {
+        const Cedula = cedulaEjemplo;
+
+        const datosCrudosPersonasCargo =
+            await actualizaciondatosService.obtenerPersonasCargo(Cedula);
+
+        const personasCargo = mapearPersonasCargo(datosCrudosPersonasCargo);
+
+        res.status(200).json(personasCargo);
+    } catch (error) {
+        console.error("Error en getPersonasCargo:", error);
+        res.status(500).json({
+            error: error.message || "Error al obtener personas a cargo"
+        });
+    }
+};
+
+exports.getFamiliaresPeps = async (req, res) => {
+    try {
+        const Cedula = cedulaEjemplo;
+
+        const datosCrudosFamiliaresPeps =
+            await actualizaciondatosService.obtenerFamiliaresPeps(Cedula);
+
+        const familiaresPeps = mapearFamiliaresPeps(datosCrudosFamiliaresPeps);
+
+        res.status(200).json(familiaresPeps);
+    } catch (error) {
+        console.error("Error en getFamiliaresPeps:", error);
+        res.status(500).json({
+            error: error.message || "Error al obtener familiares peps"
+        });
+    }
+};
+
+exports.getAdjuntos = async (req, res) => {
+    try {
+        const Cedula = cedulaEjemplo;
+        const Catalogo = await actualizaciondatosService.obtenerAdjuntosGenerales();
+        const Relacionados = await actualizaciondatosService.obtenerAdjuntosRelacionados(Cedula);
+
+        const adjuntos = resolverAdjuntosParaVista(Catalogo, Relacionados);
+
+        res.status(200).json(adjuntos);
+    } catch (error) {
+        console.error("Error en getAdjuntos:", error);
+        res.status(500).json({
+            error: error.message || "Error al obtener adjuntos"
+        });
+    }
+};
+
+

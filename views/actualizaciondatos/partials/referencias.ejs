@@ -34,7 +34,8 @@
                     <div class="row g-3">
                         <div class="col-4 col-md-3">
                             <div class="app-field select">
-                                <select class="app-select" id="tipoReferencia" data-combo="tiporeferencia" required>
+                                <select class="app-select" id="tipoReferencia" data-combo="tiporeferencia"
+                                    name="tipoReferencia" required>
                                     <option value="" selected></option>
                                 </select>
                                 <label for="tipoReferencia">Tipo de Referencia</label>
@@ -43,19 +44,22 @@
 
                         <div class="col-12 col-md-3">
                             <div class="app-field">
-                                <input type="text" class="app-input" id="cedulaReferencia" placeholder=" " required>
+                                <input type="text" class="app-input" id="cedulaReferencia" name="cedulaReferencia"
+                                    placeholder=" " required>
                                 <label for="cedulaReferencia">Cedula</label>
                             </div>
                         </div>
                         <div class="col-12 col-md-6">
                             <div class="app-field">
-                                <input type="text" class="app-input" id="nombresReferencia" placeholder=" " required>
+                                <input type="text" class="app-input" id="nombresReferencia" name="nombresReferencia"
+                                    placeholder=" " required>
                                 <label for="nombresReferencia">Nombres Completos</label>
                             </div>
                         </div>
                         <div class="col-12 col-md-3">
                             <div class="app-field select">
-                                <select class="app-select" id="parentescoReferencia" required>
+                                <select class="app-select" id="parentescoReferencia" name="parentescoReferencia"
+                                    required>
                                     <option value="" selected></option>
                                     <option value="C">CONYUGUE</option>
                                     <option value="H">HIJO</option>
@@ -72,7 +76,8 @@
                         </div>
                         <div class="col-12 col-md-3">
                             <div class="app-field select">
-                                <select class="app-select" id="paisReferencia" data-combo="paises" required>
+                                <select class="app-select" id="paisReferencia" data-combo="paises" name="paisReferencia"
+                                    required>
                                     <option value="" selected></option>
                                 </select>
                                 <label for="paisReferencia">Pais</label>
@@ -81,7 +86,8 @@
                         <div class="col-12 col-md-3">
                             <div class="app-field select">
                                 <select class="app-select" id="departamentoReferencia" data-combo="departamentos"
-                                    data-depende="paisReferencia" data-param="pais" required>
+                                    data-depende="paisReferencia" data-param="pais" name="departamentoReferencia"
+                                    required>
                                     <option value="" selected></option>
                                 </select>
                                 <label for="departamentoReferencia">Departamento</label>
@@ -90,7 +96,8 @@
                         <div class="col-12 col-md-3">
                             <div class="app-field select">
                                 <select class="app-select" id="ciudadReferencia" data-combo="ciudades"
-                                    data-depende="departamentoReferencia" data-param="dpto" required>
+                                    data-depende="departamentoReferencia" data-param="dpto" name="ciudadReferencia"
+                                    required>
                                     <option value="" selected></option>
                                 </select>
                                 <label for="ciudadReferencia">Ciudad</label>
@@ -99,7 +106,7 @@
                         <div class="col-12 col-md-4">
                             <div class="app-field select">
                                 <select class="app-select" id="zonaReferencia" data-combo="zona"
-                                    data-depende="ciudadReferencia" data-param="ciudad" required>
+                                    data-depende="ciudadReferencia" data-param="ciudad" name="zonaReferencia" required>
                                     <option value="" selected></option>
                                 </select>
                                 <label for="zonaReferencia">Zona</label>
@@ -108,7 +115,8 @@
                         <div class="col-12 col-md-4">
                             <div class="app-field select">
                                 <select class="app-select" id="comunaReferencia" data-combo="comuna"
-                                    data-depende="zonaReferencia,ciudadReferencia" data-param="zona,ciudad" required>
+                                    data-depende="zonaReferencia,ciudadReferencia" data-param="zona,ciudad"
+                                    name="comunaReferencia" required>
                                     <option value="" selected></option>
                                 </select>
                                 <label for="comunaReferencia">Comuna</label>
@@ -118,7 +126,7 @@
                             <div class="app-field select">
                                 <select class="app-select" id="barrioReferencia" data-combo="barrio"
                                     data-depende="comunaReferencia,zonaReferencia,ciudadReferencia"
-                                    data-param="comuna,zona,ciudad" required>
+                                    data-param="comuna,zona,ciudad" name="barrioReferencia" required>
                                     <option value="" selected></option>
                                 </select>
                                 <label for="barrioReferencia">Barrio</label>
@@ -126,31 +134,36 @@
                         </div>
                         <div class="col-12 col-md-6">
                             <div class="app-field">
-                                <input type="text" class="app-input" id="direccionReferencia" placeholder=" ">
+                                <input type="text" class="app-input" id="direccionReferencia" name="direccionReferencia"
+                                    placeholder=" ">
                                 <label for="direccionReferencia">Direccion</label>
                             </div>
                         </div>
                         <div class="col-12 col-md-3">
                             <div class="app-field">
-                                <input type="text" class="app-input" id="telefonoReferencia" placeholder=" ">
+                                <input type="text" class="app-input" id="telefonoReferencia" name="telefonoReferencia"
+                                    placeholder=" ">
                                 <label for="telefonoReferencia">Telefono</label>
                             </div>
                         </div>
                         <div class="col-12 col-md-3">
                             <div class="app-field">
-                                <input type="text" class="app-input" id="celularReferencia" placeholder=" ">
+                                <input type="text" class="app-input" id="celularReferencia" name="celularReferencia"
+                                    placeholder=" ">
                                 <label for="celularReferencia">Celular</label>
                             </div>
                         </div>
                         <div class="col-12 col-md-3">
                             <div class="app-field">
-                                <input type="text" class="app-input" id="trabajaEnReferencia" placeholder=" ">
+                                <input type="text" class="app-input" id="trabajaEnReferencia" name="trabajaEnReferencia"
+                                    placeholder=" ">
                                 <label for="trabajaEnReferencia">Trabaja en</label>
                             </div>
                         </div>
                         <div class="col-12 col-md-3">
                             <div class="app-field">
-                                <input type="text" class="app-input" id="telefonoOficinaReferencia" placeholder=" ">
+                                <input type="text" class="app-input" id="telefonoOficinaReferencia"
+                                    name="telefonoOficinaReferencia" placeholder=" ">
                                 <label for="telefonoOficinaReferencia">Telefono Oficina</label>
                             </div>
                         </div>

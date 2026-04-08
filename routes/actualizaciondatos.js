@@ -18,5 +18,14 @@ router.get("/tab/:tab", (req, res) => {
 
 router.get("/informacionAsociado", Controller.getInformacionAsociado);
 
+router.get("/autorizaciones", Controller.getAutorizaciones);
+
+router.get("/referencias", Controller.getReferencias);
+
+router.get("/personasCargo", Controller.getPersonasCargo);
+
+router.get("/familiaresPeps", Controller.getFamiliaresPeps);
+
+router.get("/adjuntos", Controller.getAdjuntos);
 
 module.exports = router;

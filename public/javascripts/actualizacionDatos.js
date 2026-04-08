@@ -31,16 +31,13 @@
                 evaluarTabsDinamicas();
                 validarCamposDeshabilitados();
                 if (tab === 'referencias') {
-                    renderReferences();
-                    renderReferencesNew();
+                    await initReferencias();
                 }
                 if (tab === 'personasACargo') {
-                    renderPeopleInChargeReal();
-                    renderPeopleInChargeNew();
+                    await initPersonasACargo();
                 }
                 if (tab === 'familiaresPeps') {
-                    renderFamiliarPepsReal();
-                    renderFamiliarPepsNew();
+                    await initFamiliaresPeps();
                 }
                 if (tab === 'otrosDatosAdicionales') {
                     evaluarContenidoOtrosDatosAdicionales();
@@ -52,6 +49,7 @@
     //CARGAR TAB DINAMICO PRUEBA
     $(document).ready(function () {
         inicializarFormulario();
+        evaluarTabsDinamicas();
         $('.app-tab[data-tab="autorizaciones"]').trigger('click');
     });
 
@@ -73,6 +71,7 @@
         evaluarTabsDinamicas();
         if (this.value === "S") {
             alertaModal("Usted es una persona expuesta políticamente y de acuerdo al decreto 830 del 26 de julio de 2021, las Personas Expuestas Políticamente deberán, declarar los nombres e identificación de las personas con las que tengan sociedad conyugal, de hecho, o de derecho, los nombres e identificación de sus familiares hasta segundo grado de consanguinidad", "Persona expuesta políticamente");
+            return [];
         }
     });
 
@@ -86,7 +85,7 @@
         const esJuridica = tipoDocumento === "N";
         const mostrarOtrosDatos = esApoderado || esJuridica;
 
-        const tieneConyugue = ["C", "U"].includes(estadoCivil);
+        const tieneConyugue = ["C", "V"].includes(estadoCivil);
         const esPeps = politicamenteExpuesto === "S";
         $("#tab-otrosDatosAdicionales").toggle(mostrarOtrosDatos);
         $("#tab-conyugue").toggle(tieneConyugue);
@@ -203,7 +202,6 @@
 
     //FNCION DE MODAL CON INFORMACION
     function alertaModal(mensaje, titulo) {
-
         const modalHTML = `
             <div class="modal fade app-modal" id="alertaModalTemp">
                 <div class="modal-dialog modal-dialog-centered">
@@ -225,51 +223,51 @@
                 </div>
                 </div>
             </div>
-            `;
+        `;
+        $("body").append(modalHTML);
 
-        document.body.insertAdjacentHTML("beforeend", modalHTML);
-
-        const modalElement = document.getElementById("alertaModalTemp");
-        const modal = new bootstrap.Modal(modalElement);
-
+        const $modalElement = $("#alertaModalTemp");
+        const modal = new bootstrap.Modal($modalElement[0]);
         modal.show();
 
-        modalElement.addEventListener("hidden.bs.modal", () => {
-            modalElement.remove();
+        $modalElement.on("hidden.bs.modal", function () {
+            $(this).remove();
         });
     }
 
+
+
     // AUTORIZACIONES
-    function initAutorizaciones() {
+    async function cargarAutorizacionesBackend() {
+        try {
+            const response = await fetch("/actualizaciondatos/autorizaciones");
+            if (!response.ok) {
+                console.error("Error al obtener autorizaciones:", response.statusText);
+                return [];
+            }
+            const resData = await response.json();
+
+            if (resData) {
+                return resData;
+            } else {
+                return [];
+            }
+        } catch (error) {
+            console.error("Excepción cargando autorizaciones del backend:", error);
+        }
+    }
+
+
+    async function initAutorizaciones() {
         const $contenedorAutorizaciones = $("#autorizaciones-content");
         if (!$contenedorAutorizaciones.length) return;
-        const autorizaciones = [
-            {
-                codigo: "AUT_1",
-                nombre: "Autorización de tratamiento de datos personales",
-                descripcion: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod.",
-                obligatorio: true,
-                activo: true
-            },
-            {
-                codigo: "AUT_2",
-                nombre: "Autorización de tratamiento de datos sensibles",
-                descripcion: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod.",
-                obligatorio: false,
-                activo: true
-            },
-            {
-                codigo: "AUT_3",
-                nombre: "Autorización de tratamiento de datos de menores",
-                descripcion: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod.",
-                obligatorio: false,
-                activo: true
-            }
-        ];
+        const autorizaciones = await cargarAutorizacionesBackend();
+        if (!Array.isArray(autorizaciones)) return;
         $contenedorAutorizaciones.empty();
         autorizaciones.forEach(aut => {
             if (!aut.activo) return;
 
+            const autorizada = Boolean(formState.autorizaciones?.[aut.codigo]);
             const marcaObligatorio = aut.obligatorio
                 ? '<span class="text-danger">*</span>'
                 : '';
@@ -286,9 +284,11 @@
                 </p>
                 <div class="mt-auto">
                 <div class="form-check form-switch">
-                    <input class="form-check-input"
+                    <input class="form-check-input autorizacion-switch"
                         type="checkbox"
                         id="switch-${aut.codigo}"
+                        data-codigo="${aut.codigo}"
+                        ${autorizada ? 'checked' : ''}
                         ${aut.obligatorio ? 'required' : ''}>
                     <label class="form-check-label"
                         for="switch-${aut.codigo}">
@@ -304,100 +304,83 @@
         });
     }
 
-    // ADJUNTOS
-    function initAdjuntos() {
+    //GUARDAR LA AUTORIZACION EN EL FORMSTATE UNA VEZ SE MARCA COMO AUTORIZADA
+    $(document).on("change", ".autorizacion-switch", function () {
+        const codigo = $(this).data("codigo");
 
+        if (!codigo) return;
+
+        formState.autorizaciones[codigo] = $(this).is(":checked");
+
+        if (!modificado) {
+            modificado = true;
+        }
+    });
+
+
+    // ADJUNTOS
+    async function cargarAdjuntosBackend() {
+        try {
+            const response = await fetch('/actualizaciondatos/adjuntos');
+            if (!response.ok) {
+                console.error('Error al obtener adjuntos:', response.statusText);
+                return { totalCatalogo: 0, items: [] };
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Excepción cargando adjuntos:', error);
+            return { totalCatalogo: 0, items: [] };
+        }
+    }
+
+    function formatearNombreAdjunto(nombre) {
+        const texto = String(nombre ?? "").trim().toLowerCase();
+        return texto.charAt(0).toUpperCase() + texto.slice(1);
+    }
+
+    //INICA LOS ADJUNTOS, TOMA LA INFO DEL BACKEND Y LA RENDERIZA EN LA VISTA UNA VEZ SE INGRESA AL TAB
+    async function initAdjuntos() {
         const $contenedorAdjuntos = $("#adjuntos-content");
         if (!$contenedorAdjuntos.length) return;
 
-        const adjuntosERP = [
-            {
-                codigo: "DOC_CC",
-                nombre: "Cédula de ciudadanía",
-                obligatorio: true,
-                activo: true,
-                mensaje: "Documento legible por ambas caras",
-                yaSubido: false,
-                volverAPedir: false
-            },
-            {
-                codigo: "DOC_RUT",
-                nombre: "RUT KAKA",
-                obligatorio: true,
-                activo: true,
-                mensaje: "Documento legible y actualizado",
-                yaSubido: true,
-                volverAPedir: true
-            },
-            {
-                codigo: "DOC_ING",
-                nombre: "Certificado de ingresos",
-                obligatorio: false,
-                activo: true,
-                mensaje: "No mayor a 30 días",
-                yaSubido: true,
-                volverAPedir: false
-            },
-            {
-                codigo: "DOC_ING2",
-                nombre: "Certificado de ingresos2",
-                obligatorio: true,
-                activo: true,
-                mensaje: "No mayor a 30 días",
-                yaSubido: false,
-                volverAPedir: true
-            }
-        ];
+        const data = await cargarAdjuntosBackend();
+        const adjuntos = Array.isArray(data.items) ? data.items : [];
 
         $contenedorAdjuntos.empty();
 
-        adjuntosERP.forEach(adj => {
-            if (!adj.activo) return;
-
+        adjuntos.forEach((adj, index) => {
+            const posicion = index + 1;
             const marcaObligatorio = adj.obligatorio
                 ? '<span class="text-danger">*</span>'
                 : '';
 
-            let accion = '';
-
-            if (adj.yaSubido && !adj.volverAPedir) {
-                accion = `
-          <div class="alert alert-success py-2 mb-0 small text-center border-0">
-            Documento ya cargado en el sistema
-          </div>
-        `;
-            } else {
-                const alertaRequerido = adj.volverAPedir ?
-                    '<div class="mb-2"><span class="badge bg-warning text-dark">Actualización requerida</span></div>' : '';
-                accion = `
-          ${alertaRequerido}
-          <input type="file"
-                 class="form-control form-control-sm"
-                 ${adj.obligatorio ? 'required' : ''}>
-        `;
-            }
-
             const html = `
-        <div class="col-12 col-md-6 col-lg-4 mb-4 adjunto-item"
-             data-codigo="${adj.codigo}">
-          <div class="app-paper elevation-4 h-100 d-flex flex-column p-3">
-            <h6 class="table-headers">
-              ${adj.nombre} ${marcaObligatorio}
-            </h6>
-            <small class="text-muted mb-2">${adj.mensaje}</small>
-            <div class="mt-auto">
-              ${accion}
-              <small class="estado-adjunto text-success d-block mt-1"></small>
+            <div class="col-12 col-md-6 col-lg-4 mb-4 adjunto-item" data-codigo="${adj.codigo}">
+                <div class="app-paper elevation-4 h-100 d-flex flex-column p-3">
+                    <h6 class="table-headers">
+                        ${formatearNombreAdjunto(adj.nombre)} ${marcaObligatorio}
+                    </h6>
+                    <small class="text-muted mb-2">${adj.descripcion}</small>
+                    <div class="mt-auto">
+                        <input type="hidden" name="codadjunto${posicion}" value="${adj.codadjunto}">
+                        <input type="hidden" name="codnomadjunto${posicion}" value="${adj.codnomadjunto}">
+                        <input type="file"
+                            name="txtadjunto${posicion}"
+                            id="txtadjunto${posicion}"
+                            class="form-control form-control-sm adjuntospintados"
+                            ${adj.obligatorio ? 'required' : ''}>
+                    </div>
+                </div>
             </div>
-          </div>
-        </div>
-      `;
+        `;
 
             $contenedorAdjuntos.append(html);
         });
     }
 
-    // OTROS DATOS
+
+    // OTROS DATOS, SE USA PARA EL MODAL DE GRUPO PROTECCION
     function initOtrosDatos() {
         const $contenedorOtrosDatos = $("#otrosDatos");
         if (!$contenedorOtrosDatos.length) return;
@@ -433,15 +416,45 @@
             });
     }
 
+
+
     //PERSONAS A CARGO
-    let peopleInChargeRealMock = [];
-    let peopleInChargeNewMock = [];
+    let peopleInChargeReal = [];
+    let peopleInChargeNew = [];
+
+    //TRAE LA INFORMACION DE LAS PERSONAS A CARGO (YA MAPEADA)
+    async function cargarPersonasACargoBackend() {
+        try {
+            const response = await fetch(`/actualizaciondatos/personasCargo`);
+            if (!response.ok) {
+                console.error("Error al obtener personas a cargo:", response.statusText);
+                return [];
+            }
+            const resData = await response.json();
+
+            if (resData) {
+                return resData;
+            } else {
+                return [];
+            }
+        } catch (error) {
+            console.error("Excepción cargando personas a cargo del backend:", error);
+            return [];
+        }
+    }
+
+    //INICIALIZA TODA LA SECUENCIA DE CARGADO
+    async function initPersonasACargo() {
+        peopleInChargeReal = await cargarPersonasACargoBackend();
+        renderPeopleInChargeReal();
+        renderPeopleInChargeNew();
+    }
 
     //RENDERIZAR LAS PERSONAS A CARGO EXISTENTES
     function renderPeopleInChargeReal() {
         const $peopleInChargeReal = $("#list-peopleincharge-real");
         $peopleInChargeReal.empty();
-        if (!peopleInChargeRealMock || peopleInChargeRealMock.length === 0) {
+        if (!peopleInChargeReal || peopleInChargeReal.length === 0) {
             $peopleInChargeReal.append(
                 `<div class="fw-bold text-center" style="padding-top: 50px; padding-bottom: 20px;">
                         Actualmente no hay personas en cargo registradas en la entidad
@@ -462,7 +475,7 @@
                     <div class="col-md-4">Editar</div>
                 </section>
         `);
-        $.each(peopleInChargeRealMock, function (_, peopleCharge) {
+        $.each(peopleInChargeReal, function (_, peopleCharge) {
             $peopleInChargeReal.append(
                 `<div class="app-paper elevation-3 p-3 mb-3">
                 <div class="row align-items-center text-md-center">
@@ -492,7 +505,7 @@
     function renderPeopleInChargeNew() {
         const $peopleInChargeNew = $("#list-peopleincharge-new");
         $peopleInChargeNew.empty();
-        if (!peopleInChargeNewMock || peopleInChargeNewMock.length === 0) {
+        if (!peopleInChargeNew || peopleInChargeNew.length === 0) {
             return;
         }
         $peopleInChargeNew.append(`
@@ -510,7 +523,7 @@
                     <div class="col-md-3">Acciones</div>
                 </section>
         `);
-        $.each(peopleInChargeNewMock, function (_, peopleInCharge) {
+        $.each(peopleInChargeNew, function (_, peopleInCharge) {
             $peopleInChargeNew.append(
                 `<div class="app-paper elevation-3 p-3 mb-3">
                 <div class="row align-items-center text-md-center">
@@ -560,7 +573,7 @@
 
     //ID COUNTER PARA NUEVAS PERSONAS A CARGO
     let peopleInChargeIdCounter = Math.max(
-        ...peopleInChargeRealMock.map(r => r.id),
+        ...peopleInChargeReal.map(r => r.id),
         0
     ) + 1;
 
@@ -581,7 +594,7 @@
             fullNames: $('#nombresPersonaACargo').val().trim(),
             parentesco: $('#parentescoPersonaACargo').val(),
             genero: $('#generoPersonaACargo').val().trim(),
-            fechaExpedicionDocumento: $('#fechaExpedicionDocumentoPersonaACargo').val().trim()
+            fechaNacimiento: $('#fechaNacimientoPersonaACargo').val().trim()
         };
         if (!identificationPeopleInCharge || !nuevaPersonaACargo.fullNames) {
             alert('Debe completar los campos obligatorios');
@@ -590,31 +603,31 @@
         if (modo === 'editar') {
             let index = -1;
             if (source === 'new') {
-                index = peopleInChargeNewMock.findIndex(r => r.id === id);
+                index = peopleInChargeNew.findIndex(r => r.id === id);
             } else if (source === 'real') {
-                index = peopleInChargeNewMock.findIndex(r => r.originalId === id);
+                index = peopleInChargeNew.findIndex(r => r.originalId === id);
             }
 
             if (index !== -1) {
-                nuevaPersonaACargo.id = peopleInChargeNewMock[index].id;
-                nuevaPersonaACargo.originalId = peopleInChargeNewMock[index].originalId;
-                peopleInChargeNewMock[index] = nuevaPersonaACargo;
+                nuevaPersonaACargo.id = peopleInChargeNew[index].id;
+                nuevaPersonaACargo.originalId = peopleInChargeNew[index].originalId;
+                peopleInChargeNew[index] = nuevaPersonaACargo;
                 modificado = true;
             } else {
                 nuevaPersonaACargo.id = peopleInChargeIdCounter++;
-                peopleInChargeNewMock.push(nuevaPersonaACargo);
+                peopleInChargeNew.push(nuevaPersonaACargo);
                 modificado = true;
             }
         }
         else {
-            const existeEnReal = peopleInChargeRealMock.some(r =>
+            const existeEnReal = peopleInChargeReal.some(r =>
                 r.identification === identificationPeopleInCharge
             );
             if (existeEnReal) {
                 alert('Ya existe una persona a cargo con esa identificación.');
                 return;
             }
-            const existeEnNew = peopleInChargeNewMock.some(r =>
+            const existeEnNew = peopleInChargeNew.some(r =>
                 r.identification === identificationPeopleInCharge
             );
             if (existeEnNew) {
@@ -623,7 +636,7 @@
             }
             nuevaPersonaACargo.id = peopleInChargeIdCounter++;
             nuevaPersonaACargo.originalId = null;
-            peopleInChargeNewMock.push(nuevaPersonaACargo);
+            peopleInChargeNew.push(nuevaPersonaACargo);
             modificado = true;
         }
         renderPeopleInChargeNew();
@@ -642,9 +655,9 @@
         const source = $(this).data('source');
         let peopleInCharge;
         if (source === 'real') {
-            peopleInCharge = peopleInChargeRealMock.find(r => r.id === id);
+            peopleInCharge = peopleInChargeReal.find(r => r.id === id);
         } else {
-            peopleInCharge = peopleInChargeNewMock.find(r => r.id === id);
+            peopleInCharge = peopleInChargeNew.find(r => r.id === id);
         }
         if (!peopleInCharge) return;
 
@@ -657,7 +670,7 @@
         $('#nombresPersonaACargo').val(peopleInCharge.fullNames);
         $('#parentescoPersonaACargo').val(peopleInCharge.parentesco);
         $('#generoPersonaACargo').val(peopleInCharge.genero);
-        $('#fechaExpedicionDocumentoPersonaACargo').val(peopleInCharge.fechaExpedicionDocumento);
+        $('#fechaNacimientoPersonaACargo').val(peopleInCharge.fechaNacimiento);
 
         const $modal = $('#modalAgregarPersonaACargo');
         const $submitBtn = $modal.find('button[type="submit"]');
@@ -667,7 +680,7 @@
     //ABRIR MODAL ELIMINAR PERSONA A CARGO
     $(document).on('click', '#btnEliminarPersonaACargo', function () {
         const id = $(this).data('id');
-        const personaACargo = peopleInChargeNewMock.find(p => p.id === id);
+        const personaACargo = peopleInChargeNew.find(p => p.id === id);
 
         if (!personaACargo) return;
 
@@ -682,7 +695,7 @@
     //CONFIRMAR ELIMINAR PERSONA A CARGO
     $(document).on('click', '#btnAceptarEliminarPersonaACargo', function () {
         const idAEliminar = $(this).data('id');
-        peopleInChargeNewMock = peopleInChargeNewMock.filter(r => r.id !== idAEliminar);
+        peopleInChargeNew = peopleInChargeNew.filter(r => r.id !== idAEliminar);
         renderPeopleInChargeNew();
         const modalElement = document.getElementById('modalEliminarPersonaACargo');
         const modalInstance = bootstrap.Modal.getInstance(modalElement);
@@ -691,22 +704,79 @@
 
     });
 
-    //REFERENCIAS
-    let referencesNewMock = [
-    ];
 
-    // MOCK PARA REFERENCIAS ACTUALES
-    let referencesRealMock = [
-        { id: 2, tipoReferencia: 'FAMILIAR', identification: '87654321', fullNames: 'Pepito Perez', parentesco: 'AMISTAD', pais: 'EJEMPLO1', departamento: 'EJEMPLO2', ciudad: 'EJEMPLO3', zona: 'EJEMPLO4', comuna: 'EJEMPLO5', barrio: 'EJEMPLO6', direccion: 'Calle 45 # 67 - 89', telefono: '87654321', celular: '87654321', trabajaEn: 'Empresa 1', telefonoOficina: '87654321' },
-        { id: 3, tipoReferencia: 'BANCARIA', identification: '11223344', fullNames: 'Pepito Perez', parentesco: 'FAMILIAR', pais: 'EJEMPLO1', departamento: 'EJEMPLO2', ciudad: 'EJEMPLO3', zona: 'EJEMPLO4', comuna: 'EJEMPLO5', barrio: 'EJEMPLO6', direccion: 'Calle 45 # 67 - 89', telefono: '87654321', celular: '87654321', trabajaEn: 'Empresa 12', telefonoOficina: '87654321' },
-        { id: 4, tipoReferencia: 'PERSONAL', identification: '00000000', fullNames: 'Pepito Perez', parentesco: 'FAMILIAR', pais: 'EJEMPLO1', departamento: 'EJEMPLO2', ciudad: 'EJEMPLO3', zona: 'EJEMPLO4', comuna: 'EJEMPLO5', barrio: 'EJEMPLO6', direccion: 'Calle 45 # 67 - 89', telefono: '87654321', celular: '87654321', trabajaEn: 'Empresa 12', telefonoOficina: '00000000' },
-    ];
 
-    //RENDERIZAR LAS REFERENCIAS EXISTENTES
+
+
+
+    //LOGICA PARA REFERENCIAS
+
+    //FUNCIONES PARA EL EFECTO CASCADA DE LOS COMBOS EN EL MODAL DE EDITAR REFERENCIA, YA QUE ESTOS NO SE CARGAN DIRECTAMENTE AL ENTRAR EN LA TAB, DEPENDENDEN DE LA REFERENCIA SELECCIONADA Y SU INFORMACION
+    function resetCombosReferencia() {
+        $('#paisReferencia').val('');
+        $('#departamentoReferencia').html('<option value=""></option>').val('');
+        $('#ciudadReferencia').html('<option value=""></option>').val('');
+        $('#zonaReferencia').html('<option value=""></option>').val('');
+        $('#comunaReferencia').html('<option value=""></option>').val('');
+        $('#barrioReferencia').html('<option value=""></option>').val('');
+    }
+    async function cargarCombosReferencia(selector, value, timeout = 3000) {
+        if (!value) {
+            $(selector).val("").trigger("change");
+            return;
+        }
+        const start = Date.now();
+        while (Date.now() - start < timeout) {
+            const $select = $(selector);
+            const exists = $select.find(`option[value="${value}"]`).length > 0;
+
+            if (exists) {
+                $select.val(value).trigger("change");
+                return true;
+            }
+            await new Promise(resolve => setTimeout(resolve, 50));
+        }
+        return false;
+    }
+
+
+    let referencesNew = [];
+    let referencesReal = [];
+
+    //TRAER REFERENCIAS BACKEND YA MAPEADAS
+    async function cargarReferenciasBackend() {
+        try {
+            const response = await fetch(`/actualizaciondatos/referencias`);
+            if (!response.ok) {
+                console.error("Error al obtener referencias:", response.statusText);
+                return [];
+            }
+            const resData = await response.json();
+
+            if (resData) {
+                return resData;
+            } else {
+                return [];
+            }
+        } catch (error) {
+            console.error("Excepción cargando referencias del backend:", error);
+            return [];
+        }
+    }
+
+    //INICIALIZA TODA LA SECUENCIA DE CARGADO
+    async function initReferencias() {
+        referencesReal = await cargarReferenciasBackend();
+        actualizarContadorReferencias();
+        renderReferences();
+        renderReferencesNew();
+    }
+
+    //RENDERIZAR LAS REFERENCIAS EXISTENTES 
     function renderReferences() {
         const $referencesReal = $('#list-references-real');
         $referencesReal.empty();
-        if (!referencesRealMock || referencesRealMock.length === 0) {
+        if (!referencesReal || referencesReal.length === 0) {
             $referencesReal.append(
                 `<div class="fw-bold text-center" style="padding-top: 50px; padding-bottom: 20px;">
                         Actualmente no hay referencias registradas en la entidad
@@ -727,7 +797,7 @@
                     <div class="col-md-4">Editar</div>
                 </section>
         `);
-        $.each(referencesRealMock, function (_, reference) {
+        $.each(referencesReal, function (_, reference) {
             $referencesReal.append(
                 `<div class="app-paper elevation-3 p-3 mb-3">
                 <div class="row align-items-center text-md-center">
@@ -751,11 +821,11 @@
         });
     }
 
-    //RENDERIZAR LAS NUEVAS REFERENCIAS AGREGADAS
+    //RENDERIZAR LAS NUEVAS REFERENCIAS AGREGADAS O EDITADAS
     function renderReferencesNew() {
         const $referencesNew = $('#list-references-new');
         $referencesNew.empty();
-        if (!referencesNewMock || referencesNewMock.length === 0) {
+        if (!referencesNew || referencesNew.length === 0) {
             return;
         }
         $referencesNew.append(`
@@ -773,7 +843,7 @@
                     <div class="col-md-3">Acciones</div>
                 </section>
         `);
-        $.each(referencesNewMock, function (_, reference) {
+        $.each(referencesNew, function (_, reference) {
             $referencesNew.append(
                 `<div class="app-paper elevation-3 p-3 mb-3">
                 <div class="row align-items-center text-md-center">
@@ -812,11 +882,15 @@
         });
     }
 
-    //ID COUNTER REFERENCIAS
-    let referenceIdCounter = Math.max(
-        ...referencesRealMock.map(r => r.id),
-        0
-    ) + 1;
+    //ID COUNTER REFERENCIAS PARA MANTENER LA LOGICA DE LOS ID 
+    let referenceIdCounter = 1;
+    function actualizarContadorReferencias() {
+        referenceIdCounter = Math.max(
+            0,
+            ...referencesReal.map(r => Number(r.id) || 0),
+            ...referencesNew.map(r => Number(r.id) || 0)
+        ) + 1;
+    }
 
     //AGREGAR REFERENCIAS NUEVA O EDITADA
     $(document).on('submit', '#formAgregarReferencia', function (e) {
@@ -853,31 +927,31 @@
         if (modo === 'editar') {
             let index = -1;
             if (source === 'new') {
-                index = referencesNewMock.findIndex(r => r.id === id);
+                index = referencesNew.findIndex(r => r.id === id);
             } else if (source === 'real') {
-                index = referencesNewMock.findIndex(r => r.originalId === id);
+                index = referencesNew.findIndex(r => r.originalId === id);
             }
 
             if (index !== -1) {
-                nuevaReferencia.id = referencesNewMock[index].id;
-                nuevaReferencia.originalId = referencesNewMock[index].originalId;
-                referencesNewMock[index] = nuevaReferencia;
+                nuevaReferencia.id = referencesNew[index].id;
+                nuevaReferencia.originalId = referencesNew[index].originalId;
+                referencesNew[index] = nuevaReferencia;
                 modificado = true;
             } else {
                 nuevaReferencia.id = referenceIdCounter++;
-                referencesNewMock.push(nuevaReferencia);
+                referencesNew.push(nuevaReferencia);
                 modificado = true;
             }
         }
         else {
-            const existeEnReal = referencesRealMock.some(r =>
+            const existeEnReal = referencesReal.some(r =>
                 r.identification === identification
             );
             if (existeEnReal) {
                 alert('Ya existe una referencia con esa identificación.');
                 return;
             }
-            const existeEnNew = referencesNewMock.some(r =>
+            const existeEnNew = referencesNew.some(r =>
                 r.identification === identification
             );
             if (existeEnNew) {
@@ -886,7 +960,7 @@
             }
             nuevaReferencia.id = referenceIdCounter++;
             nuevaReferencia.originalId = null;
-            referencesNewMock.push(nuevaReferencia);
+            referencesNew.push(nuevaReferencia);
             modificado = true;
         }
         renderReferencesNew();
@@ -899,15 +973,15 @@
     });
 
     //EDITAR REFERENCIA
-    $(document).on('click', '#btnEditarReferencia', function () {
+    $(document).on('click', '#btnEditarReferencia', async function () {
 
         const id = Number($(this).data('id'));
         const source = $(this).data('source');
         let referencia;
         if (source === 'real') {
-            referencia = referencesRealMock.find(r => r.id === id);
+            referencia = referencesReal.find(r => r.id === id);
         } else {
-            referencia = referencesNewMock.find(r => r.id === id);
+            referencia = referencesNew.find(r => r.id === id);
         }
         if (!referencia) return;
 
@@ -919,17 +993,19 @@
         $('#cedulaReferencia').val(referencia.identification);
         $('#nombresReferencia').val(referencia.fullNames);
         $('#parentescoReferencia').val(referencia.parentesco);
-        $('#paisReferencia').val(referencia.pais);
-        $('#departamentoReferencia').val(referencia.departamento);
-        $('#ciudadReferencia').val(referencia.ciudad);
-        $('#zonaReferencia').val(referencia.zona);
-        $('#comunaReferencia').val(referencia.comuna);
-        $('#barrioReferencia').val(referencia.barrio);
         $('#direccionReferencia').val(referencia.direccion);
         $('#telefonoReferencia').val(referencia.telefono);
         $('#celularReferencia').val(referencia.celular);
         $('#trabajaEnReferencia').val(referencia.trabajaEn);
         $('#telefonoOficinaReferencia').val(referencia.telefonoOficina);
+
+        resetCombosReferencia();
+        await cargarCombosReferencia('#paisReferencia', referencia.pais);
+        await cargarCombosReferencia('#departamentoReferencia', referencia.departamento);
+        await cargarCombosReferencia('#ciudadReferencia', referencia.ciudad);
+        await cargarCombosReferencia('#zonaReferencia', referencia.zona);
+        await cargarCombosReferencia('#comunaReferencia', referencia.comuna);
+        await cargarCombosReferencia('#barrioReferencia', referencia.barrio);
 
         const $modal = $('#modalAgregarReferencia');
         const $submitBtn = $modal.find('button[type="submit"]');
@@ -940,7 +1016,7 @@
     //MODAL PARA ELIMINAR REFERENCIA
     $(document).on('click', '#btnEliminarReferencia', function () {
         const id = $(this).data('id');
-        const referencia = referencesNewMock.find(r => r.id === id);
+        const referencia = referencesNew.find(r => r.id === id);
 
         if (!referencia) return;
 
@@ -955,7 +1031,7 @@
     //CONFIRMAR ELIMINAR REFERENCIA
     $(document).on('click', '#btnAceptarEliminarReferencia', function () {
         const idAEliminar = $(this).data('id');
-        referencesNewMock = referencesNewMock.filter(r => r.id !== idAEliminar);
+        referencesNew = referencesNew.filter(r => r.id !== idAEliminar);
         renderReferencesNew();
         const modalElement = document.getElementById('modalEliminarReferencia');
         const modalInstance = bootstrap.Modal.getInstance(modalElement);
@@ -963,16 +1039,51 @@
         guardarSessionStorage();
     });
 
-    //FAMILIARES PEPS
-    let familiarPepsRealMock = [];
 
-    let familiarPepsNewMock = [];
+
+
+
+
+
+    //LOGICA FAMILIARES PEPS
+
+    //FAMILIARES PEPS
+    let familiarPepsReal = [];
+    let familiarPepsNew = [];
+
+    //CARGAR DATOS DE LOS FAMILIARES PEPS YA MAPEADOS
+    async function cargarFamiliaresPepsBackend() {
+        try {
+            const response = await fetch(`/actualizaciondatos/familiaresPeps`);
+            if (!response.ok) {
+                console.error("Error al obtener familiares peps:", response.statusText);
+                return [];
+            }
+            const resData = await response.json();
+
+            if (resData) {
+                return resData;
+            } else {
+                return [];
+            }
+        } catch (error) {
+            console.error("Excepción cargando familiares peps del backend:", error);
+            return [];
+        }
+    }
+
+    //INICIALIZA TODO EL FLUJO DE CARGADO
+    async function initFamiliaresPeps() {
+        familiarPepsReal = await cargarFamiliaresPepsBackend();
+        renderFamiliarPepsReal();
+        renderFamiliarPepsNew();
+    }
 
     //RENDERIZAR FAMILIARES PEPS EXISTENTES
     function renderFamiliarPepsReal() {
         const $familiarPepsReal = $('#list-familiar-peps-real');
         $familiarPepsReal.empty();
-        if (!familiarPepsRealMock || familiarPepsRealMock.length === 0) {
+        if (!familiarPepsReal || familiarPepsReal.length === 0) {
             $familiarPepsReal.append(
                 `<div class="fw-bold text-center" style="padding-top: 50px; padding-bottom: 20px;">
                         Actualmente no hay familiares PEP'S registrados en la entidad
@@ -994,7 +1105,7 @@
                 </section>
         `);
 
-        $.each(familiarPepsRealMock, function (_, familiarPeps) {
+        $.each(familiarPepsReal, function (_, familiarPeps) {
             $familiarPepsReal.append(
                 `<div class="app-paper elevation-3 p-3 mb-3">
                 <div class="row align-items-center text-md-center">
@@ -1021,7 +1132,7 @@
     function renderFamiliarPepsNew() {
         const $familiarPepsNew = $('#list-familiar-peps-new');
         $familiarPepsNew.empty();
-        if (!familiarPepsNewMock || familiarPepsNewMock.length === 0) {
+        if (!familiarPepsNew || familiarPepsNew.length === 0) {
             return;
         }
         $familiarPepsNew.append(`
@@ -1039,7 +1150,7 @@
                 </section>
         `);
 
-        $.each(familiarPepsNewMock, function (_, familiarPeps) {
+        $.each(familiarPepsNew, function (_, familiarPeps) {
             $familiarPepsNew.append(
                 `<div class="app-paper elevation-3 p-3 mb-3">
                 <div class="row align-items-center text-md-center">
@@ -1071,7 +1182,7 @@
 
     //ID COUNTER FAMILIARES PEPS
     let familiarPepsIdCounter = Math.max(
-        ...familiarPepsRealMock.map(r => r.id),
+        ...familiarPepsReal.map(r => r.id),
         0
     ) + 1;
 
@@ -1102,31 +1213,31 @@
         if (modo === 'editar') {
             let index = -1;
             if (source === 'new') {
-                index = familiarPepsNewMock.findIndex(r => r.id === id);
+                index = familiarPepsNew.findIndex(r => r.id === id);
             } else if (source === 'real') {
-                index = familiarPepsNewMock.findIndex(r => r.originalId === id);
+                index = familiarPepsNew.findIndex(r => r.originalId === id);
             }
 
             if (index !== -1) {
-                nuevoFamiliarPeps.id = familiarPepsNewMock[index].id;
-                nuevoFamiliarPeps.originalId = familiarPepsNewMock[index].originalId;
-                familiarPepsNewMock[index] = nuevoFamiliarPeps;
+                nuevoFamiliarPeps.id = familiarPepsNew[index].id;
+                nuevoFamiliarPeps.originalId = familiarPepsNew[index].originalId;
+                familiarPepsNew[index] = nuevoFamiliarPeps;
                 modificado = true;
             } else {
                 nuevoFamiliarPeps.id = familiarPepsIdCounter++;
-                familiarPepsNewMock.push(nuevoFamiliarPeps);
+                familiarPepsNew.push(nuevoFamiliarPeps);
                 modificado = true;
             }
         }
         else {
-            const existeEnReal = familiarPepsRealMock.some(r =>
+            const existeEnReal = familiarPepsReal.some(r =>
                 r.identification === identification
             );
             if (existeEnReal) {
                 alert('Ya existe una referencia real con esa identificación.');
                 return;
             }
-            const existeEnNew = familiarPepsNewMock.some(r =>
+            const existeEnNew = familiarPepsNew.some(r =>
                 r.identification === identification
             );
             if (existeEnNew) {
@@ -1135,7 +1246,7 @@
             }
             nuevoFamiliarPeps.id = familiarPepsIdCounter++;
             nuevoFamiliarPeps.originalId = null;
-            familiarPepsNewMock.push(nuevoFamiliarPeps);
+            familiarPepsNew.push(nuevoFamiliarPeps);
             modificado = true;
         }
         renderFamiliarPepsNew();
@@ -1154,9 +1265,9 @@
         const source = $(this).data('source');
         let familiarPeps;
         if (source === 'real') {
-            familiarPeps = familiarPepsRealMock.find(r => r.id === id);
+            familiarPeps = familiarPepsReal.find(r => r.id === id);
         } else {
-            familiarPeps = familiarPepsNewMock.find(r => r.id === id);
+            familiarPeps = familiarPepsNew.find(r => r.id === id);
         }
         if (!familiarPeps) return;
 
@@ -1180,7 +1291,7 @@
     //MODAL PARA ELIMINAR FAMILIAR PEPS
     $(document).on('click', '#btnEliminarFamiliarPeps', function () {
         const id = $(this).data('id');
-        const familiarPeps = familiarPepsNewMock.find(p => p.id === id);
+        const familiarPeps = familiarPepsNew.find(p => p.id === id);
 
         if (!familiarPeps) return;
 
@@ -1195,7 +1306,7 @@
     //CONFIRMAR ELIMINAR FAMILIAR PEPS
     $(document).on('click', '#btnAceptarEliminarFamiliarPeps', function () {
         const idAEliminar = $(this).data('id');
-        familiarPepsNewMock = familiarPepsNewMock.filter(r => r.id !== idAEliminar);
+        familiarPepsNew = familiarPepsNew.filter(r => r.id !== idAEliminar);
         renderFamiliarPepsNew();
         const modalElement = document.getElementById('modalEliminarFamiliarPeps');
         const modalInstance = bootstrap.Modal.getInstance(modalElement);
@@ -1203,6 +1314,10 @@
         guardarSessionStorage();
 
     });
+
+
+
+
 
     //RESETEAR MODALES
     $(document).on('click', '.app-modal__close', function () {
@@ -1232,6 +1347,7 @@
 
     //PRUEBAS MANEJO DE ESTADO GLOBAL Y REHIDRATACION DE TABS
     let formState = {
+        autorizaciones: {},
         datosPersonales: {
             tipoDocumento: null,
             numeroDocumento: null,
@@ -1451,10 +1567,7 @@
             telefonoRepresentanteLegal: null,
             movilRepresentanteLegal: null,
             indicativoRepresentanteLegal: null,
-
         },
-
-
     }
 
     let modificado = false;
@@ -1528,9 +1641,9 @@
     function guardarSessionStorage() {
         try {
             sessionStorage.setItem(STORAGE_KEY, JSON.stringify(formState));
-            sessionStorage.setItem("peopleInCharge", JSON.stringify(peopleInChargeNewMock));
-            sessionStorage.setItem("references", JSON.stringify(referencesNewMock));
-            sessionStorage.setItem("familiarPeps", JSON.stringify(familiarPepsNewMock));
+            sessionStorage.setItem("peopleInCharge", JSON.stringify(peopleInChargeNew));
+            sessionStorage.setItem("references", JSON.stringify(referencesNew));
+            sessionStorage.setItem("familiarPeps", JSON.stringify(familiarPepsNew));
         } catch (error) {
             console.error("Error al guardar el formulario en session storage", error);
         }
@@ -1566,21 +1679,22 @@
             if (peopleInChargeData) {
                 const savedPeopleInCharge = JSON.parse(peopleInChargeData);
                 savedPeopleInCharge.forEach(person => {
-                    peopleInChargeNewMock.push(person);
+                    peopleInChargeNew.push(person);
                 });
             }
 
             if (referencesData) {
                 const savedReferences = JSON.parse(referencesData);
                 savedReferences.forEach(reference => {
-                    referencesNewMock.push(reference);
+                    referencesNew.push(reference);
                 });
+                actualizarContadorReferencias();
             }
 
             if (familiarPepsData) {
                 const savedFamiliarPeps = JSON.parse(familiarPepsData);
                 savedFamiliarPeps.forEach(familiarPep => {
-                    familiarPepsNewMock.push(familiarPep);
+                    familiarPepsNew.push(familiarPep);
                 });
             }
 
@@ -1602,7 +1716,7 @@
     // CARGA LOS DATOS DEL BACKEND AL FORMSTATE
     async function cargarDatosBackend() {
         try {
-            const response = await fetch("/actualizaciondatos/informacionAsociado?Cedula=1128417092");
+            const response = await fetch("/actualizaciondatos/informacionAsociado");
             if (!response.ok) {
                 console.error("Error al obtener datos:", response.statusText);
                 return;
@@ -1625,7 +1739,7 @@
 
     //INICIALIZAR FORMULARIO (VALIDA SI EXISTE SESSION STORAGE O CARGA DATOS DEL BACKEND)
     let formularioInicializado = false;
-    function inicializarFormulario() {
+    async function inicializarFormulario() {
 
         if (formularioInicializado) return;
 
@@ -1633,14 +1747,15 @@
 
         if (!haySession) {
 
-            cargarDatosBackend();
-            //guardarSessionStorage();
+            await cargarDatosBackend();
+
 
         } else {
             cargarSessionStorage();
             alertaModal("Aun tiene datos sin enviar, continúe con la actualizacion de datos y presione finalizar para enviar la información", "Información");
         }
-
+        evaluarTabsDinamicas();
+        evaluarContenidoOtrosDatosAdicionales();
         formularioInicializado = true;
     }
 
