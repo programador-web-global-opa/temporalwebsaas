@@ -88,7 +88,12 @@
 
   formBtn.addEventListener("click", sendRecoverUser);
 
-  btnModal.addEventListener("click", () => closeModal("modalrecover"));
+  btnModal.addEventListener("click", () => {
+    closeModal("modalrecover");
+    setTimeout(() => {
+      window.location.href = "/auth/login";
+    }, 3000)
+  });
 
   function openModal(modalId, isStatic = false) {
     const modalElement = document.getElementById(modalId);
