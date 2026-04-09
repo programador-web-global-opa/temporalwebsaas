@@ -1,6 +1,7 @@
 const express = require('express');
-const { validateUser, login } = require('../controllers/auth/auth.controller');
+const { validateUser, login, createUser, recoverUser } = require('../controllers/auth/auth.controller');
 const router = express.Router();
+
 const TITLE_APP = "FONDOOPA | Servicios en Linea";
 
 router.get("/login", (_, res) => {
@@ -34,5 +35,9 @@ router.get("/recover-password", (_, res) => {
 router.post("/validateUser", validateUser);
 
 router.post("/", login);
+
+router.post("/register", createUser);
+
+router.post("/recover-user", recoverUser);
 
 module.exports = router;

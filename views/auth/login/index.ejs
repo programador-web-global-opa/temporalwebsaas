@@ -1,7 +1,7 @@
 <!-- IZQUIERDA (contenido login) -->
 <div class="main-container">
   <div class="paper">
-    <form id="form-step-1" class="form">
+    <form id="form-step-1" class="form" style="max-width: 395px;">
       <div id="step-1">
         <div class="content-img">
           <img
@@ -41,7 +41,7 @@
       </div>
     </form>
 
-    <form id="form-step-2" class="form" style="display: none; max-width: 395px;">
+    <form id="form-step-2" class="form d-none" style="max-width: 395px;">
       <div class="app-paper elevation-8">
         <img
           id="security-image"
@@ -59,6 +59,19 @@
         </div>
       </div>
 
+      <div class="mui-textfield d-none" id="input-codigo-user">
+        <input type="hidden" data-code="N" />
+        <span class="material-icons mui-icon">password</span>
+        <input
+          type="text"
+          id="codigo-user"
+          placeholder="Ingrese Código"
+          autofocus
+          autocomplete="off"
+        />
+      </div>
+      <small class="error" id="error-codigo-user" style="width: 100%;"></small>
+
       <div class="mui-textfield" style="margin-top: 16px" id="input-login-password">
         <span class="material-icons mui-icon">lock</span>
         <input
@@ -72,7 +85,7 @@
           visibility_off
         </span>
       </div>
-      <small class="error" id="error-password"></small>
+      <small class="error" id="error-password" style="width: 100%;"></small>
 
       <div class="contenedor-boton" style="margin-top: 24px">
         <button
@@ -162,28 +175,38 @@
   </div>
 </div>
 
+<div class="modal fade app-modal" id="modalerror" style="z-index: 2000;" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content app-modal__content">
+      <div class="app-modal__body">
+        <div>
+          <div class="py-2 px-3" style="text-align: justify;" id="body-error"></div>
+          <div class="contenedor-boton">
+            <button type="button" class="boton-nuevo" id="btn-modal-register">
+              Ok
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
-  /**
-   *  Inicio de modal
-  */
   const modal = document.getElementById('securityModal');
   const btnAbrir = document.getElementById('btnOpenModal');
   const btnCerrar = document.getElementById('btnCerrar');
+  const btnModalBo = document.getElementById('btn-modal-register');
+  
+  let step = 1;
+  let temporalDocument = "";
 
-  function abrirModal() {
-    modal.classList.add('show-custom');
-    modal.style.display = 'block';
-    document.body.style.overflow = 'hidden';
-  }
+  const form1 = document.getElementById("form-step-1");
+  const form2 = document.getElementById("form-step-2");
+  const inputPassword = document.getElementById('password');
+  const btnToggle = document.getElementById('togglePassword');
 
-  function cerrarModal() {
-    modal.classList.remove('show-custom');
-    modal.style.display = 'none';
-    document.body.style.overflow = 'auto';
-  }
-
-  btnAbrir.addEventListener('click', abrirModal);
-  btnCerrar.addEventListener('click', cerrarModal);
+  window.onload = () => inputPassword.focus();
 
   window.addEventListener('click', (event) => {
     if (event.target === modal) {
@@ -196,19 +219,6 @@
       cerrarModal();
     }
   });
-  /**
-   *  Fin de modal
-  */
-
-
-  /**
-   *  Inicio Login
-  */
-  let step = 1;
-  let temporalDocument = "";
-
-  const form1 = document.getElementById("form-step-1");
-  const form2 = document.getElementById("form-step-2");
 
   form1.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -225,7 +235,7 @@
 
     error.textContent = "";
     errorinput.classList.remove("error");
-
+    form1.classList.add("d-none");
     activeLoading(true);
     await validateUser(username);
   });
@@ -235,40 +245,81 @@
 
     const confirmImage = document.getElementById("confirm-image").checked;
     const password = document.getElementById("password").value;
+    const codigoUser = document.getElementById("codigo-user").value;
+    const inputCodigoUser = document.getElementById("input-codigo-user");
     const errorinput = document.getElementById("input-login-password");
+    const errorPassword = document.getElementById("error-password");
+    const codigoOtp = document.getElementById("error-codigo-user");
+    const inputCode = document.querySelector('input[data-code]');
+    const errorCheck = document.getElementById("error-check");
     
     let valid = true;
 
     if (!password.trim()) {
-      document.getElementById("error-password").textContent = "Ingrese contraseña";
+      errorPassword.textContent = "Ingrese la contraseña";
+      errorPassword.classList.add("error");
       errorinput.classList.add("error");
       valid = false;
     }
 
+    if (inputCode.dataset.code === "S" && !codigoUser.trim()) {
+      codigoOtp.textContent = "Ingrese el código de seguridad";
+      codigoOtp.classList.add("error");
+      inputCodigoUser.classList.add("error");
+      valid = false;
+    }
+
     if (!confirmImage) {
-      document.getElementById("error-check").textContent = "Debes confirmar la imagen";
+      errorCheck.textContent = "Debes confirmar la imagen";
+      errorCheck.classList.add("error");
       valid = false;
     }
 
     if (!valid) return;
 
+    form2.classList.add("d-none");
     activeLoading(true);
-    await login(password, confirmImage);
+    await login(password, confirmImage, codigoUser);
   });
+
+  btnToggle.addEventListener('click', function () {
+      const isPassword = inputPassword.type === 'password';
+      inputPassword.type = isPassword ? 'text' : 'password';
+      
+      this.textContent = isPassword ? 'visibility' : 'visibility_off';
+      
+      inputPassword.focus();
+  });
+
+  btnAbrir.addEventListener('click', abrirModal);
+
+  btnCerrar.addEventListener('click', cerrarModal);
+
+  btnModalBo.addEventListener('click', () => closeModal("modalerror"));
 
   function goToStep(n) {
     step = n;
 
-    form1.style.display = 'none';
-    form2.style.display = 'none';
+    form1.classList.add("d-none");
+    form2.classList.add("d-none");
     loading.classList.remove("active");
 
     if (n === 1) {
-      form1.style.display = 'block';
+      form1.classList.remove("d-none");
+      document.getElementById("usuario").value = "";
+      document.getElementById("password").value = "";
+      document.getElementById("codigo-user").value = "";
+      document.getElementById("input-codigo-user").classList.remove("error");
+      document.getElementById("input-codigo-user").classList.add("d-none");
+      document.getElementById("input-login-password").classList.remove("error");
+      document.getElementById("error-password").classList.remove("error");
+      document.getElementById("error-password").textContent = "";
+      document.getElementById("error-check").textContent = "";
+      document.getElementById("confirm-image").checked = false;
       return;
     }
     if (n === 2) {
-      form2.style.display = 'block';
+      form2.classList.remove("d-none");
       return;
     }
   }
@@ -283,8 +334,70 @@
     if (!status) loading.classList.remove("active");
   }
 
+  function togglePassword() {
+    const inputPassword = document.getElementById("password");
+    inputPassword.type = inputPassword.type === "password" ? "text" : "password";
+  }
+
+  function headers(headersOptions = {}) {
+    const myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+    Object.entries(headersOptions).forEach(([key, value]) => {
+      myHeaders.append(key, value);
+    });
+    return myHeaders;
+  }
+
+  function abrirModal() {
+    modal.classList.add('show-custom');
+    modal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+  }
+
+  function cerrarModal() {
+    modal.classList.remove('show-custom');
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+  }
+
+  function openModal(modalId, isStatic = false) {
+    const modalElement = document.getElementById(modalId);
+
+    if (!modalElement) {
+      console.error(`No existe un modal con id: ${modalId}`);
+      return;
+    }
+
+    let modal = bootstrap.Modal.getInstance(modalElement);
+
+    if (!modal) {
+      modal = new bootstrap.Modal(modalElement, {
+        backdrop: isStatic ? 'static' : true,
+        keyboard: !isStatic // si es static, desactiva ESC
+      });
+    }
+
+    modal.show();
+  }
+
+  function closeModal(modalId) {
+    const modalElement = document.getElementById(modalId);
+
+    if (!modalElement) return;
+
+    const modal = bootstrap.Modal.getInstance(modalElement);
+    modal?.hide();
+  }
+
   async function validateUser(user) {
     try {
+      const inputCode = document.querySelector('input[data-code]');
+      const errorCode = document.getElementById("error-codigo-user");
+      const inputCodeUser = document.getElementById("input-codigo-user");
+      const inputUser = document.getElementById("input-login-user");
+      const securityImage = document.getElementById("security-image");
+      const errorUser = document.getElementById("error-usuario");
+
       const response = await fetch("/auth/validateUser", {
         method: 'POST',
         headers: headers(),
@@ -296,24 +409,39 @@
       const data = await response.json();
 
       if (!data?.result?.cedula) {
-        document.getElementById("input-login-user").classList.add("error");
-        document.getElementById("error-usuario").textContent = data?.message ?? "Usuario no invalido";
+        form1.classList.remove("d-none");
+        inputUser.classList.add("error");
+        errorUser.textContent = data?.message ?? "Usuario no invalido";
         return;
       }
 
-      temporalDocument = data?.result?.cedula;
-      document.getElementById("security-image").src = data?.result?.url; 
+      if (data?.codigo === "819") {
+        window.location.href = "/auth/recover-user";
+        return;
+      }
+
+      if (data?.codigo === "853") {
+        inputCode.dataset.code = "S";
+        inputCodeUser.classList.remove("d-none");
+        errorCode.textContent = "Ingrese el código de seguridad enviado a su correo";
+        errorCode.classList.remove("error");
+        temporalDocument = data?.result?.cedula ?? user;
+        securityImage.src = data?.result?.url ?? "/images/usuario.png";
+        return goToStep(2);
+      }
+      
+      temporalDocument = data?.result?.cedula ?? user;
+      securityImage.src = data?.result?.url ?? "/images/usuario.png";
       goToStep(2);
 
     } catch (error) {
-      console.log(error);
-      document.getElementById("error-usuario").textContent = "Usuario no invalido";
+      errorUser.textContent = "Usuario no invalido";
     } finally {
       activeLoading(false);
     }
   }
 
-  async function login(password, confirmImage) {
+  async function login(password, confirmImage, codigoUser = "") {
     try {
       const response = await fetch("/auth", {
         method: 'POST',
@@ -321,68 +449,60 @@
         body: JSON.stringify({
           "user": temporalDocument,
           "password": password,
-          "url": document.getElementById("security-image").src
+          "codigo": codigoUser,
+          "url": document.getElementById("security-image").src,
         }),
       });
 
       const data = await response.json();
 
+      if (data?.codigo === "820") {
+        form2.classList.remove("d-none");
+        document.getElementById("confirm-image").checked = false;
+        document.getElementById("password").value = "";
+        document.getElementById("error-password").classList.add("error");
+        document.getElementById("error-password").textContent = data?.message ?? "Usuario no invalido";
+        document.getElementById("input-login-password").classList.add("error");
+        return;
+      }
+
+      if (data?.codigo === "819") {
+        form2.classList.remove("d-none");
+        document.getElementById("confirm-image").checked = false;
+        document.getElementById("password").value = "";
+        document.getElementById("error-password").textContent = data?.message ?? "Usuario no invalido";
+        document.getElementById("input-login-password").classList.add("error");
+        setTimeout(() => window.location.href = "/auth/recover-password", 3000);
+        return;
+      }
+
+      if (data?.codigo === "848" || data?.codigo === "854") {
+        form2.classList.remove("d-none");
+        document.getElementById("confirm-image").checked = false;
+        document.getElementById("password").value = "";
+        document.getElementById("error-password").innerText = "";
+        document.getElementById("body-error").innerText = data?.message ?? "Usuario no invalido";
+        document.getElementById("input-login-password").classList.remove("error");
+        document.getElementById("error-check").innerText = "";
+        openModal("modalerror");
+        return;
+      }
+
       if (!data?.result) {
+        form2.classList.remove("d-none");
+        document.getElementById("confirm-image").checked = false;
         document.getElementById("input-login-password").classList.add("error");
         document.getElementById("error-password").textContent = data?.message ?? "Usuario no invalido";
         return;
       }
 
-      window.location.href = "/ahorro/devolucion";
+      window.location.href = "/ahorro/crear";
     } catch (error) {
-      console.log(error);
+      form2.classList.remove("d-none");
       document.getElementById("input-login-password").classList.add("error");
       document.getElementById("error-password").textContent = "Usuario no invalido";
     } finally {
       activeLoading(false);
     }
-  }
-
-  /**
-   *  Fin Login
-  */
-
-  /**
-   *  Cambio del icono password Login
-  */
-
-  function togglePassword() {
-    const inputPassword = document.getElementById("password");
-    inputPassword.type = inputPassword.type === "password" ? "text" : "password";
-  }
-
-  const inputPassword = document.getElementById('password');
-  const btnToggle = document.getElementById('togglePassword');
-
-  btnToggle.addEventListener('click', function () {
-      const isPassword = inputPassword.type === 'password';
-      inputPassword.type = isPassword ? 'text' : 'password';
-      
-      this.textContent = isPassword ? 'visibility' : 'visibility_off';
-      
-      inputPassword.focus();
-  });
-
-  inputPassword.addEventListener('blur', () => {
-      setTimeout(() => {
-          inputPassword.focus();
-      }, 10);
-  });
-
-  window.onload = () => inputPassword.focus();
-  /**
-   *  Fin Cambio del icono password Login
-  */
-
-  const headers = (headersOptions = {}) => {
-    const myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
-
-    return myHeaders;
   }
 </script>

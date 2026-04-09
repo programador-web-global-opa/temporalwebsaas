@@ -2,41 +2,41 @@
 <!-- IZQUIERDA (contenido login) -->
 <div class="main-container">
   <div class="paper">
-    <form id="form-step-1" class="form" style="width: 100%;">
-      <div id="step-1" style="width: 60%;">
+    <form id="form-step-1" class="form" style="width: 100%; max-width: 395px;">
+      <div id="step-1" style="width: 100%;">
         <h2 class="bienvenido">Registrar Usuario</h2>
-
         <div class="contenedor-global">
           <div class="contenedor-formulario">
             
-            <div class="mui-textfield usuario">
+            <div class="mui-textfield" id="document-group">
               <span class="material-icons mui-icon">document_scanner</span>
               <input
-                type="text"
-                id="Cedula"
+                type="number"
+                id="document"
                 placeholder="Cedula"
                 required
                 autofocus
                 autocomplete="off"
               />
             </div>
+            <small class="error" id="error-document"></small>
 
-            <div class="mui-textfield usuario">
+            <div class="mui-textfield" id="user-group">
               <span class="material-icons mui-icon">person_outline</span>
               <input
                 type="text"
-                id="usuario"
+                id="user"
                 placeholder="Usuario"
                 required
-                autofocus
                 autocomplete="off"
               />
             </div>
-            
-            <div class="mui-textfield" style="margin-top: 16px">
+            <small class="error" id="error-user"></small>
+
+            <div class="mui-textfield" id="password-group" style="margin-top: 16px">
               <span class="material-icons mui-icon">lock</span>
               <input
-                type="text"
+                type="password"
                 id="password"
                 placeholder="Password"
                 required
@@ -46,11 +46,12 @@
                 visibility_off
               </span>
             </div>
+            <small class="error" id="error-password"></small>
 
-            <div class="mui-textfield" style="margin-top: 16px">
+            <div class="mui-textfield" id="confirm-password-group" style="margin-top: 16px">
               <span class="material-icons mui-icon">lock</span>
               <input
-                type="text"
+                type="password"
                 id="confirm-password"
                 placeholder="Confirmar Password"
                 required
@@ -60,17 +61,19 @@
                 visibility_off
               </span>
             </div>
+            <small class="error" id="error-confirm-password"></small>
 
-            <div class="mui-textfield usuario">
+            <div class="mui-textfield" id="phone-group">
               <span class="material-icons mui-icon">phone_android</span>
               <input
-                type="text"
-                id="celular"
+                type="number"
+                id="phone"
                 placeholder="Celular"
                 required
                 autocomplete="off"
               />
             </div>
+            <small class="error" id="error-phone"></small>
 
             <div class="contenedor-boton">
               <button type="button" class="boton-nuevo" id="btnSiguiente">
@@ -81,32 +84,15 @@
         </div>
       </div>
 
-      <div id="step-2" style="display: none">
-        <div class="mui-card">
-          <img
-            src="seguridad.jpg"
-            class="security-image"
-            alt="Imagen seguridad"
-          />
-          <div class="mui-card-content">
-            <label class="mui-checkbox-label checkbox">
-              <input type="checkbox" name="imagen" />
-              <span class="custom-checkbox"></span>
-              Confirme que esta es su imagen y frase registrada
-            </label>
-          </div>
-        </div>
+      <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <span>Cargando...</span>
       </div>
 
       <div class="urls-basicas-contenedor">
         <a href="/auth/login" class="urls-basicas">¿Ya tienes una cuenta?</a>
       </div>
     </form>
-
-    <div id="loading" class="loading">
-      <div class="spinner"></div>
-    </div>
-
   </div>
 
   <p class="app-copy mt-4" style="text-align: center">
@@ -116,5 +102,420 @@
   </p>
 </div>
 
+<!-- Modal mensajes de errores -->
+<div class="modal fade app-modal" id="modalerrorregister" style="z-index: 2000;" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content app-modal__content">
+      <div class="app-modal__body" id="modalInfo">
+        <div>
+          <div class="py-2 px-3" style="text-align: justify;" id="body-register"></div>
+          <div class="contenedor-boton">
+            <button type="button" class="boton-nuevo" id="btn-modal-register">
+              Ok
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal codigo de validación -->
+<div class="modal fade app-modal" id="modalerrorregistercode" style="z-index: 2000;" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content app-modal__content">
+      <div class="app-modal__body" id="modalInfo">
+        <div>
+          <div class="py-2 px-3" style="text-align: justify;" id="body-register-code">
+            <span class="py-2" id="message-code"></span>
+
+            <div class="mui-textfield" id="input-code-group-register">
+              <span class="material-icons mui-icon">password</span>
+              <input
+                type="text"
+                id="code-register"
+                placeholder="Ingrese Código"
+                autofocus
+                autocomplete="off"
+              />
+            </div>
+            <small class="error" id="error-code-register"></small>
+
+          </div>
+          <div class="contenedor-boton">
+            <button type="button" class="boton-nuevo" id="btn-modal-code">
+              Ok
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
+  const formStep = document.getElementById('form-step-1');
+  const btnSiguiente = document.getElementById('btnSiguiente');
+  const loading = document.getElementById('loading');
+  const step1 = document.getElementById('step-1');
+  const btnModalRegister = document.getElementById("btn-modal-register");
+  const btnModalCode = document.getElementById("btn-modal-code");
+  const bodyModalRegister = document.getElementById("body-register");
+  const togglePassword = document.querySelectorAll('#togglePassword');
+
+  togglePassword.forEach(toggle => {
+    toggle.addEventListener('click', function () {
+      const passwordField = this.previousElementSibling;
+      const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+      passwordField.setAttribute('type', type);
+      this.textContent = type === 'password' ? 'visibility_off' : 'visibility';
+    });
+  });
+
+  btnModalRegister.addEventListener('click', () => closeModal("modalerrorregister"));
+
+  btnModalCode.addEventListener('click', codigoOtp);
+
+  btnSiguiente.addEventListener('click', async function (e) {
+    e.preventDefault();
+
+    if (!validateInputs()) return;
+
+    const messageCode = document.getElementById("message-code");
+    const inputDocument = document.getElementById("document").value;
+    const inputUser = document.getElementById("user").value;
+    const inputPassword1 = document.getElementById("password").value;
+    const inputPhone = document.getElementById("phone").value;
+    const btnModal = document.getElementById("btn-modal-register");
+
+    loading.classList.add("active");
+    step1.classList.add("d-none");
+
+    const params = {
+      "nuevousuario": inputUser,
+      "cedula": inputDocument,
+      "contrasena": inputPassword1,
+      "celular": inputPhone,
+      "codigo": ""
+    };
+
+    const response = await createNewUser(params);
+
+    const mock = {
+      status: 200,
+      message: 'Se ha generado un codigo otp para validar su usuario',
+      result: {
+        codigo: '000'
+      }
+    }
+
+    if (response?.codigo === "025") {
+      openModal("modalerrorregister");
+      bodyModalRegister.innerText = response?.message;
+      step1.classList.remove("d-none");
+      loading.classList.remove("active");
+    }
+
+    if (response?.codigo === "021") {
+      openModal("modalerrorregister");
+      bodyModalRegister.innerText = response?.message;
+      step1.classList.remove("d-none");
+      loading.classList.remove("active");
+    }
+
+    if (response?.status === 400) {
+      openModal("modalerrorregister");
+      bodyModalRegister.innerText = response?.message;
+      loading.classList.remove("active");
+      step1.classList.remove("d-none");
+      return;
+    }
+
+    if (response?.status === 201 && response?.result?.codigo) {
+      messageCode.innerText = response?.message;
+      openModal("modalerrorregistercode", true);
+      loading.classList.remove("active");
+      step1.classList.remove("d-none");
+      return;
+    }
+
+    if (response?.status === 200) {
+      messageCode.innerText = response?.message;
+      openModal("modalerrorregistercode", true);
+      loading.classList.remove("active");
+      step1.classList.remove("d-none");
+      return;
+    }
+  });
+
+  function validateInputs() {
+    const groupDocument = document.getElementById("document-group");
+    const groupUser = document.getElementById("user-group");
+    const groupPassword1 = document.getElementById("password-group");
+    const groupPassword2 = document.getElementById("confirm-password-group");
+    const groupPhone = document.getElementById("phone-group");
+
+    const inputDocument = document.getElementById("document");
+    const inputUser = document.getElementById("user");
+    const inputPassword1 = document.getElementById("password");
+    const inputPassword2 = document.getElementById("confirm-password");
+    const inputPhone = document.getElementById("phone");
+
+    const errorInputDocument = document.getElementById("error-document");
+    const errorInputUser = document.getElementById("error-user");
+    const errorInputPassword1 = document.getElementById("error-password");
+    const errorInputPassword2 = document.getElementById("error-confirm-password");
+    const errorInputPhone = document.getElementById("error-phone");
+
+    if (inputDocument.value.trim() == "") {
+      groupDocument.classList.add("error");
+      errorInputDocument.innerText = "La cedula no puede estar vacia";
+    }
+    if (inputUser.value.trim() == "") {
+      groupUser.classList.add("error");
+      errorInputUser.innerText = "El usuario no puede estar vacio";
+    }
+    if (inputPassword1.value.trim() == "") {
+      groupPassword1.classList.add("error");
+      errorInputPassword1.innerText = "La contraseña no puede estar vacio";
+    }
+    if (inputPassword2.value.trim() == "") {
+      groupPassword2.classList.add("error");
+      errorInputPassword2.innerText = "La contraseña no puede estar vacio";
+    }
+    if (inputPhone.value.trim() == "") {
+      groupPhone.classList.add("error");
+      errorInputPhone.innerText = "La celular no puede estar vacio";
+    }
+
+    if (
+      !inputDocument.value.trim() || !inputUser.value.trim() ||
+      !inputPassword1.value.trim() || !inputPassword2.value.trim() ||
+      !inputPhone.value.trim()
+    ) {
+      openModal("modalerrorregister");
+      bodyModalRegister.innerText = "Los campos no pueden estar vacios, por favor verifique";
+      return false;
+    } else {
+      groupDocument.classList.remove("error");
+      errorInputDocument.innerText = "";
+      groupUser.classList.remove("error");
+      errorInputUser.innerText = "";
+      groupPassword1.classList.remove("error");
+      errorInputPassword1.innerText = "";
+      groupPassword2.classList.remove("error");
+      errorInputPassword2.innerText = "";
+      groupPhone.classList.remove("error");
+      errorInputPhone.innerText = "";
+    }
+
+    if (!Number(inputDocument.value)) {
+      groupDocument.classList.add("error");
+      errorInputDocument.innerText = "Cedula invalida...Verifique por favor";
+      return false;
+    } else {
+      groupDocument.classList.remove("error");
+      errorInputDocument.innerText = "";
+    }
+
+    if (inputUser.value.length < 8 || inputUser.value.length > 15) {
+      groupUser.classList.add("error");
+      errorInputUser.innerText = "El usuario debe tener entre 8 y 15 caracteres...Verifique por favor";
+      return false;
+    } else {
+      groupUser.classList.remove("error");
+      errorInputUser.innerText = "";
+    }
+
+    if (
+      inputPassword1.value.length < 4 || inputPassword1.value.length > 20
+      || !inputPassword1.value.match(/[0-9]/g)
+      || !inputPassword1.value.match(/[A-Z]/g)
+      || !inputPassword1.value.match(/[a-z]/g)
+      || !inputPassword1.value.match(/[@#$%*]/)
+    ) {
+      groupPassword1.classList.add("error");
+      errorInputPassword1.innerText = "La contraseña debe tener entre 4 y 20 caracteres, al menos un número, una letra mayúscula, una letra minúscula y un símbolo";
+      groupPassword2.classList.add("error");
+      errorInputPassword2.innerText = "La contraseña debe tener entre 4 y 20 caracteres, al menos un número, una letra mayúscula, una letra minúscula y un símbolo";
+      return false;
+    } else {
+      groupPassword1.classList.remove("error");
+      errorInputPassword1.innerText = "";
+      groupPassword2.classList.remove("error");
+      errorInputPassword2.innerText = "";
+    }
+
+    if (inputPhone.value.length < 5 || inputPhone.value.length > 10) {
+      groupPhone.classList.add("error");
+      errorInputPhone.innerText = "Celular no valido...Verifique por favor";
+      return false;
+    } else {
+      groupPhone.classList.remove("error");
+      errorInputPhone.innerText = "";
+    }
+
+    if (inputPassword1.value !== inputPassword2.value) {
+     groupPassword1.classList.add("error");
+      errorInputPassword1.innerText = "Las contraseñas no coinciden...Verifique por favor";
+      groupPassword2.classList.add("error");
+      errorInputPassword2.innerText = "Las contraseñas no coinciden...Verifique por favor";
+      return false;
+    } else {
+      groupPassword1.classList.remove("error");
+      errorInputPassword1.innerText = "";
+      groupPassword2.classList.remove("error");
+      errorInputPassword2.innerText = "";
+    }
+
+    return true;
+  }
+
+  function headers(headersOptions = {}) {
+    const myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+    Object.entries(headersOptions).forEach(([key, value]) => {
+      myHeaders.append(key, value);
+    });
+    return myHeaders;
+  }
+
+  function openModal(modalId, isStatic = false) {
+    const modalElement = document.getElementById(modalId);
+
+    if (!modalElement) {
+      console.error(`No existe un modal con id: ${modalId}`);
+      return;
+    }
+
+    let modal = bootstrap.Modal.getInstance(modalElement);
+
+    if (!modal) {
+      modal = new bootstrap.Modal(modalElement, {
+        backdrop: isStatic ? 'static' : true,
+        keyboard: !isStatic // si es static, desactiva ESC
+      });
+    }
+
+    modal.show();
+  }
+
+  function closeModal(modalId) {
+    const modalElement = document.getElementById(modalId);
+
+    if (!modalElement) return;
+
+    const modal = bootstrap.Modal.getInstance(modalElement);
+    modal?.hide();
+  }
+
+  function switchModal(currentId, nextId) {
+    const currentEl = document.getElementById(currentId);
+    const nextEl = document.getElementById(nextId);
+
+    const currentModal = bootstrap.Modal.getInstance(currentEl);
+
+    currentEl.addEventListener('hidden.bs.modal', () => {
+
+      // 🔥 limpiar cualquier backdrop huérfano
+      document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+      document.body.classList.remove('modal-open');
+
+      const nextModal = new bootstrap.Modal(nextEl);
+      nextModal.show();
+
+    }, { once: true });
+
+    currentModal.hide();
+  }
+
+  async function createNewUser(params = {}) {
+    try {
+      const response = await fetch("/auth/register", {
+        method: 'POST',
+        headers: headers(),
+        body: JSON.stringify(params),
+      });
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      return { error: true, message: "Ha ocurrido un error al realizar el registro" };
+    }
+  }
+
+  async function codigoOtp() {
+    const registerGroup = document.getElementById("input-code-group-register");
+    const codeRegister = document.getElementById("code-register");
+    const codeRegisterMessageError = document.getElementById("error-code-register");
+    const codeRegisterBoton = document.getElementById("btn-modal-code");
+    const messageCode = document.getElementById("message-code");
+    const bodyError = document.getElementById("body-register");
+
+    if (codeRegister.value.replace(/ /g, "") == "") {
+      registerGroup.classList.add("error");
+      codeRegisterMessageError.innerText = "Ingresa por favor el código enviado";
+      return;
+    }
+
+    if (codeRegister.value.replace(/ /g, "") !== "") {
+      registerGroup.classList.remove("error");
+      codeRegisterMessageError.innerText = "";
+    }
+
+    codeRegisterBoton.innerText = "Enviando...";
+
+    const inputDocument = document.getElementById("document").value;
+    const inputUser = document.getElementById("user").value;
+    const inputPassword1 = document.getElementById("password").value;
+    const inputPhone = document.getElementById("phone").value;
+
+    const params = {
+      "nuevousuario": inputUser,
+      "cedula": inputDocument,
+      "contrasena": inputPassword1,
+      "celular": inputPhone,
+      "codigo": codeRegister.value
+    };
+
+    const response = await createNewUser(params);
+
+    if (response?.error) {
+      openModal("modalerrorregister");
+      bodyModalRegister.innerText = response?.message;
+      step1.classList.remove("d-none");
+      loading.classList.remove("active");
+    }
+
+    if (response?.codigo === "025") {
+      codeRegisterBoton.innerText = "Ok";
+      switchModal("modalerrorregistercode", "modalerrorregister");
+      btnModalRegister.addEventListener('click', () => window.location.href = "/auth/login");
+      bodyError.innerText = response?.message ?? "";
+      return;
+    }
+
+    if (response?.codigo === "026") {
+      codeRegisterBoton.innerText = "Ok";
+      switchModal("modalerrorregistercode", "modalerrorregister");
+      btnModalRegister.addEventListener('click', () => window.location.href = "/auth/login");
+      bodyError.innerText = response?.message ?? "";
+      return;
+    }
+
+    if (response?.codigo === "851") {
+      messageCode.innerText = response?.message ?? "Error ingresando el codigo por favor intente nuevamente";
+      messageCode.classList.add("error");
+      codeRegisterBoton.innerText = "Ok";
+      codeRegister.value = "";
+      return;
+    }
+
+    if (response?.codigo === "021") {
+      messageCode.innerText = response?.message ?? "Error ingresando el codigo por favor intente nuevamente";
+      messageCode.classList.add("error");
+      codeRegisterBoton.innerText = "Ok";
+      codeRegister.value = "";
+      return;
+    }
+  }
 </script>
