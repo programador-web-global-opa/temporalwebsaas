@@ -628,79 +628,76 @@
 ========================================*/
 
 .app-modal .modal-dialog {
-  max-width: 420px;
-}
-
-.app-modal .modal-dialog.modal-dialog-sm {
-  max-width: 320px;
-}
-
-.app-modal .modal-dialog.modal-dialog-md {
-  max-width: 520px;
-}
-
-.app-modal .modal-dialog.modal-dialog-lg {
-  max-width: 720px;
-}
-
-.app-modal .modal-dialog.modal-dialog-xl {
-  max-width: 920px;
+  max-width: 440px;
+  margin: 1.75rem auto;
 }
 
 .app-modal__content {
-  border-radius: var(--radius-md);
+  border-radius: calc(var(--radius-md) + 2px);
   background-color: var(--grey-0);
   border: none;
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+  box-shadow: 
+    0 10px 30px rgba(0, 0, 0, 0.10),
+    0 2px 8px rgba(0, 0, 0, 0.06);
+  overflow: hidden; 
 }
 
 .app-modal__header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px;
-  border-bottom: 1px solid var(--grey-300);
+  padding: 18px 20px;
+  /* border-bottom: 1px solid var(--grey-200); */
+  background: linear-gradient(to bottom, rgba(0,0,0,0.01), transparent);
 }
 
 .app-modal__title {
   margin: 0;
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 600;
   color: var(--text-primary);
+  letter-spacing: 0.2px;
 }
 
 .app-modal__close {
   margin-left: auto;
-  background: none;
+  background: transparent;
   border: none;
-  font-size: 20px;
+  font-size: 18px;
   cursor: pointer;
-  color: var(--grey-600);
+  color: var(--grey-500);
   line-height: 1;
+  padding: 6px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
 }
 
 .app-modal__close:hover {
+  background-color: var(--grey-100);
   color: var(--primary-main);
+  transform: scale(1.05);
 }
 
 .app-modal__body {
-  padding: 16px;
+  padding: 18px 20px;
   font-size: 14px;
   color: var(--text-primary);
 
   display: flex;
   flex-direction: column;
-  gap: 0.80rem;
-  word-break: break-word
+  gap: 0.9rem;
+
+  word-break: break-word;
+  line-height: 1.5; 
 }
 
 .app-modal__section {
   display: flex;
   flex-direction: column;
-  padding-bottom: 12px;
-  margin-bottom: 12px;
-  gap: 0.70rem;
-  border-bottom: 1px solid var(--grey-300);
+  padding-bottom: 14px;
+  margin-bottom: 14px;
+  gap: 0.75rem;
+  border-bottom: 1px solid var(--grey-200);
 }
 
 .app-modal__section:last-of-type {
@@ -712,9 +709,10 @@
 .app-modal__footer {
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
-  padding: 16px;
-  border-top: 1px solid var(--grey-300);
+  gap: 10px;
+  padding: 16px 20px;
+  /* border-top: 1px solid var(--grey-200); */
+  background-color: rgba(0, 0, 0, 0.01);
 }
 
 

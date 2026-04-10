@@ -46,7 +46,8 @@
         );
     });
 
-    //CARGAR TAB DINAMICO PRUEBA
+
+    //CARGAR TAB DINAMICO CUANDO SE CARGA EL FORMULARIO POR PRIMERA VEZ
     $(document).ready(function () {
         inicializarFormulario();
         evaluarTabsDinamicas();
@@ -60,17 +61,430 @@
         initOtrosDatos();
     }
 
-    //MANEJO DE CONDICIONES PARA TABS DINAMICAS
+    //  HELPERS SANITIZACION (pruebas temporal)-------------------------------
+
+    function sanitizarValor(value) {
+        if (typeof value !== "string") return value;
+        return value
+            .replace(/'/g, "")
+            .replace(/\s{2,}/g, " ")
+            .trim();
+    }
+
+    function sanitizarObjeto(obj) {
+        Object.keys(obj).forEach(key => {
+            if (obj[key] && typeof obj[key] === "object" && !Array.isArray(obj[key])) {
+                sanitizarObjeto(obj[key]);
+            } else {
+                obj[key] = sanitizarValor(obj[key]);
+            }
+        });
+    }
+
+    function sanitizarFormState() {
+        sanitizarObjeto(formState);
+    }
+
+
+    // HELPERS VALIDACION (pruebas temporal)----------------------------------------------
+
+    async function validarActualizacionDatos() {
+        sanitizarFormState();
+
+        const validadores = [
+            validarAutorizaciones,
+            validarDatosPersonales,
+            validarDatosLaborales,
+            validarOtrosDatos,
+            validarDatosPeps,
+            validarIngresosEgresos,
+            validarConyugue
+            // validarAdjuntos,
+            // validarOtrosDatosAdicionales
+        ];
+
+        for (const validar of validadores) {
+            const resultado = await validar();
+            if (!resultado.ok) {
+                await mostrarErrorValidacion(resultado);
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    async function mostrarErrorValidacion(error) {
+        if (error.tab) {
+            await abrirTab(error.tab);
+        }
+
+        infoModal(error.message, "alerta", () => {
+            if (error.field) {
+                $(error.field).trigger("focus");
+            }
+        });
+    }
+
+    function isEmpty(value) {
+        return value === null || value === undefined || String(value).trim() === "";
+    }
+
+    function isEmptySelect(value) {
+        return isEmpty(value) || String(value).trim() === "0";
+    }
+
+    function isValidEmail(value) {
+        if (isEmpty(value)) return false;
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value).trim());
+    }
+
+    function crearError(tab, field, message) {
+        return { ok: false, tab, field, message };
+    }
+
+    async function abrirTab(tab) {
+        const $tab = $(`.app-tab[data-tab="${tab}"]`);
+        if (!$tab.length) return;
+
+        $tab.trigger("click");
+
+        await new Promise(resolve => setTimeout(resolve, 250));
+    }
+
+    function validarReglas({ tab, bloque, reglas }) {
+        for (const regla of reglas) {
+            const { value, type, field, message, allowZero } = regla;
+
+            if (type === "text") {
+                if (isEmpty(value)) {
+                    return crearError(tab, field, message);
+                }
+
+                if (!allowZero && Number(value) === 0 && String(value).trim() === "0") {
+                    return crearError(tab, field, message);
+                }
+            }
+
+            if (type === "select") {
+                if (isEmptySelect(value)) {
+                    return crearError(tab, field, message);
+                }
+            }
+
+            if (type === "email") {
+                if (!isValidEmail(value)) {
+                    return crearError(tab, field, message);
+                }
+            }
+        }
+
+        return { ok: true };
+    }
+
+
+
+
+
+
+    // VALIDADORES POR TAB --------------------------------------------------------------------------------------------------------------
+
+    //AUTORIZACIONES
+    function validarAutorizaciones() {
+        const catalogo = Array.isArray(autorizaciones) ? autorizaciones : [];
+        const obligatorias = catalogo.filter(a => a.obligatorio);
+
+        for (const aut of obligatorias) {
+            if (!formState.autorizaciones?.[aut.codigo]) {
+                return crearError(
+                    "autorizaciones",
+                    `#switch-${aut.codigo}`,
+                    "Debe aceptar las autorizaciones obligatorias"
+                );
+            }
+        }
+
+        return { ok: true };
+    }
+
+    //DATOS PERSONALES
+    function validarDatosPersonales() {
+        const d = formState.datosPersonales;
+        const msg = " - De la ficha DATOS PERSONALES";
+
+        return validarReglas({
+            tab: "datosPersonales",
+            reglas: [
+                { field: "#numeroDocumento", type: "text", value: d.numeroDocumento, message: "Ingrese número de documento" + msg },
+                { field: "#tipoDocumento", type: "select", value: d.tipoDocumento, message: "Ingrese tipo de documento" + msg },
+                { field: "#fechaExpedicionDocumento", type: "text", value: d.fechaExpedicionDocumento, message: "Ingrese fecha de expedición" + msg },
+                { field: "#paisDocumento", type: "select", value: d.paisDocumento, message: "Ingrese país del documento" + msg },
+                { field: "#departamentoDocumento", type: "select", value: d.departamentoDocumento, message: "Ingrese departamento del documento" + msg },
+                { field: "#ciudadDocumento", type: "select", value: d.ciudadDocumento, message: "Ingrese ciudad del documento" + msg },
+                { field: "#primerNombre", type: "text", value: d.primerNombre, message: "Ingrese primer nombre" + msg },
+                { field: "#primerApellido", type: "text", value: d.primerApellido, message: "Ingrese primer apellido" + msg },
+                { field: "#fechaNacimiento", type: "text", value: d.fechaNacimiento, message: "Ingrese fecha de nacimiento" + msg },
+                { field: "#paisNacimiento", type: "select", value: d.paisNacimiento, message: "Ingrese país de nacimiento" + msg },
+                { field: "#departamentoNacimiento", type: "select", value: d.departamentoNacimiento, message: "Ingrese departamento de nacimiento" + msg },
+                { field: "#ciudadNacimiento", type: "select", value: d.ciudadNacimiento, message: "Ingrese ciudad de nacimiento" + msg },
+                { field: "#nroHijos", type: "text", value: d.nroHijos, message: "Ingrese número de hijos" + msg, allowZero: true },
+                { field: "#ciiu", type: "select", value: d.ciiu, message: "Ingrese CIIU" + msg },
+                { field: "#nacionalidad", type: "select", value: d.nacionalidad, message: "Ingrese nacionalidad" + msg },
+                { field: "#tipoDireccionResidencia", type: "select", value: d.tipoDireccionResidencia, message: "Ingrese tipo de dirección" + msg },
+                { field: "#complementoDireccionResidencia", type: "text", value: d.complementoDireccionResidencia, message: "Ingrese complemento dirección" + msg },
+                { field: "#paisResidencia", type: "select", value: d.paisResidencia, message: "Ingrese país residencia" + msg },
+                { field: "#departamentoResidencia", type: "select", value: d.departamentoResidencia, message: "Ingrese departamento residencia" + msg },
+                { field: "#ciudadResidencia", type: "select", value: d.ciudadResidencia, message: "Ingrese ciudad residencia" + msg },
+                { field: "#tipoZonaResidencia", type: "select", value: d.tipoZonaResidencia, message: "Ingrese tipo zona residencia" + msg },
+                { field: "#zonaResidencia", type: "select", value: d.zonaResidencia, message: "Ingrese zona residencia" + msg },
+                { field: "#comunaResidencia", type: "select", value: d.comunaResidencia, message: "Ingrese comuna residencia" + msg },
+                { field: "#barrioResidencia", type: "select", value: d.barrioResidencia, message: "Ingrese barrio residencia" + msg },
+                { field: "#telefono", type: "text", value: d.telefono, message: "Ingrese teléfono" + msg },
+                { field: "#celular", type: "text", value: d.celular, message: "Ingrese celular" + msg }
+            ]
+        });
+    }
+
+    //DATOS LABORALES
+    function validarDatosLaborales() {
+        const l = formState.datosLaborales;
+        const p = formState.datosPersonales;
+        const msg = " - De la ficha DATOS LABORALES";
+
+        const reglas = [
+            { field: "#empresaTrabajo", type: "select", value: l.empresaTrabajo, message: "Ingrese trabaja en" + msg },
+            { field: "#cargoTrabajo", type: "select", value: l.cargoTrabajo, message: "Ingrese el cargo" + msg },
+            { field: "#dependenciaTrabajo", type: "select", value: l.dependenciaTrabajo, message: "Ingrese dependencia" + msg },
+            { field: "#fechaIngreso", type: "text", value: l.fechaIngreso, message: "Ingrese fecha de ingreso" + msg }
+        ];
+
+        if (l.tipoContrato !== "N") {
+            reglas.push({
+                field: "#pagaduria",
+                type: "select",
+                value: l.pagaduria,
+                message: "Ingrese pagaduría" + msg
+            });
+        }
+
+        if (p.tipoDocumento !== "N") {
+            reglas.push({
+                field: "#tipoContrato",
+                type: "select",
+                value: l.tipoContrato,
+                message: "Ingrese tipo de contrato" + msg
+            });
+        }
+
+        return validarReglas({
+            tab: "datosLaborales",
+            reglas
+        });
+    }
+
+    //OTROS DATOS
+    function validarOtrosDatos() {
+        const o = formState.otrosDatos;
+        const msg = " - De la ficha OTROS DATOS";
+
+        const base = validarReglas({
+            tab: "otrosDatos",
+            reglas: [
+                { field: "#estudios", type: "select", value: o.estudios, message: "Ingrese estudios" + msg },
+                { field: "#genero", type: "select", value: o.genero, message: "Ingrese género" + msg },
+                { field: "#estadoCivil", type: "select", value: o.estadoCivil, message: "Ingrese estado civil" + msg },
+                { field: "#profesion", type: "select", value: o.profesion, message: "Ingrese profesión" + msg },
+                { field: "#tipoVivienda", type: "select", value: o.tipoVivienda, message: "Ingrese tipo de vivienda" + msg },
+                { field: "#numeroPersonasHabitantes", type: "text", value: o.numeroPersonasHabitantes, message: "Ingrese número de personas habitantes" + msg, allowZero: true },
+                { field: "#dependeEconomicamente", type: "select", value: o.dependeEconomicamente, message: "Ingrese si depende económicamente" + msg },
+                { field: "#declarante", type: "select", value: o.declarante, message: "Ingrese si es declarante" + msg }
+            ]
+        });
+
+        if (!base.ok) return base;
+
+        if (o.operacionesMonedaExtranjera === "S" && isEmpty(o.cualesOperacionesMonedaExtranjera)) {
+            return crearError("otrosDatos", "#cualesOperacionesMonedaExtranjera", "Ingrese cuáles operaciones en moneda extranjera - De la ficha OTROS DATOS");
+        }
+
+        if (o.poseeCuentasMonedaExtranjera === "S") {
+            const cuentas = validarReglas({
+                tab: "otrosDatos",
+                reglas: [
+                    { field: "#paisMonedaExtranjera", type: "select", value: o.paisMonedaExtranjera, message: "Ingrese país de moneda extranjera" + msg },
+                    { field: "#ciudadMonedaExtranjera", type: "select", value: o.ciudadMonedaExtranjera, message: "Ingrese ciudad de moneda extranjera" + msg },
+                    { field: "#monedaExtranjera", type: "text", value: o.monedaExtranjera, message: "Ingrese moneda extranjera" + msg },
+                    { field: "#bancoMonedaExtranjera", type: "text", value: o.bancoMonedaExtranjera, message: "Ingrese banco moneda extranjera" + msg },
+                    { field: "#numeroCuentaMonedaExtranjera", type: "text", value: o.numeroCuentaMonedaExtranjera, message: "Ingrese número de cuenta moneda extranjera" + msg }
+                ]
+            });
+
+            if (!cuentas.ok) return cuentas;
+        }
+
+        return { ok: true };
+    }
+
+    //DATOS PEPS (OTROS DATOS)
+    function validarDatosPeps() {
+        const o = formState.otrosDatos;
+        const msg = " - De la ficha OTROS DATOS";
+
+        if (isEmptySelect(o.esPep)) {
+            return crearError("otrosDatos", "#esPep", "Ingrese si usted es expuesto políticamente" + msg);
+        }
+
+        if (o.esPep !== "S") {
+            return { ok: true };
+        }
+
+        const base = validarReglas({
+            tab: "otrosDatos",
+            reglas: [
+                { field: "#tipoPep", type: "select", value: o.tipoPep, message: "Ingrese tipo PEP" + msg },
+                { field: "#familiarEmpleadoEntidad", type: "select", value: o.familiarEmpleadoEntidad, message: "Ingrese si tiene familiar empleado entidad" + msg },
+                { field: "#familiarRecursosPublicos", type: "select", value: o.familiarRecursosPublicos, message: "Ingrese si tiene familiar recursos públicos" + msg },
+                { field: "#familiarPublicamenteExpuesto", type: "select", value: o.familiarPublicamenteExpuesto, message: "Ingrese si tiene familiar públicamente expuesto" + msg },
+                { field: "#administraRecursosPublicos", type: "select", value: o.administraRecursosPublicos, message: "Ingrese si administra recursos públicos" + msg }
+            ]
+        });
+
+        if (!base.ok) return base;
+
+        if (o.familiarEmpleadoEntidad === "S") {
+            const r1 = validarReglas({
+                tab: "otrosDatos",
+                reglas: [
+                    { field: "#identificacionEmpleadoEntidad", type: "text", value: o.identificacionEmpleadoEntidad, message: "Ingrese identificación familiar empleado entidad" + msg },
+                    { field: "#tipoIdentificacionEmpleadoEntidad", type: "select", value: o.tipoIdentificacionEmpleadoEntidad, message: "Ingrese tipo documento familiar empleado entidad" + msg },
+                    { field: "#primerNombreEmpleadoEntidad", type: "text", value: o.primerNombreEmpleadoEntidad, message: "Ingrese primer nombre familiar empleado entidad" + msg },
+                    { field: "#primerApellidoEmpleadoEntidad", type: "text", value: o.primerApellidoEmpleadoEntidad, message: "Ingrese primer apellido familiar empleado entidad" + msg },
+                    { field: "#parentescoEmpleadoEntidad", type: "select", value: o.parentescoEmpleadoEntidad, message: "Ingrese parentesco familiar empleado entidad" + msg },
+                    { field: "#desdeCuandoFamiliarEmpleadoEntidad", type: "text", value: o.desdeCuandoFamiliarEmpleadoEntidad, message: "Ingrese fecha desde familiar empleado entidad" + msg },
+                    { field: "#hastaCuandoFamiliarEmpleadoEntidad", type: "text", value: o.hastaCuandoFamiliarEmpleadoEntidad, message: "Ingrese fecha hasta familiar empleado entidad" + msg }
+                ]
+            });
+            if (!r1.ok) return r1;
+        }
+
+        if (o.familiarRecursosPublicos === "S") {
+            const r2 = validarReglas({
+                tab: "otrosDatos",
+                reglas: [
+                    { field: "#identificacionFamiliarRecursosPublicos", type: "text", value: o.identificacionFamiliarRecursosPublicos, message: "Ingrese identificación familiar recursos públicos" + msg },
+                    { field: "#tipoIdentificacionFamiliarRecursosPublicos", type: "select", value: o.tipoIdentificacionFamiliarRecursosPublicos, message: "Ingrese tipo documento familiar recursos públicos" + msg },
+                    { field: "#primerNombreFamiliarRecursosPublicos", type: "text", value: o.primerNombreFamiliarRecursosPublicos, message: "Ingrese primer nombre familiar recursos públicos" + msg },
+                    { field: "#primerApellidoFamiliarRecursosPublicos", type: "text", value: o.primerApellidoFamiliarRecursosPublicos, message: "Ingrese primer apellido familiar recursos públicos" + msg },
+                    { field: "#parentescoFamiliarRecursosPublicos", type: "select", value: o.parentescoFamiliarRecursosPublicos, message: "Ingrese parentesco familiar recursos públicos" + msg },
+                    { field: "#cargoFamiliarRecursosPublicos", type: "text", value: o.cargoFamiliarRecursosPublicos, message: "Ingrese cargo familiar recursos públicos" + msg },
+                    { field: "#nombreEntidadFamiliarRecursosPublicos", type: "text", value: o.nombreEntidadFamiliarRecursosPublicos, message: "Ingrese entidad familiar recursos públicos" + msg },
+                    { field: "#desdeCuandoFamiliarRecursosPublicos", type: "text", value: o.desdeCuandoFamiliarRecursosPublicos, message: "Ingrese fecha desde familiar recursos públicos" + msg },
+                    { field: "#hastaCuandoFamiliarRecursosPublicos", type: "text", value: o.hastaCuandoFamiliarRecursosPublicos, message: "Ingrese fecha hasta familiar recursos públicos" + msg }
+                ]
+            });
+            if (!r2.ok) return r2;
+        }
+
+        if (o.familiarPublicamenteExpuesto === "S") {
+            const r3 = validarReglas({
+                tab: "otrosDatos",
+                reglas: [
+                    { field: "#identificacionFamiliarPublicamenteExpuesto", type: "text", value: o.identificacionFamiliarPublicamenteExpuesto, message: "Ingrese identificación familiar públicamente expuesto" + msg },
+                    { field: "#tipoIdentificacionFamiliarPublicamenteExpuesto", type: "select", value: o.tipoIdentificacionFamiliarPublicamenteExpuesto, message: "Ingrese tipo documento familiar públicamente expuesto" + msg },
+                    { field: "#primerNombreFamiliarPublicamenteExpuesto", type: "text", value: o.primerNombreFamiliarPublicamenteExpuesto, message: "Ingrese primer nombre familiar públicamente expuesto" + msg },
+                    { field: "#primerApellidoFamiliarPublicamenteExpuesto", type: "text", value: o.primerApellidoFamiliarPublicamenteExpuesto, message: "Ingrese primer apellido familiar públicamente expuesto" + msg },
+                    { field: "#parentescoFamiliarPublicamenteExpuesto", type: "select", value: o.parentescoFamiliarPublicamenteExpuesto, message: "Ingrese parentesco familiar públicamente expuesto" + msg },
+                    { field: "#desdeCuandoFamiliarPublicamenteExpuesto", type: "text", value: o.desdeCuandoFamiliarPublicamenteExpuesto, message: "Ingrese fecha desde familiar públicamente expuesto" + msg },
+                    { field: "#hastaCuandoFamiliarPublicamenteExpuesto", type: "text", value: o.hastaCuandoFamiliarPublicamenteExpuesto, message: "Ingrese fecha hasta familiar públicamente expuesto" + msg }
+                ]
+            });
+            if (!r3.ok) return r3;
+        }
+
+        if (o.administraRecursosPublicos === "S") {
+            const r4 = validarReglas({
+                tab: "otrosDatos",
+                reglas: [
+                    { field: "#nombreEntidadAdministraRecursosPublicos", type: "text", value: o.nombreEntidadAdministraRecursosPublicos, message: "Ingrese nombre entidad administra recursos públicos" + msg },
+                    { field: "#cargoAdministraRecursosPublicos", type: "select", value: o.cargoAdministraRecursosPublicos, message: "Ingrese cargo administra recursos públicos" + msg },
+                    { field: "#fechaViculacionRecursosPublicos", type: "text", value: o.fechaViculacionRecursosPublicos, message: "Ingrese fecha vinculación recursos públicos" + msg },
+                    { field: "#fechaRetiroRecursosPublicos", type: "text", value: o.fechaRetiroRecursosPublicos, message: "Ingrese fecha retiro recursos públicos" + msg }
+                ]
+            });
+            if (!r4.ok) return r4;
+        }
+
+        return { ok: true };;
+    }
+
+    //INGRESOS EGRESOS
+    function validarIngresosEgresos() {
+        const i = formState.ingresosEgresos;
+        const msg = " - De la ficha INGRESOS Y EGRESOS";
+
+        return validarReglas({
+            tab: "ingresosEgresos",
+            reglas: [
+                { field: "#otrosIngresos", type: "text", value: i.otrosIngresos, message: "Ingrese otros ingresos" + msg, allowZero: true },
+                { field: "#otrosPrestamos", type: "text", value: i.otrosPrestamos, message: "Ingrese otros préstamos" + msg, allowZero: true },
+                { field: "#totalActivos", type: "text", value: i.totalActivos, message: "Ingrese total activos" + msg, allowZero: true },
+                { field: "#totalPasivos", type: "text", value: i.totalPasivos, message: "Ingrese total pasivos" + msg, allowZero: true },
+                { field: "#totalPatrimonio", type: "text", value: i.totalPatrimonio, message: "Ingrese total patrimonio" + msg, allowZero: true }
+            ]
+        });
+    }
+
+
+
+    //CONYUGUE
+    function validarConyugue() {
+        const estadoCivil = formState?.otrosDatos?.estadoCivil;
+        if (!["C", "V"].includes(estadoCivil)) {
+            return { ok: true };
+        }
+
+        const c = formState.conyugue;
+        const msg = " - De la ficha CÓNYUGUE";
+
+        return validarReglas({
+            tab: "conyugue",
+            reglas: [
+                { field: "#fechaExpedicionConyugue", type: "text", value: c.fechaExpedicionConyugue, message: "Ingrese fecha expedición cónyugue" + msg },
+                { field: "#primerNombreConyugue", type: "text", value: c.primerNombreConyugue, message: "Ingrese primer nombre cónyugue" + msg },
+                { field: "#primerApellidoConyugue", type: "text", value: c.primerApellidoConyugue, message: "Ingrese primer apellido cónyugue" + msg },
+                { field: "#tipoDocumentoConyugue", type: "select", value: c.tipoDocumentoConyugue, message: "Ingrese tipo documento cónyugue" + msg },
+                { field: "#documentoConyugue", type: "text", value: c.documentoConyugue, message: "Ingrese documento cónyugue" + msg },
+                { field: "#paisNacimientoConyugue", type: "select", value: c.paisNacimientoConyugue, message: "Ingrese país nacimiento cónyugue" + msg },
+                { field: "#departamentoNacimientoConyugue", type: "select", value: c.departamentoNacimientoConyugue, message: "Ingrese departamento nacimiento cónyugue" + msg },
+                { field: "#ciudadNacimientoConyugue", type: "select", value: c.ciudadNacimientoConyugue, message: "Ingrese ciudad nacimiento cónyugue" + msg },
+                { field: "#tipoDireccionConyugue", type: "select", value: c.tipoDireccionConyugue, message: "Ingrese tipo dirección cónyugue" + msg },
+                { field: "#complementoDireccionConyugue", type: "text", value: c.complementoDireccionConyugue, message: "Ingrese complemento dirección cónyugue" + msg },
+                { field: "#fechaNacimientoConyugue", type: "text", value: c.fechaNacimientoConyugue, message: "Ingrese fecha nacimiento cónyugue" + msg },
+                { field: "#telefonoConyugue", type: "text", value: c.telefonoConyugue, message: "Ingrese teléfono cónyugue" + msg },
+                { field: "#celularConyugue", type: "text", value: c.celularConyugue, message: "Ingrese celular cónyugue" + msg },
+                { field: "#tipoContratoConyugue", type: "select", value: c.tipoContratoConyugue, message: "Ingrese tipo contrato cónyugue" + msg },
+                { field: "#emailConyugue", type: "email", value: c.emailConyugue, message: "Ingrese email válido de cónyugue" + msg },
+                { field: "#paisEmpresaConyugue", type: "select", value: c.paisEmpresaConyugue, message: "Ingrese país empresa cónyugue" + msg },
+                { field: "#departamentoEmpresaConyugue", type: "select", value: c.departamentoEmpresaConyugue, message: "Ingrese departamento empresa cónyugue" + msg },
+                { field: "#ciudadEmpresaConyugue", type: "select", value: c.ciudadEmpresaConyugue, message: "Ingrese ciudad empresa cónyugue" + msg },
+                { field: "#cargoConyugue", type: "select", value: c.cargoConyugue, message: "Ingrese cargo cónyugue" + msg },
+                { field: "#generoConyugue", type: "select", value: c.generoConyugue, message: "Ingrese género cónyugue" + msg }
+            ]
+        });
+    }
+
+    //MANEJO DE CONDICIONES PARA TABS DINAMICAS ---------------------------------------------------------------------
     $(document).on("change", "#tipoDocumento", function () {
         evaluarTabsDinamicas();
     });
     $(document).on("change", "#estadoCivil", function () {
         evaluarTabsDinamicas();
     });
-    $(document).on("change", "#esPep", function () {
+    $(document).on("change", "#esPep", function (e) {
         evaluarTabsDinamicas();
+        if (!e.originalEvent) return;
         if (this.value === "S") {
-            alertaModal("Usted es una persona expuesta políticamente y de acuerdo al decreto 830 del 26 de julio de 2021, las Personas Expuestas Políticamente deberán, declarar los nombres e identificación de las personas con las que tengan sociedad conyugal, de hecho, o de derecho, los nombres e identificación de sus familiares hasta segundo grado de consanguinidad", "Persona expuesta políticamente");
+            infoModal("Usted es una persona expuesta políticamente y de acuerdo al decreto 830 del 26 de julio de 2021, las Personas Expuestas Políticamente deberán, declarar los nombres e identificación de las personas con las que tengan sociedad conyugal, de hecho, o de derecho, los nombres e identificación de sus familiares hasta segundo grado de consanguinidad", "informacion");
             return [];
         }
     });
@@ -102,7 +516,8 @@
         $("#datosRepresentanteLegal").toggle(esJuridica);
     }
 
-    //CAMBIO EN BOTON
+    //MANEJO DE LOS CAMPOS DEPENDIENTES PARA ESTAR O NO ESTAR HABILITADOS (pruebas)----------------------------------------------------------------
+
     $(document).on("change", "#familiarEmpleadoEntidad", function () {
         validarCamposDeshabilitados();
     });
@@ -115,7 +530,88 @@
         validarCamposDeshabilitados();
     });
 
+    $(document).on("change", "#operacionesMonedaExtranjera", function(){
+        validarCamposDeshabilitados();
+    });
+
+    $(document).on("change", "#poseeCuentasMonedaExtranjera", function(){
+        validarCamposDeshabilitados();
+    });
+    $(document).on("change", "#esPep", function(){
+        validarCamposDeshabilitados();
+    });
+    $(document).on("change", "#administraRecursosPublicos", function(){
+        validarCamposDeshabilitados();
+    });
+
+    $(document).on("change", "#tipoContrato", function () {
+        if (this.value !== "N") {
+            marcarCampoRequired("#pagaduria", true);
+        }
+        else {
+            marcarCampoRequired("#pagaduria", false);
+        }
+    });
+
+    function marcarCampoRequired(selector, requerido) {
+        const $campo = $(selector);
+        if (!$campo.length) return;
+
+        $campo.prop("required", requerido);
+
+        if (!requerido) {
+            $campo.removeClass("is-invalid");
+        }
+    }
+
+    function marcarCamposDeshabilitados(selectores, deshabilitado) {
+        selectores.forEach(selector => {
+            const $campo = $(selector);
+            if (!$campo.length) return;
+
+            $campo.prop("disabled", deshabilitado);
+            $campo.css("background-color", deshabilitado ? "#e9ecef" : "#fff");
+            //PRUEBA DE VACIADO TODO
+            $campo.val("");
+        });
+    }
+
     function validarCamposDeshabilitados() {
+
+        //REALIZA OPERACIONES EN MONEDA EXTRANJERA
+        const realizaOperacionesMonedaExtranjera = formState.otrosDatos.operacionesMonedaExtranjera;
+        const habilitarMonedaExtranjera = realizaOperacionesMonedaExtranjera == "S"
+        const campoOperacionMonedaExtranjera = ["#cualesOperacionesMonedaExtranjera"];
+        marcarCamposDeshabilitados(campoOperacionMonedaExtranjera, !habilitarMonedaExtranjera);
+        campoOperacionMonedaExtranjera.forEach(id =>{
+            marcarCampoRequired(id, habilitarMonedaExtranjera)
+        });
+
+        //POSEE CUENTAS EN MONEDA EXTRANJERA
+        const tieneCuentaMonedaExtranjera = formState.otrosDatos.poseeCuentasMonedaExtranjera;
+        const habilitarCuentaMonedaExtranjera = tieneCuentaMonedaExtranjera == "S"
+        const camposMonedaExtranjera = [
+            "#paisMonedaExtranjera",
+            "#ciudadMonedaExtranjera",
+            "#monedaExtranjera",
+            "#bancoMonedaExtranjera",
+            "#numeroCuentaMonedaExtranjera"
+        ];
+
+        marcarCamposDeshabilitados(camposMonedaExtranjera, !habilitarCuentaMonedaExtranjera);
+        camposMonedaExtranjera.forEach(id=>{
+            marcarCampoRequired(id, habilitarCuentaMonedaExtranjera)
+        });
+
+        //ES PEP
+        const esPep = formState.otrosDatos.esPep;
+        const habilitarTipoPep = esPep == "S"
+        const campoTipoPep = ["#tipoPep", "#administraRecursosPublicos"];
+        marcarCamposDeshabilitados(campoTipoPep, !habilitarTipoPep);
+        campoTipoPep.forEach(id=>{
+            marcarCampoRequired(id, habilitarTipoPep)
+        });
+
 
         //FAMILIAR EMPLEADO ENTIDAD OTROS DATOS
         const familiarEmpleadoEntidad = formState.otrosDatos.familiarEmpleadoEntidad;
@@ -131,16 +627,10 @@
             "#desdeCuandoFamiliarEmpleadoEntidad",
             "#hastaCuandoFamiliarEmpleadoEntidad"
         ];
-        camposFamiliarEmpleadoEntidad.forEach(id => {
-            $(id)
-                .prop("disabled", !habilitarFamiliarEmpleadoEntidad)
-                .css("background-color", habilitarFamiliarEmpleadoEntidad ? "#fff" : "#e9ecef");
 
-            if (!habilitarFamiliarEmpleadoEntidad) {
-                $(id).val("");
-                const campo = id.replace("#", "");
-                formState.otrosDatos[campo] = null;
-            }
+        marcarCamposDeshabilitados(camposFamiliarEmpleadoEntidad, !habilitarFamiliarEmpleadoEntidad);
+        camposFamiliarEmpleadoEntidad.forEach(id => {
+            marcarCampoRequired(id, habilitarFamiliarEmpleadoEntidad);
         });
 
 
@@ -160,16 +650,10 @@
             "#hastaCuandoFamiliarRecursosPublicos",
             "#nombreEntidadFamiliarRecursosPublicos"
         ];
-        camposFamiliarRecursosPublicos.forEach(id => {
-            $(id)
-                .prop("disabled", !habilitarFamiliarRecursosPublicos)
-                .css("background-color", habilitarFamiliarRecursosPublicos ? "#fff" : "#e9ecef");
 
-            if (!habilitarFamiliarRecursosPublicos) {
-                $(id).val("");
-                const campo = id.replace("#", "");
-                formState.otrosDatos[campo] = null;
-            }
+        marcarCamposDeshabilitados(camposFamiliarRecursosPublicos, !habilitarFamiliarRecursosPublicos);
+        camposFamiliarRecursosPublicos.forEach(id => {
+            marcarCampoRequired(id, habilitarFamiliarRecursosPublicos);
         });
 
         //FAMILIAR PUBLICAMENTE EXPUESTO OTROS DATOS
@@ -187,57 +671,107 @@
             "#hastaCuandoFamiliarPublicamenteExpuesto"
         ];
 
+        marcarCamposDeshabilitados(camposFamiliarPublicamenteExpuesto, !habilitarFamiliarPublicamenteExpuesto);
         camposFamiliarPublicamenteExpuesto.forEach(id => {
-            $(id)
-                .prop("disabled", !habilitarFamiliarPublicamenteExpuesto)
-                .css("background-color", habilitarFamiliarPublicamenteExpuesto ? "#fff" : "#e9ecef");
-
-            if (!habilitarFamiliarPublicamenteExpuesto) {
-                $(id).val("");
-                const campo = id.replace("#", "");
-                formState.otrosDatos[campo] = null;
-            }
+            marcarCampoRequired(id, habilitarFamiliarPublicamenteExpuesto);
         });
+
+
+        //ADMINISTRA RECURSOS PUBLICOS
+        const administraRecursosPublicos = formState.otrosDatos.administraRecursosPublicos;
+        const habilitarAdministraRecursos = administraRecursosPublicos == "S"
+        const camposAdminitraRecursos = [
+            "#nombreEntidadAdministraRecursosPublicos",
+            "#cargoAdministraRecursosPublicos",
+            "#fechaViculacionRecursosPublicos",
+            "#fechaRetiroRecursosPublicos"
+        ];
+        marcarCamposDeshabilitados(camposAdminitraRecursos, !habilitarAdministraRecursos);
+        camposAdminitraRecursos.forEach(id =>{
+            marcarCampoRequired(id, habilitarAdministraRecursos);
+        });
+        
     }
 
-    //FNCION DE MODAL CON INFORMACION
-    function alertaModal(mensaje, titulo) {
+    //FUNCION DE MODAL CON INFORMACION
+       function infoModal(mensaje, tipo, onClose = null) {
+         const configPorTipo = {
+            informacion: {
+                color: "#3beaf6",
+                icono: "i",
+                tituloDefault: "Información"
+            },
+            alerta: {
+                color: "#f0ad4e",
+                icono: "!",
+                tituloDefault: "Alerta"
+            },
+            exito: {
+                color: "#22c55e",
+                icono: "✓",
+                tituloDefault: "Éxito"
+            },
+            falla: {
+                color: "#dc3545",
+                icono: "×",
+                tituloDefault: "Error"
+            }
+        };
+        const config= configPorTipo[tipo] || configPorTipo["informacion"];
         const modalHTML = `
-            <div class="modal fade app-modal" id="alertaModalTemp">
-                <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content app-modal__content">
-                
-                    <div class="app-modal__header">
-                    <h5 class="app-modal__title">${titulo}</h5>
-                    <button type="button" class="app-modal__close" data-bs-dismiss="modal">×</button>
-                    </div>
+            <div class="modal fade app-modal " id="infoModalTemp" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" style="max-width: 650px; max-height: 580px;">
+                    <div class="modal-content app-modal__content">
 
-                    <div class="app-modal__body">
-                    ${mensaje}
-                    </div>
+                        <div class="app-modal__header justify-content-center border-0 pb-0">
+                            <div style="
+                                width: 64px;
+                                height: 64px;
+                                border-radius: 50%;
+                                border: 3px solid ${config.color};
+                                color: ${config.color};
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                font-size: 2rem;
+                                font-weight: 700;
+                                line-height: 1;
+                            ">
+                                ${config.icono}
+                            </div>
+                        </div>
 
-                    <div class="app-modal__footer">
-                    <button class="app-button" data-bs-dismiss="modal">Aceptar</button>
-                    </div>
+                        <div class="app-modal__body text-center pt-3" style ="font-size: 25px;">
+                            ${mensaje}
+                        </div>
 
-                </div>
+                        <div class="app-modal__footer justify-content-center border-0 pt-0">
+                            <button type="button" class="app-button" data-bs-dismiss="modal">
+                                Aceptar
+                            </button>
+                        </div>
+
+                    </div>
                 </div>
             </div>
         `;
+
         $("body").append(modalHTML);
 
-        const $modalElement = $("#alertaModalTemp");
+        const $modalElement = $("#infoModalTemp");
         const modal = new bootstrap.Modal($modalElement[0]);
         modal.show();
 
         $modalElement.on("hidden.bs.modal", function () {
+            if (typeof onClose === "function") {
+                onClose();
+            }
             $(this).remove();
         });
     }
 
 
-
-    // AUTORIZACIONES
+    // AUTORIZACIONES ------------------------------------------------------------------------------------------------------------------
     async function cargarAutorizacionesBackend() {
         try {
             const response = await fetch("/actualizaciondatos/autorizaciones");
@@ -258,10 +792,11 @@
     }
 
 
+    let autorizaciones = [];
     async function initAutorizaciones() {
         const $contenedorAutorizaciones = $("#autorizaciones-content");
         if (!$contenedorAutorizaciones.length) return;
-        const autorizaciones = await cargarAutorizacionesBackend();
+        autorizaciones = await cargarAutorizacionesBackend();
         if (!Array.isArray(autorizaciones)) return;
         $contenedorAutorizaciones.empty();
         autorizaciones.forEach(aut => {
@@ -1627,7 +2162,16 @@
 
 
     //CUANDO SE PULSA EL BOTON FINALIZAR (PRUEBA TEMPORAL)
-    $(document).on("click", "#btnFinalizar", function () {
+    $(document).on("click", "#btnFinalizar", async function (e) {
+        e.preventDefault();
+      
+        const esValido = await validarActualizacionDatos();
+        if (!esValido) {
+            return;
+        }
+
+        infoModal("La validacion fue exitosa", "exito");
+        console.log("FormSate:", formState)
         limpiarSessionStorage();
         enviado = true;
     });
@@ -1752,7 +2296,7 @@
 
         } else {
             cargarSessionStorage();
-            alertaModal("Aun tiene datos sin enviar, continúe con la actualizacion de datos y presione finalizar para enviar la información", "Información");
+            infoModal("Aun tiene datos sin enviar, continúe con la actualizacion de datos y presione finalizar para enviar la información", "alerta");
         }
         evaluarTabsDinamicas();
         evaluarContenidoOtrosDatosAdicionales();

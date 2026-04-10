@@ -1,6 +1,6 @@
 const actualizaciondatosService = require("../services/actualizaciondatosService");
 
-const cedulaEjemplo = "4335176";
+const cedulaEjemplo = "70566059";
 
 // FUNCION PARA LIMPIAR ESPACIOS Y EXTRAER DEL ARREGLO SI APLICA
 const parseVal = (val) => {

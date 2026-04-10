@@ -249,7 +249,8 @@
             <div class="col-12 col-md-3 mb-3">
                 <div class="app-field">
                     <input type="text" class="app-input" id="cualesOperacionesMonedaExtranjera"
-                        name="cualesOperacionesMonedaExtranjera" placeholder=" ">
+                        name="cualesOperacionesMonedaExtranjera" placeholder=" " disabled
+                                style="background-color: #e9ecef;">
                     <label for="cualesOperacionesMonedaExtranjera">¿Cuáles operaciones realiza?</label>
                 </div>
             </div>
@@ -268,7 +269,7 @@
             <div class="col-12 col-md-3">
                 <div class="app-field select">
                     <select class="app-select" id="paisMonedaExtranjera" name="paisMonedaExtranjera"
-                        data-combo="paisesmonedaextranjera">
+                        data-combo="paisesmonedaextranjera" disabled style="background-color: #e9ecef;">
                         <option value="" selected></option>
                     </select>
                     <label for="paisMonedaExtranjera">¿Pais de la moneda extranjera?</label>
@@ -278,7 +279,7 @@
                 <div class="app-field select">
                     <select class="app-select" id="ciudadMonedaExtranjera" name="ciudadMonedaExtranjera"
                         data-combo="ciudadesmonedaextranjera" data-depende="paisMonedaExtranjera" data-param="pais"
-                        required>
+                        disabled tyle="background-color: #e9ecef;">
                         <option value="" selected></option>
                     </select>
                     <label for="ciudadMonedaExtranjera">¿Ciudad de la moneda extranjera?</label>
@@ -286,21 +287,21 @@
             </div>
             <div class="col-12 col-md-3">
                 <div class="app-field">
-                    <input type="text" class="app-input" id="monedaExtranjera" name="monedaExtranjera" placeholder=" ">
+                    <input type="text" class="app-input" id="monedaExtranjera" name="monedaExtranjera" placeholder=" " disabled tyle="background-color: #e9ecef;">
                     <label for="monedaExtranjera">Moneda extranjera</label>
                 </div>
             </div>
             <div class="col-12 col-md-3">
                 <div class="app-field">
                     <input type="text" class="app-input" id="bancoMonedaExtranjera" name="bancoMonedaExtranjera"
-                        placeholder=" ">
+                        placeholder=" " disabled tyle="background-color: #e9ecef;">
                     <label for="bancoMonedaExtranjera">Banco de la moneda extranjera</label>
                 </div>
             </div>
             <div class="col-12 col-md-3">
                 <div class="app-field">
                     <input type="text" class="app-input" id="numeroCuentaMonedaExtranjera"
-                        name="numeroCuentaMonedaExtranjera" placeholder=" ">
+                        name="numeroCuentaMonedaExtranjera" placeholder=" " disabled tyle="background-color: #e9ecef;">
                     <label for="numeroCuentaMonedaExtranjera">Numero de cuenta en moneda extranjera</label>
                 </div>
             </div>
@@ -325,7 +326,7 @@
             </div>
             <div class="col-12 col-md-4">
                 <div class="app-field select">
-                    <select class="app-select" id="tipoPep" name="tipoPep" data-combo="tipopep" required>
+                    <select class="app-select" id="tipoPep" name="tipoPep" data-combo="tipopep" disabled tyle="background-color: #e9ecef;">
                         <option value="" selected></option>
                     </select>
                     <label for="tipoPep">¿Tipo de PEP?</label>
@@ -350,7 +351,7 @@
                     <div class="col-12 col-md-6">
                         <div class="app-field">
                             <input type="text" class="app-input" id="identificacionEmpleadoEntidad"
-                                name="identificacionEmpleadoEntidad" placeholder=" " required disabled
+                                name="identificacionEmpleadoEntidad" placeholder=" " disabled
                                 style="background-color: #e9ecef;">
                             <label for="identificacionEmpleadoEntidad">Identificación</label>
                         </div>
@@ -358,7 +359,7 @@
                     <div class="col-12 col-md-6">
                         <div class="app-field select">
                             <select class="app-select" id="tipoIdentificacionEmpleadoEntidad"
-                                name="tipoIdentificacionEmpleadoEntidad" required disabled
+                                name="tipoIdentificacionEmpleadoEntidad" disabled
                                 style="background-color: #e9ecef;">
                                 <option value="" selected></option>
                                 <option value="C">CEDULA CIUDADANIA</option>
@@ -700,14 +701,14 @@
             <div class="col-12 col-md-6">
                 <div class="app-field">
                     <input type="text" class="app-input" id="nombreEntidadAdministraRecursosPublicos"
-                        name="nombreEntidadAdministraRecursosPublicos" placeholder=" " required>
+                        name="nombreEntidadAdministraRecursosPublicos" placeholder=" ">
                     <label for="nombreEntidadAdministraRecursosPublicos">¿Nombre de la entidad?</label>
                 </div>
             </div>
             <div class="col-12 col-md-4">
                 <div class="app-field select">
                     <select class="app-select" id="cargoAdministraRecursosPublicos"
-                        name="cargoAdministraRecursosPublicos" data-combo="profesiones" required>
+                        name="cargoAdministraRecursosPublicos" data-combo="profesiones">
                         <option value="" selected></option>
                     </select>
                     <label for="cargoAdministraRecursosPublicos">¿Cargo?</label>
@@ -716,14 +717,14 @@
             <div class="col-12 col-md-4">
                 <div class="app-field">
                     <input type="date" class="app-input" id="fechaViculacionRecursosPublicos"
-                        name="fechaViculacionRecursosPublicos" placeholder=" " required>
+                        name="fechaViculacionRecursosPublicos" placeholder=" ">
                     <label for="fechaViculacionRecursosPublicos">Fecha de Viculación</label>
                 </div>
             </div>
             <div class="col-12 col-md-4">
                 <div class="app-field">
                     <input type="date" class="app-input" id="fechaRetiroRecursosPublicos"
-                        name="fechaRetiroRecursosPublicos" placeholder=" " required>
+                        name="fechaRetiroRecursosPublicos" placeholder=" ">
                     <label for="fechaRetiroRecursosPublicos">Fecha de Desvinculacion o Actual</label>
                 </div>
             </div>

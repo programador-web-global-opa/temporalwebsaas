@@ -1,5 +1,5 @@
 const ISWEBSAAS = 1;
-const URL_SERVICE = "http://localhost:2000/api";
+const URL_SERVICE = "http://10.2.0.108:2000/api";
 
 const getIdentification = async (document) => {
   try {
