@@ -41,14 +41,6 @@
             </div>
             <div class="col-12 col-md-3">
                 <div class="app-field select">
-                    <select class="app-select" id="ocupacion" name="ocupacion" required>
-                        <option value="" selected></option>
-                    </select>
-                    <label for="ocupacion">Ocupacion</label>
-                </div>
-            </div>
-            <div class="col-12 col-md-3">
-                <div class="app-field select">
                     <select class="app-select" id="profesion" name="profesion" data-combo="profesiones" required>
                         <option value="" selected></option>
                     </select>
@@ -114,7 +106,7 @@
                     <label for="declarante">¿Es declarante?</label>
                 </div>
             </div>
-            <div class="col-12 col-md-3">
+            <div class="col-12 col-md-6">
                 <button type="button" class="app-button" id="btnGrupoProteccion">Grupo de protección</button>
             </div>
             <div class="modal fade app-modal" id="modalGrupoProteccion" tabindex="-1" aria-hidden="true"
@@ -690,7 +682,8 @@
             <div class="col-12 col-md-6">
                 <div class="app-field select">
                     <select class="app-select" id="administraRecursosPublicos" name="administraRecursosPublicos"
-                        required>
+                        required disabled
+                        style="background-color: #e9ecef;">
                         <option value="" selected></option>
                         <option value="S">SI</option>
                         <option value="N">NO</option>

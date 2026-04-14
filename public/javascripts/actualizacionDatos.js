@@ -26,7 +26,7 @@
             `/actualizaciondatos/tab/${tab}`,
             async function () {
                 await inicializarCombos($(this));
-                initTabs();
+                await initTabs();
                 hydrateTab(tab);
                 evaluarTabsDinamicas();
                 validarCamposDeshabilitados();
@@ -48,16 +48,16 @@
 
 
     //CARGAR TAB DINAMICO CUANDO SE CARGA EL FORMULARIO POR PRIMERA VEZ
-    $(document).ready(function () {
-        inicializarFormulario();
+    $(document).ready(async function () {
+        await inicializarFormulario();
         evaluarTabsDinamicas();
         $('.app-tab[data-tab="autorizaciones"]').trigger('click');
     });
 
     //INICIALIZAR TABS INDEPENDIENTES
-    function initTabs() {
+    async function initTabs() {
         initAutorizaciones();
-        initAdjuntos();
+        await initAdjuntos();
         initOtrosDatos();
     }
 
@@ -87,7 +87,6 @@
 
 
     // HELPERS VALIDACION (pruebas temporal)----------------------------------------------
-
     async function validarActualizacionDatos() {
         sanitizarFormState();
 
@@ -98,9 +97,9 @@
             validarOtrosDatos,
             validarDatosPeps,
             validarIngresosEgresos,
-            validarConyugue
-            // validarAdjuntos,
-            // validarOtrosDatosAdicionales
+            validarConyugue,
+            validarAdjuntos,
+            validarOtrosDatosAdicionales
         ];
 
         for (const validar of validadores) {
@@ -134,11 +133,6 @@
         return isEmpty(value) || String(value).trim() === "0";
     }
 
-    function isValidEmail(value) {
-        if (isEmpty(value)) return false;
-        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value).trim());
-    }
-
     function crearError(tab, field, message) {
         return { ok: false, tab, field, message };
     }
@@ -149,12 +143,45 @@
 
         $tab.trigger("click");
 
-        await new Promise(resolve => setTimeout(resolve, 250));
+        await new Promise(resolve => setTimeout(resolve, 600));
+    }
+
+
+     function isValidEmail(value) {
+        if (isEmpty(value)) return false;
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value).trim());
+    }
+
+    function isValidDate(value) {
+        if (isEmpty(value)) return false;
+
+        const date = new Date(value);
+        return !Number.isNaN(date.getTime());
+    }
+
+    function normalizarFecha(value) {
+        const date = new Date(value);
+        date.setHours(0, 0, 0, 0);
+        return date;
+    }
+
+    function isDateInRange(value, { min, max, notFuture, notPast } = {}) {
+        if (!isValidDate(value)) return false;
+
+        const fecha = normalizarFecha(value);
+        const hoy = normalizarFecha(new Date());
+
+        if (min && fecha < normalizarFecha(min)) return false;
+        if (max && fecha > normalizarFecha(max)) return false;
+        if (notFuture && fecha > hoy) return false;
+        if (notPast && fecha < hoy) return false;
+
+        return true;
     }
 
     function validarReglas({ tab, bloque, reglas }) {
         for (const regla of reglas) {
-            const { value, type, field, message, allowZero } = regla;
+            const { value, type, field, message, allowZero, min, max, notFuture, notPast } = regla;
 
             if (type === "text") {
                 if (isEmpty(value)) {
@@ -177,15 +204,20 @@
                     return crearError(tab, field, message);
                 }
             }
+
+            if (type === "date") {
+                if (isEmpty(value)) {
+                    return crearError(tab, field, message);
+                }
+
+                if (!isDateInRange(value, { min, max, notFuture, notPast })) {
+                    return crearError(tab, field, message);
+                }
+            }
         }
 
         return { ok: true };
     }
-
-
-
-
-
 
     // VALIDADORES POR TAB --------------------------------------------------------------------------------------------------------------
 
@@ -217,13 +249,13 @@
             reglas: [
                 { field: "#numeroDocumento", type: "text", value: d.numeroDocumento, message: "Ingrese número de documento" + msg },
                 { field: "#tipoDocumento", type: "select", value: d.tipoDocumento, message: "Ingrese tipo de documento" + msg },
-                { field: "#fechaExpedicionDocumento", type: "text", value: d.fechaExpedicionDocumento, message: "Ingrese fecha de expedición" + msg },
+                { field: "#fechaExpedicionDocumento", type: "date", value: d.fechaExpedicionDocumento, message: "Ingrese una fecha de expedicion valida"  + msg, min: "1900-01-01", notFuture: true },
                 { field: "#paisDocumento", type: "select", value: d.paisDocumento, message: "Ingrese país del documento" + msg },
                 { field: "#departamentoDocumento", type: "select", value: d.departamentoDocumento, message: "Ingrese departamento del documento" + msg },
                 { field: "#ciudadDocumento", type: "select", value: d.ciudadDocumento, message: "Ingrese ciudad del documento" + msg },
                 { field: "#primerNombre", type: "text", value: d.primerNombre, message: "Ingrese primer nombre" + msg },
                 { field: "#primerApellido", type: "text", value: d.primerApellido, message: "Ingrese primer apellido" + msg },
-                { field: "#fechaNacimiento", type: "text", value: d.fechaNacimiento, message: "Ingrese fecha de nacimiento" + msg },
+                { field: "#fechaNacimiento", type: "date", value: d.fechaNacimiento, message: "Ingrese fecha de nacimiento valida" + msg, min: "1900-01-01", notFuture: true },
                 { field: "#paisNacimiento", type: "select", value: d.paisNacimiento, message: "Ingrese país de nacimiento" + msg },
                 { field: "#departamentoNacimiento", type: "select", value: d.departamentoNacimiento, message: "Ingrese departamento de nacimiento" + msg },
                 { field: "#ciudadNacimiento", type: "select", value: d.ciudadNacimiento, message: "Ingrese ciudad de nacimiento" + msg },
@@ -240,7 +272,8 @@
                 { field: "#comunaResidencia", type: "select", value: d.comunaResidencia, message: "Ingrese comuna residencia" + msg },
                 { field: "#barrioResidencia", type: "select", value: d.barrioResidencia, message: "Ingrese barrio residencia" + msg },
                 { field: "#telefono", type: "text", value: d.telefono, message: "Ingrese teléfono" + msg },
-                { field: "#celular", type: "text", value: d.celular, message: "Ingrese celular" + msg }
+                { field: "#celular", type: "text", value: d.celular, message: "Ingrese celular" + msg },
+                {field: "#email", type: "email", value: d.email, message: "Ingrese un correo electronico valido" + msg}
             ]
         });
     }
@@ -255,7 +288,7 @@
             { field: "#empresaTrabajo", type: "select", value: l.empresaTrabajo, message: "Ingrese trabaja en" + msg },
             { field: "#cargoTrabajo", type: "select", value: l.cargoTrabajo, message: "Ingrese el cargo" + msg },
             { field: "#dependenciaTrabajo", type: "select", value: l.dependenciaTrabajo, message: "Ingrese dependencia" + msg },
-            { field: "#fechaIngreso", type: "text", value: l.fechaIngreso, message: "Ingrese fecha de ingreso" + msg }
+            { field: "#fechaIngreso", type: "date", value: l.fechaIngreso, message: "Ingrese fecha de ingreso valida" + msg, min: "1900-01-01", notFuture: true }
         ];
 
         if (l.tipoContrato !== "N") {
@@ -360,8 +393,8 @@
                     { field: "#primerNombreEmpleadoEntidad", type: "text", value: o.primerNombreEmpleadoEntidad, message: "Ingrese primer nombre familiar empleado entidad" + msg },
                     { field: "#primerApellidoEmpleadoEntidad", type: "text", value: o.primerApellidoEmpleadoEntidad, message: "Ingrese primer apellido familiar empleado entidad" + msg },
                     { field: "#parentescoEmpleadoEntidad", type: "select", value: o.parentescoEmpleadoEntidad, message: "Ingrese parentesco familiar empleado entidad" + msg },
-                    { field: "#desdeCuandoFamiliarEmpleadoEntidad", type: "text", value: o.desdeCuandoFamiliarEmpleadoEntidad, message: "Ingrese fecha desde familiar empleado entidad" + msg },
-                    { field: "#hastaCuandoFamiliarEmpleadoEntidad", type: "text", value: o.hastaCuandoFamiliarEmpleadoEntidad, message: "Ingrese fecha hasta familiar empleado entidad" + msg }
+                    { field: "#desdeCuandoFamiliarEmpleadoEntidad", type: "date", value: o.desdeCuandoFamiliarEmpleadoEntidad, message: "Ingrese una fecha valida" + msg, min: "1900-01-01", notFuture: true },
+                    { field: "#hastaCuandoFamiliarEmpleadoEntidad", type: "date", value: o.hastaCuandoFamiliarEmpleadoEntidad, message: "Ingrese una fecha valida" + msg, min: "1900-01-01", notFuture: false, notPast: true }
                 ]
             });
             if (!r1.ok) return r1;
@@ -378,8 +411,8 @@
                     { field: "#parentescoFamiliarRecursosPublicos", type: "select", value: o.parentescoFamiliarRecursosPublicos, message: "Ingrese parentesco familiar recursos públicos" + msg },
                     { field: "#cargoFamiliarRecursosPublicos", type: "text", value: o.cargoFamiliarRecursosPublicos, message: "Ingrese cargo familiar recursos públicos" + msg },
                     { field: "#nombreEntidadFamiliarRecursosPublicos", type: "text", value: o.nombreEntidadFamiliarRecursosPublicos, message: "Ingrese entidad familiar recursos públicos" + msg },
-                    { field: "#desdeCuandoFamiliarRecursosPublicos", type: "text", value: o.desdeCuandoFamiliarRecursosPublicos, message: "Ingrese fecha desde familiar recursos públicos" + msg },
-                    { field: "#hastaCuandoFamiliarRecursosPublicos", type: "text", value: o.hastaCuandoFamiliarRecursosPublicos, message: "Ingrese fecha hasta familiar recursos públicos" + msg }
+                    { field: "#desdeCuandoFamiliarRecursosPublicos", type: "date", value: o.desdeCuandoFamiliarRecursosPublicos, message: "Ingrese una fecha valida" + msg, min: "1900-01-01", notFuture: true },
+                    { field: "#hastaCuandoFamiliarRecursosPublicos", type: "date", value: o.hastaCuandoFamiliarRecursosPublicos, message: "Ingrese una fecha valida" + msg,  min: "1900-01-01", notFuture: false, notPast: true }
                 ]
             });
             if (!r2.ok) return r2;
@@ -394,8 +427,8 @@
                     { field: "#primerNombreFamiliarPublicamenteExpuesto", type: "text", value: o.primerNombreFamiliarPublicamenteExpuesto, message: "Ingrese primer nombre familiar públicamente expuesto" + msg },
                     { field: "#primerApellidoFamiliarPublicamenteExpuesto", type: "text", value: o.primerApellidoFamiliarPublicamenteExpuesto, message: "Ingrese primer apellido familiar públicamente expuesto" + msg },
                     { field: "#parentescoFamiliarPublicamenteExpuesto", type: "select", value: o.parentescoFamiliarPublicamenteExpuesto, message: "Ingrese parentesco familiar públicamente expuesto" + msg },
-                    { field: "#desdeCuandoFamiliarPublicamenteExpuesto", type: "text", value: o.desdeCuandoFamiliarPublicamenteExpuesto, message: "Ingrese fecha desde familiar públicamente expuesto" + msg },
-                    { field: "#hastaCuandoFamiliarPublicamenteExpuesto", type: "text", value: o.hastaCuandoFamiliarPublicamenteExpuesto, message: "Ingrese fecha hasta familiar públicamente expuesto" + msg }
+                    { field: "#desdeCuandoFamiliarPublicamenteExpuesto", type: "date", value: o.desdeCuandoFamiliarPublicamenteExpuesto, message: "Ingrese una fecha valida" + msg, mind: "1900-01-01", notFuture: true },
+                    { field: "#hastaCuandoFamiliarPublicamenteExpuesto", type: "date", value: o.hastaCuandoFamiliarPublicamenteExpuesto, message: "Ingrese una fecha valida" + msg, min: "1900-01-01", notFuture: false, notPast: true }
                 ]
             });
             if (!r3.ok) return r3;
@@ -449,7 +482,7 @@
         return validarReglas({
             tab: "conyugue",
             reglas: [
-                { field: "#fechaExpedicionConyugue", type: "text", value: c.fechaExpedicionConyugue, message: "Ingrese fecha expedición cónyugue" + msg },
+                { field: "#fechaExpedicionConyugue", type: "date", value: c.fechaExpedicionConyugue, message: "Ingrese una fecha valida de expedición de documento del cónyugue" + msg, min: "1900-01-01", notFuture: true },
                 { field: "#primerNombreConyugue", type: "text", value: c.primerNombreConyugue, message: "Ingrese primer nombre cónyugue" + msg },
                 { field: "#primerApellidoConyugue", type: "text", value: c.primerApellidoConyugue, message: "Ingrese primer apellido cónyugue" + msg },
                 { field: "#tipoDocumentoConyugue", type: "select", value: c.tipoDocumentoConyugue, message: "Ingrese tipo documento cónyugue" + msg },
@@ -459,7 +492,7 @@
                 { field: "#ciudadNacimientoConyugue", type: "select", value: c.ciudadNacimientoConyugue, message: "Ingrese ciudad nacimiento cónyugue" + msg },
                 { field: "#tipoDireccionConyugue", type: "select", value: c.tipoDireccionConyugue, message: "Ingrese tipo dirección cónyugue" + msg },
                 { field: "#complementoDireccionConyugue", type: "text", value: c.complementoDireccionConyugue, message: "Ingrese complemento dirección cónyugue" + msg },
-                { field: "#fechaNacimientoConyugue", type: "text", value: c.fechaNacimientoConyugue, message: "Ingrese fecha nacimiento cónyugue" + msg },
+                { field: "#fechaNacimientoConyugue", type: "date", value: c.fechaNacimientoConyugue, message: "Ingrese una fecha valida de nacimiento cónyugue" + msg, min: "1900-01-01", notFuture: true },
                 { field: "#telefonoConyugue", type: "text", value: c.telefonoConyugue, message: "Ingrese teléfono cónyugue" + msg },
                 { field: "#celularConyugue", type: "text", value: c.celularConyugue, message: "Ingrese celular cónyugue" + msg },
                 { field: "#tipoContratoConyugue", type: "select", value: c.tipoContratoConyugue, message: "Ingrese tipo contrato cónyugue" + msg },
@@ -473,22 +506,72 @@
         });
     }
 
-    //MANEJO DE CONDICIONES PARA TABS DINAMICAS ---------------------------------------------------------------------
-    $(document).on("change", "#tipoDocumento", function () {
-        evaluarTabsDinamicas();
-    });
-    $(document).on("change", "#estadoCivil", function () {
-        evaluarTabsDinamicas();
-    });
-    $(document).on("change", "#esPep", function (e) {
-        evaluarTabsDinamicas();
-        if (!e.originalEvent) return;
-        if (this.value === "S") {
-            infoModal("Usted es una persona expuesta políticamente y de acuerdo al decreto 830 del 26 de julio de 2021, las Personas Expuestas Políticamente deberán, declarar los nombres e identificación de las personas con las que tengan sociedad conyugal, de hecho, o de derecho, los nombres e identificación de sus familiares hasta segundo grado de consanguinidad", "informacion");
-            return [];
-        }
-    });
+    function validarOtrosDatosAdicionales() {
+        const tipoDocumento = formState?.datosPersonales?.tipoDocumento;
 
+        if (!["T", "R", "N"].includes(tipoDocumento)) {
+            return { ok: true };
+        }
+
+        const o = formState.otrosDatosAdicionales;
+        const msg = " - De la ficha OTROS DATOS ADICIONALES";
+
+        if (["T", "R"].includes(tipoDocumento)) {
+            return validarReglas({
+                tab: "otrosDatosAdicionales",
+                reglas: [
+                    { field: "#cedulaApoderado", type: "text", value: o.cedulaApoderado, message: "Ingrese cédula apoderado" + msg },
+                    { field: "#nombreApoderado", type: "text", value: o.nombreApoderado, message: "Ingrese nombre apoderado" + msg },
+                    { field: "#profesionApoderado", type: "text", value: o.profesionApoderado, message: "Ingrese profesión apoderado" + msg },
+                    { field: "#direccionApoderado", type: "text", value: o.direccionApoderado, message: "Ingrese dirección apoderado" + msg },
+                    { field: "#telefonoApoderado", type: "text", value: o.telefonoApoderado, message: "Ingrese teléfono apoderado" + msg },
+                    { field: "#movilApoderado", type: "text", value: o.movilApoderado, message: "Ingrese móvil apoderado" + msg }
+                ]
+            });
+        }
+
+        if (tipoDocumento === "N") {
+            const base = validarReglas({
+                tab: "otrosDatosAdicionales",
+                reglas: [
+                    { field: "#tipoPersonaJuridica", type: "select", value: o.tipoPersonaJuridica, message: "Ingrese tipo persona jurídica" + msg },
+                    { field: "#tieneRetencionPersonaJuridica", type: "select", value: o.tieneRetencionPersonaJuridica, message: "Ingrese si tiene retención" + msg }
+                ]
+            });
+
+            if (!base.ok) return base;
+
+            return validarReglas({
+                tab: "otrosDatosAdicionales",
+                reglas: [
+                    { field: "#fechaNombramientoRepresentanteLegal", type: "text", value: o.fechaNombramientoRepresentanteLegal, message: "Ingrese fecha de nombramiento" + msg },
+                    { field: "#numeroActaNombramientoRepresentanteLegal", type: "text", value: o.numeroActaNombramientoRepresentanteLegal, message: "Ingrese número de acta" + msg },
+                    { field: "#numeroCamaraComercio", type: "text", value: o.numeroCamaraComercio, message: "Ingrese número cámara de comercio" + msg },
+                    { field: "#tipoEmpresaRepresentanteLegal", type: "select", value: o.tipoEmpresaRepresentanteLegal, message: "Ingrese tipo empresa" + msg },
+                    { field: "#detalleEmpresaRepresentanteLegal", type: "text", value: o.detalleEmpresaRepresentanteLegal, message: "Ingrese detalle empresa" + msg },
+                    { field: "#totalActivosRepresentanteLegal", type: "text", value: o.totalActivosRepresentanteLegal, message: "Ingrese total activos" + msg },
+                    { field: "#totalPasivosRepresentanteLegal", type: "text", value: o.totalPasivosRepresentanteLegal, message: "Ingrese total pasivos" + msg },
+                    { field: "#totalPatrimonioRepresentanteLegal", type: "text", value: o.totalPatrimonioRepresentanteLegal, message: "Ingrese total patrimonio" + msg },
+                    { field: "#cedulaRepresentanteLegal", type: "text", value: o.cedulaRepresentanteLegal, message: "Ingrese cédula representante legal" + msg },
+                    { field: "#nombreRepresentanteLegal", type: "text", value: o.nombreRepresentanteLegal, message: "Ingrese nombre representante legal" + msg },
+                    { field: "#profesionRepresentanteLegal", type: "select", value: o.profesionRepresentanteLegal, message: "Ingrese profesión representante legal" + msg },
+                    { field: "#direccionRepresentanteLegal", type: "text", value: o.direccionRepresentanteLegal, message: "Ingrese dirección representante legal" + msg },
+                    { field: "#paisRepresentanteLegal", type: "select", value: o.paisRepresentanteLegal, message: "Ingrese país representante legal" + msg },
+                    { field: "#departamentoRepresentanteLegal", type: "select", value: o.departamentoRepresentanteLegal, message: "Ingrese departamento representante legal" + msg },
+                    { field: "#ciudadRepresentanteLegal", type: "select", value: o.ciudadRepresentanteLegal, message: "Ingrese ciudad representante legal" + msg },
+                    { field: "#telefonoRepresentanteLegal", type: "text", value: o.telefonoRepresentanteLegal, message: "Ingrese teléfono representante legal" + msg },
+                    { field: "#indicativoRepresentanteLegal", type: "text", value: o.indicativoRepresentanteLegal, message: "Ingrese indicativo representante legal" + msg },
+                    { field: "#movilRepresentanteLegal", type: "text", value: o.movilRepresentanteLegal, message: "Ingrese móvil representante legal" + msg }
+                ]
+            });
+        }
+
+        return { ok: true };
+    }
+
+
+
+    //MANEJO DE CONDICIONES PARA TABS DINAMICAS ---------------------------------------------------------------------
     //MOSTRAR TAB OTROS DATOS ADICIONALES
     function evaluarTabsDinamicas() {
         const tipoDocumento = formState?.datosPersonales?.tipoDocumento;
@@ -516,42 +599,53 @@
         $("#datosRepresentanteLegal").toggle(esJuridica);
     }
 
-    //MANEJO DE LOS CAMPOS DEPENDIENTES PARA ESTAR O NO ESTAR HABILITADOS (pruebas)----------------------------------------------------------------
-
-    $(document).on("change", "#familiarEmpleadoEntidad", function () {
-        validarCamposDeshabilitados();
-    });
-
-    $(document).on("change", "#familiarRecursosPublicos", function () {
-        validarCamposDeshabilitados();
-    });
-
-    $(document).on("change", "#familiarPublicamenteExpuesto", function () {
-        validarCamposDeshabilitados();
-    });
-
-    $(document).on("change", "#operacionesMonedaExtranjera", function(){
-        validarCamposDeshabilitados();
-    });
-
-    $(document).on("change", "#poseeCuentasMonedaExtranjera", function(){
-        validarCamposDeshabilitados();
-    });
-    $(document).on("change", "#esPep", function(){
-        validarCamposDeshabilitados();
-    });
-    $(document).on("change", "#administraRecursosPublicos", function(){
-        validarCamposDeshabilitados();
-    });
-
-    $(document).on("change", "#tipoContrato", function () {
-        if (this.value !== "N") {
-            marcarCampoRequired("#pagaduria", true);
+    //MANEJO DE LOS CAMPOS DEPENDIENTES PARA ESTAR O NO ESTAR HABILITADOS (pruebas)
+    const camposQueMuestranTabs = [
+        "tipoDocumento",
+        "estadoCivil",
+        "esPep"
+    ];
+    const camposQueCambianContenidoOtrosDatos =[
+        "tipoDocumento"
+    ];
+    const camposQueCambianDeshabilitados = [
+        "operacionesMonedaExtranjera",
+        "poseeCuentasMonedaExtranjera",
+        "esPep",
+        "familiarEmpleadoEntidad",
+        "familiarRecursosPublicos",
+        "familiarPublicamenteExpuesto",
+        "administraRecursosPublicos"
+    ];
+    function procesarCambioPorCampos(name, e) {
+        if (camposQueMuestranTabs.includes(name)) {
+            evaluarTabsDinamicas();
         }
-        else {
-            marcarCampoRequired("#pagaduria", false);
+
+        if (camposQueCambianContenidoOtrosDatos.includes(name)) {
+            evaluarContenidoOtrosDatosAdicionales();
         }
-    });
+
+        if (camposQueCambianDeshabilitados.includes(name)) {
+            validarCamposDeshabilitados();
+        }
+
+        if (name === "tipoContrato") {
+            const tipoContrato = formState?.datosLaborales?.tipoContrato;
+            marcarCampoRequired("#pagaduria", tipoContrato !== "N");
+        }
+
+        if (
+            name === "esPep" &&
+            e?.originalEvent &&
+            formState?.otrosDatos?.esPep === "S"
+        ) {
+            infoModal(
+                "Usted es una persona expuesta políticamente y de acuerdo al decreto 830 del 26 de julio de 2021, las Personas Expuestas Políticamente deberán, declarar los nombres e identificación de las personas con las que tengan sociedad conyugal, de hecho, o de derecho, los nombres e identificación de sus familiares hasta segundo grado de consanguinidad",
+                "informacion"
+            );
+        }
+    }
 
     function marcarCampoRequired(selector, requerido) {
         const $campo = $(selector);
@@ -564,15 +658,30 @@
         }
     }
 
-    function marcarCamposDeshabilitados(selectores, deshabilitado) {
+    function limpiarCampoEstado($campo, tab) {
+        const name = $campo.attr("name");
+        if (!name) return;
+
+        $campo.val("");
+        $campo.removeClass("is-invalid");
+
+        if (formState[tab] && Object.prototype.hasOwnProperty.call(formState[tab], name)) {
+            formState[tab][name] = null;
+        }
+    }
+
+    function marcarCamposDeshabilitados(selectores, deshabilitado, tab) {
         selectores.forEach(selector => {
             const $campo = $(selector);
             if (!$campo.length) return;
 
             $campo.prop("disabled", deshabilitado);
             $campo.css("background-color", deshabilitado ? "#e9ecef" : "#fff");
-            //PRUEBA DE VACIADO TODO
-            $campo.val("");
+
+            if (deshabilitado) {
+                limpiarCampoEstado($campo, tab);
+            }
+            
         });
     }
 
@@ -582,7 +691,7 @@
         const realizaOperacionesMonedaExtranjera = formState.otrosDatos.operacionesMonedaExtranjera;
         const habilitarMonedaExtranjera = realizaOperacionesMonedaExtranjera == "S"
         const campoOperacionMonedaExtranjera = ["#cualesOperacionesMonedaExtranjera"];
-        marcarCamposDeshabilitados(campoOperacionMonedaExtranjera, !habilitarMonedaExtranjera);
+        marcarCamposDeshabilitados(campoOperacionMonedaExtranjera, !habilitarMonedaExtranjera, "otrosDatos");
         campoOperacionMonedaExtranjera.forEach(id =>{
             marcarCampoRequired(id, habilitarMonedaExtranjera)
         });
@@ -598,7 +707,7 @@
             "#numeroCuentaMonedaExtranjera"
         ];
 
-        marcarCamposDeshabilitados(camposMonedaExtranjera, !habilitarCuentaMonedaExtranjera);
+        marcarCamposDeshabilitados(camposMonedaExtranjera, !habilitarCuentaMonedaExtranjera, "otrosDatos");
         camposMonedaExtranjera.forEach(id=>{
             marcarCampoRequired(id, habilitarCuentaMonedaExtranjera)
         });
@@ -607,7 +716,7 @@
         const esPep = formState.otrosDatos.esPep;
         const habilitarTipoPep = esPep == "S"
         const campoTipoPep = ["#tipoPep", "#administraRecursosPublicos"];
-        marcarCamposDeshabilitados(campoTipoPep, !habilitarTipoPep);
+        marcarCamposDeshabilitados(campoTipoPep, !habilitarTipoPep, "otrosDatos");
         campoTipoPep.forEach(id=>{
             marcarCampoRequired(id, habilitarTipoPep)
         });
@@ -628,7 +737,7 @@
             "#hastaCuandoFamiliarEmpleadoEntidad"
         ];
 
-        marcarCamposDeshabilitados(camposFamiliarEmpleadoEntidad, !habilitarFamiliarEmpleadoEntidad);
+        marcarCamposDeshabilitados(camposFamiliarEmpleadoEntidad, !habilitarFamiliarEmpleadoEntidad, "otrosDatos");
         camposFamiliarEmpleadoEntidad.forEach(id => {
             marcarCampoRequired(id, habilitarFamiliarEmpleadoEntidad);
         });
@@ -651,7 +760,7 @@
             "#nombreEntidadFamiliarRecursosPublicos"
         ];
 
-        marcarCamposDeshabilitados(camposFamiliarRecursosPublicos, !habilitarFamiliarRecursosPublicos);
+        marcarCamposDeshabilitados(camposFamiliarRecursosPublicos, !habilitarFamiliarRecursosPublicos, "otrosDatos");
         camposFamiliarRecursosPublicos.forEach(id => {
             marcarCampoRequired(id, habilitarFamiliarRecursosPublicos);
         });
@@ -671,7 +780,7 @@
             "#hastaCuandoFamiliarPublicamenteExpuesto"
         ];
 
-        marcarCamposDeshabilitados(camposFamiliarPublicamenteExpuesto, !habilitarFamiliarPublicamenteExpuesto);
+        marcarCamposDeshabilitados(camposFamiliarPublicamenteExpuesto, !habilitarFamiliarPublicamenteExpuesto, "otrosDatos");
         camposFamiliarPublicamenteExpuesto.forEach(id => {
             marcarCampoRequired(id, habilitarFamiliarPublicamenteExpuesto);
         });
@@ -686,12 +795,115 @@
             "#fechaViculacionRecursosPublicos",
             "#fechaRetiroRecursosPublicos"
         ];
-        marcarCamposDeshabilitados(camposAdminitraRecursos, !habilitarAdministraRecursos);
+        marcarCamposDeshabilitados(camposAdminitraRecursos, !habilitarAdministraRecursos, "otrosDatos");
         camposAdminitraRecursos.forEach(id =>{
             marcarCampoRequired(id, habilitarAdministraRecursos);
         });
         
     }
+
+
+    //  SUMA DE TOTAL INGRESOS EGRESOS, PARA CUANDO EL USUARIO CAMBIA ALGUN VALOR QUE MODIFICA ESTOS
+    const camposSumanIngresos = [
+        "honorarios",
+        "arriendos",
+        "comisiones",
+        "utilidadNegocio",
+        "bonificaciones",
+        "sueldo",
+        "pensiones",
+        "dividendos",
+        "interesInversiones",
+        "otrosIngresos"
+    ];
+    const camposSumanEgresos = [
+        "alimentacion",
+        "educacion",
+        "serviciosPublicos",
+        "arriendo",
+        "transporte",
+        "cuotaDomestica",
+        "salud",
+        "otrosGastos",
+        "otrasDeudas",
+        "prestamoVivienda",
+        "otrosNegocios",
+        "prestamoVehiculo",
+        "tajetaCredito",
+        "otrosPrestamos"
+    ];
+
+    function toNumber(value) {
+        if (value === null || value === undefined || value === "") return 0;
+
+        const limpio = String(value)
+            .trim()
+            .replace(/\s/g, "")
+            .replace(/,/g, "");
+
+        const numero = Number(limpio);
+        return Number.isFinite(numero) ? numero : 0;
+    }
+
+    function recalcularTotalIngresos() {
+        const i = formState.ingresosEgresos;
+
+        const total = camposSumanIngresos.reduce((acum, campo) => {
+            return acum + toNumber(i[campo]);
+        }, 0);
+
+        i.totalIngresos = String(total);
+
+        const $campo = $("#totalIngresos");
+        if ($campo.length) {
+            $campo.val(i.totalIngresos);
+        }
+    }
+
+    function recalcularTotalEgresos() {
+        const i = formState.ingresosEgresos;
+
+        const total = camposSumanEgresos.reduce((acum, campo) => {
+            return acum + toNumber(i[campo]);
+        }, 0);
+
+        i.totalEgresos = String(total);
+
+        const $campo = $("#totalEgresos");
+        if ($campo.length) {
+            $campo.val(i.totalEgresos);
+        }
+    }
+
+    function sincronizarSueldoDesdeSalario() {
+        const salario = formState?.datosLaborales?.salario ?? "";
+
+        formState.ingresosEgresos.sueldo = salario;
+
+        const $sueldo = $("#sueldo");
+        if ($sueldo.length) {
+            $sueldo.val(salario);
+        }
+
+        recalcularTotalIngresos();
+    }
+
+    function procesarTotalesIngresosEgresos(tab, name) {
+        if (tab === "ingresosEgresos") {
+            if (camposSumanIngresos.includes(name)) {
+                recalcularTotalIngresos();
+            }
+
+            if (camposSumanEgresos.includes(name)) {
+                recalcularTotalEgresos();
+            }
+        }
+
+        if (tab === "datosLaborales" && name === "salario") {
+            sincronizarSueldoDesdeSalario();
+        }
+    }
+
 
     //FUNCION DE MODAL CON INFORMACION
        function infoModal(mensaje, tipo, onClose = null) {
@@ -853,7 +1065,8 @@
     });
 
 
-    // ADJUNTOS
+    // ADJUNTOS -----------------------------------------------------------------------------------------------------------
+ 
     async function cargarAdjuntosBackend() {
         try {
             const response = await fetch('/actualizaciondatos/adjuntos');
@@ -874,46 +1087,284 @@
         return texto.charAt(0).toUpperCase() + texto.slice(1);
     }
 
-    //INICA LOS ADJUNTOS, TOMA LA INFO DEL BACKEND Y LA RENDERIZA EN LA VISTA UNA VEZ SE INGRESA AL TAB
     async function initAdjuntos() {
         const $contenedorAdjuntos = $("#adjuntos-content");
         if (!$contenedorAdjuntos.length) return;
 
         const data = await cargarAdjuntosBackend();
         const adjuntos = Array.isArray(data.items) ? data.items : [];
+        adjuntosCatalogo = adjuntos;
 
         $contenedorAdjuntos.empty();
 
         adjuntos.forEach((adj, index) => {
             const posicion = index + 1;
-            const marcaObligatorio = adj.obligatorio
-                ? '<span class="text-danger">*</span>'
-                : '';
+            const estado = adjuntosState[adj.codigo];
 
             const html = `
-            <div class="col-12 col-md-6 col-lg-4 mb-4 adjunto-item" data-codigo="${adj.codigo}">
+            <div class="col-12 col-md-6 col-lg-4 mb-4 adjunto-item"
+                data-codigo="${adj.codigo}"
+                data-obligatorio="${adj.obligatorio ? "S" : "N"}">
                 <div class="app-paper elevation-4 h-100 d-flex flex-column p-3">
-                    <h6 class="table-headers">
-                        ${formatearNombreAdjunto(adj.nombre)} ${marcaObligatorio}
-                    </h6>
-                    <small class="text-muted mb-2">${adj.descripcion}</small>
-                    <div class="mt-auto">
-                        <input type="hidden" name="codadjunto${posicion}" value="${adj.codadjunto}">
-                        <input type="hidden" name="codnomadjunto${posicion}" value="${adj.codnomadjunto}">
-                        <input type="file"
-                            name="txtadjunto${posicion}"
-                            id="txtadjunto${posicion}"
-                            class="form-control form-control-sm adjuntospintados"
-                            ${adj.obligatorio ? 'required' : ''}>
+                <h6 class="table-headers">
+                    ${formatearNombreAdjunto(adj.nombre)} ${adj.obligatorio ? '<span class="text-danger">*</span>' : ''}
+                </h6>
+
+                <small class="text-muted mb-2">${adj.descripcion}</small>
+
+                <div class="mt-auto">
+                    <input type="hidden" name="codadjunto${posicion}" value="${adj.codadjunto}">
+                    <input type="hidden" name="codnomadjunto${posicion}" value="${adj.codnomadjunto}">
+                    <input type="file"
+                    name="txtadjunto${posicion}"
+                    id="txtadjunto${posicion}"
+                    class="form-control form-control-sm adjuntospintados">
+
+                    <div class="adjunto-estado small mt-2">
+                    ${estado ? `Archivo cargado: ${estado.nombre}` : "Sin archivo"}
                     </div>
+
+                    <div class="adjunto-error text-danger small mt-1"></div>
+                </div>
                 </div>
             </div>
-        `;
+            `;
 
             $contenedorAdjuntos.append(html);
         });
     }
 
+
+
+    //PERSISTENCIA DE LOS ADJUNTOS MIENTRAS SE ESTA EN LA ACTUALIZACION
+
+    const ADJUNTOS_META_KEY = "adjuntosMeta";
+    const ADJUNTOS_DB_NAME = "actualizacionDatosDB";
+    const ADJUNTOS_STORE_NAME = "adjuntos";
+
+    let adjuntosCatalogo = [];
+    let adjuntosState = {}; 
+
+
+    function abrirAdjuntosDB() {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open(ADJUNTOS_DB_NAME, 1);
+
+        request.onupgradeneeded = function (event) {
+        const db = event.target.result;
+        if (!db.objectStoreNames.contains(ADJUNTOS_STORE_NAME)) {
+            db.createObjectStore(ADJUNTOS_STORE_NAME, { keyPath: "codigo" });
+        }
+        };
+
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+    });
+    }
+
+    async function guardarAdjuntoDB(codigo, file) {
+    const db = await abrirAdjuntosDB();
+
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction(ADJUNTOS_STORE_NAME, "readwrite");
+        const store = tx.objectStore(ADJUNTOS_STORE_NAME);
+
+        store.put({
+        codigo,
+        file,
+        nombre: file.name,
+        size: file.size,
+        type: file.type
+        });
+
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+    });
+    }
+
+    async function obtenerAdjuntoDB(codigo) {
+    const db = await abrirAdjuntosDB();
+
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction(ADJUNTOS_STORE_NAME, "readonly");
+        const store = tx.objectStore(ADJUNTOS_STORE_NAME);
+        const request = store.get(codigo);
+
+        request.onsuccess = () => resolve(request.result || null);
+        request.onerror = () => reject(request.error);
+    });
+    }
+
+    async function eliminarAdjuntoDB(codigo) {
+    const db = await abrirAdjuntosDB();
+
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction(ADJUNTOS_STORE_NAME, "readwrite");
+        const store = tx.objectStore(ADJUNTOS_STORE_NAME);
+
+        store.delete(codigo);
+
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+    });
+    }
+
+
+    function guardarAdjuntosSession() {
+        sessionStorage.setItem(ADJUNTOS_META_KEY, JSON.stringify(adjuntosState));
+    }
+
+    function cargarAdjuntosSession() {
+        const saved = sessionStorage.getItem(ADJUNTOS_META_KEY);
+        adjuntosState = saved ? JSON.parse(saved) : {};
+    }
+
+    function validarArchivoAdjunto(file) {
+    if (!file) {
+        return { ok: false, message: "Debe seleccionar un archivo" };
+    }
+
+    const ext = file.name.split(".").pop()?.toLowerCase();
+    const esPdfMime = file.type === "application/pdf";
+    const esPdfExt = ext === "pdf";
+    const sizeMax = 5 * 1024 * 1024;
+
+    if (!esPdfMime && !esPdfExt) {
+        return { ok: false, message: "Solo se permiten archivos PDF" };
+    }
+
+    if (file.size > sizeMax) {
+        return { ok: false, message: "El archivo supera el tamaño permitido" };
+    }
+
+    return { ok: true };
+    }
+
+    function pintarEstadoAdjunto($item, mensaje) {
+    $item.find(".adjunto-estado").text(mensaje);
+    }
+
+    function pintarErrorAdjunto($item, mensaje) {
+        $item.find(".adjunto-error").text(mensaje);
+    }
+
+    $(document).on("change", ".adjuntospintados", async function () {
+        try{
+            const $input = $(this);
+            const $item = $input.closest(".adjunto-item");
+            const codigo = String($item.data("codigo"));
+            const obligatorio = $item.data("obligatorio") === "S";
+            const file = this.files?.[0];
+
+            const validacion = validarArchivoAdjunto(file);
+
+            if (!validacion.ok) {
+                delete adjuntosState[codigo];
+                await eliminarAdjuntoDB(codigo);
+                pintarErrorAdjunto($item, validacion.message);
+                pintarEstadoAdjunto($item, "Sin archivo");
+                $input.val("");
+                guardarAdjuntosSession();
+                return;
+            }
+
+            await guardarAdjuntoDB(codigo, file);
+
+            adjuntosState[codigo] = {
+                codigo,
+                nombre: file.name,
+                size: file.size,
+                type: file.type,
+                obligatorio,
+                valido: true
+            };
+
+            pintarErrorAdjunto($item, "");
+            pintarEstadoAdjunto($item, `Archivo cargado: ${file.name}`);
+            guardarAdjuntosSession();
+            modificado = true;
+        } catch{
+            console.error("Error guardando adjunto:", error);
+            pintarErrorAdjunto($(this).closest(".adjunto-item"), "No fue posible guardar el adjunto");
+        }
+    });
+
+    async function validarAdjuntos() {
+        try{
+            if (!adjuntosCatalogo.length) {
+                const data = await cargarAdjuntosBackend();
+                adjuntosCatalogo = Array.isArray(data.items) ? data.items : [];
+            }
+
+            for (const adj of adjuntosCatalogo) {
+                if (!adj.obligatorio) continue;
+
+                const meta = adjuntosState[adj.codigo];
+                const persistido = await obtenerAdjuntoDB(adj.codigo);
+
+                if (!meta || !persistido) {
+                return crearError(
+                    "adjuntos",
+                    `.adjunto-item[data-codigo="${adj.codigo}"] input[type="file"]`,
+                    `Debe adjuntar ${formatearNombreAdjunto(adj.nombre)}`
+                );
+                }
+            }
+
+            return { ok: true };
+        } catch{
+            console.error("Error validando adjuntos:", error);
+            return crearError("adjuntos", null, "No fue posible validar los adjuntos");
+        }
+    }
+
+    async function reconciliarAdjuntosSession() {
+        const codigos = Object.keys(adjuntosState);
+
+        for (const codigo of codigos) {
+            const guardado = await obtenerAdjuntoDB(codigo);
+            if (!guardado) {
+                delete adjuntosState[codigo];
+            }
+        }
+
+        guardarAdjuntosSession();
+    }
+
+    function existeAdjuntosSession() {
+        return sessionStorage.getItem(ADJUNTOS_META_KEY) !== null;
+    }
+
+    async function limpiarAdjuntosDB() {
+        const db = await abrirAdjuntosDB();
+
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction(ADJUNTOS_STORE_NAME, "readwrite");
+            const store = tx.objectStore(ADJUNTOS_STORE_NAME);
+            const request = store.clear();
+
+            request.onsuccess = () => resolve();
+            request.onerror = () => reject(request.error);
+        });
+    }
+
+
+    async function obtenerTodosAdjuntosDB() {
+        const db = await abrirAdjuntosDB();
+
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction(ADJUNTOS_STORE_NAME, "readonly");
+            const store = tx.objectStore(ADJUNTOS_STORE_NAME);
+            const request = store.getAll();
+
+            request.onsuccess = () => resolve(request.result || []);
+            request.onerror = () => reject(request.error);
+        });
+    }
+
+    obtenerTodosAdjuntosDB().then(console.log);
+
+    
 
     // OTROS DATOS, SE USA PARA EL MODAL DE GRUPO PROTECCION
     function initOtrosDatos() {
@@ -2107,7 +2558,7 @@
 
     let modificado = false;
     //GUARDAR CAMBIOS DE INPUTS EN EL ESTADO GLOBAL
-    $(document).on("input change", "input, select, textarea", function () {
+    $(document).on("input change", "input, select, textarea", function (e) {
 
         const tab = $(".app-tab.active").data("tab");
         const name = $(this).attr("name");
@@ -2118,6 +2569,11 @@
         formState[tab][name] = $(this).val();
         if (!modificado) {
             modificado = true;
+        }
+
+        procesarTotalesIngresosEgresos(tab, name);
+         if (e.type === "change") {
+            procesarCambioPorCampos(name, e);
         }
     });
 
@@ -2172,7 +2628,7 @@
 
         infoModal("La validacion fue exitosa", "exito");
         console.log("FormSate:", formState)
-        limpiarSessionStorage();
+        await limpiarSessionStorage();
         enviado = true;
     });
 
@@ -2188,13 +2644,14 @@
             sessionStorage.setItem("peopleInCharge", JSON.stringify(peopleInChargeNew));
             sessionStorage.setItem("references", JSON.stringify(referencesNew));
             sessionStorage.setItem("familiarPeps", JSON.stringify(familiarPepsNew));
+            guardarAdjuntosSession();
         } catch (error) {
             console.error("Error al guardar el formulario en session storage", error);
         }
     }
 
     // CARGA LOS DATOS DEL SESSION STORAGE AL FORMSTATE
-    function cargarSessionStorage() {
+    async function cargarSessionStorage() {
 
         try {
 
@@ -2203,6 +2660,8 @@
             const referencesData = sessionStorage.getItem("references");
             const familiarPepsData = sessionStorage.getItem("familiarPeps");
 
+            await cargarAdjuntosSession();
+            await reconciliarAdjuntosSession();
             //GUARDA LOS DATOS DEL SESSION STORAGE AL FORMSTATE
             if (formData) {
                 const savedState = JSON.parse(formData);
@@ -2250,7 +2709,7 @@
 
     // VALIDA SI EXISTE SESSION STORAGE (PARA INICIALIZAR EL FORMULARIO)
     function existeSessionStorage() {
-        if (sessionStorage.getItem(STORAGE_KEY) !== null || sessionStorage.getItem("peopleInCharge") !== null || sessionStorage.getItem("references") !== null || sessionStorage.getItem("familiarPeps") !== null) {
+        if (sessionStorage.getItem(STORAGE_KEY) !== null || sessionStorage.getItem("peopleInCharge") !== null || sessionStorage.getItem("references") !== null || sessionStorage.getItem("familiarPeps") !== null || existeAdjuntosSession()) {
             return true;
         } else {
             return false;
@@ -2295,7 +2754,7 @@
 
 
         } else {
-            cargarSessionStorage();
+           await  cargarSessionStorage();
             infoModal("Aun tiene datos sin enviar, continúe con la actualizacion de datos y presione finalizar para enviar la información", "alerta");
         }
         evaluarTabsDinamicas();
@@ -2305,11 +2764,13 @@
 
 
     //LIMPIAR SESSION STORAGE PARA CUANDO SE ENVIE EL FORMULARIO (PRUEBA)
-    function limpiarSessionStorage() {
+    async function limpiarSessionStorage() {
         sessionStorage.removeItem(STORAGE_KEY);
         sessionStorage.removeItem("peopleInCharge");
         sessionStorage.removeItem("references");
         sessionStorage.removeItem("familiarPeps");
+        sessionStorage.removeItem(ADJUNTOS_META_KEY);
+        await limpiarAdjuntosDB();
     }
 
     let enviado = false;

@@ -156,7 +156,7 @@ const mapearInformacionAsociado = (jsonInfoAsociado) => {
             pensiones: parseVal(data.pensiones),
             dividendos: parseVal(data.dividendos),
             conceptoOtrosIngresos: parseVal(data.descripcioningresos),
-            totalIngresos: parseVal(data.salario),
+            totalIngresos: parseVal(data.honorarios + data.arriendos + data.comisiones + data.utilidadnegocio + data.bonificaciones + data.salario + data.interesinversiones + data.pensiones + data.dividendos + data.otros),
             otrosIngresos: parseVal(data.otros),
 
             alimentacion: parseVal(data.alimentacion),
@@ -175,7 +175,7 @@ const mapearInformacionAsociado = (jsonInfoAsociado) => {
             otrosPrestamos: parseVal(data.otrosprestamos),
             tajetaCredito: parseVal(data.trajetacredito),
             conceptoOtrosEgresos: parseVal(data.descripcionegresos),
-            totalEgresos: "",
+            totalEgresos: parseVal(data.alimentacion + data.educacion + data.serviciospublicos + data.arriendo + data.transporte + data.salud + data.otrosgastos + data.deudas + data.otrosnegocios + data.prestamovivienda + data.prestamovehiculo + data.tarjetacredito + data.otrosprestamos),
             totalActivos: parseVal(data.activos),
             totalPasivos: parseVal(data.pasivos),
             totalPatrimonio: parseVal(data.activos - data.pasivos),

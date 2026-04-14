@@ -631,6 +631,21 @@
   max-width: 440px;
   margin: 1.75rem auto;
 }
+.app-modal .modal-dialog.modal-dialog-sm {
+  max-width: 320px;
+}
+
+.app-modal .modal-dialog.modal-dialog-md {
+  max-width: 520px;
+}
+
+.app-modal .modal-dialog.modal-dialog-lg {
+  max-width: 720px;
+}
+
+.app-modal .modal-dialog.modal-dialog-xl {
+  max-width: 920px;
+}
 
 .app-modal__content {
   border-radius: calc(var(--radius-md) + 2px);
