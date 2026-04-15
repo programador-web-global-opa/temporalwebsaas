@@ -38,7 +38,7 @@ app.use(session({
 }));
 
 app.use(expressLayouts);
-app.set('layout', 'layouts/main')
+app.set('layout', 'layouts/main');
 
 app.use('/auth', authRouter);
 app.use('/ahorro', AhorroRouter);
@@ -48,12 +48,12 @@ app.use('/products-services', productServicesRouter);
 app.use('/combos', combosRouter);
 
 // catch 404 and forward to error handler
-app.use(function (req, res, next) {
+app.use(function (_, _, next) {
   next(createError(404));
 });
 
 // error handler
-app.use(function (err, req, res, next) {
+app.use(function (err, req, res, _) {
   // set locals, only providing error in development
   res.locals.user = req.session.user || null; 
   res.locals.message = err.message;
