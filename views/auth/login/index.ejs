@@ -180,7 +180,7 @@
     <div class="modal-content app-modal__content">
       <div class="app-modal__body">
         <div>
-          <div class="py-2 px-3" style="text-align: justify;" id="body-error"></div>
+          <div class="py-2 px-3" style="text-align: center;" id="body-error"></div>
           <div class="contenedor-boton">
             <button type="button" class="boton-nuevo" id="btn-modal-register">
               Ok
@@ -427,11 +427,13 @@
         errorCode.classList.remove("error");
         temporalDocument = data?.result?.cedula ?? user;
         securityImage.src = data?.result?.url ?? "/images/usuario.png";
+        sessionStorage.setItem("opa:movil:cedula:temp", data?.result?.cedula);
         return goToStep(2);
       }
       
       temporalDocument = data?.result?.cedula ?? user;
       securityImage.src = data?.result?.url ?? "/images/usuario.png";
+      sessionStorage.setItem("opa:movil:cedula:temp", data?.result?.cedula);
       goToStep(2);
 
     } catch (error) {
