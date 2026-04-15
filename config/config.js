@@ -24,7 +24,14 @@ const config = {
   isDevelopment: process.env.NODE_ENV === 'development',
 
   // Call to websaas
-  isWebSaas: process.env.OPA_IS_WEBSAAS || 1
+  isWebSaas: process.env.OPA_IS_WEBSAAS || 1,
+
+  // token tets
+  tokePruebas: process.env.TOKEN_PRUEBAS,
+
+  // Cedula test
+  cedulaPruebas: process.env.CEDULA_PRUEBAS
+
 };
 
 module.exports = config;

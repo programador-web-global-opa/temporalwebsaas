@@ -1,13 +1,17 @@
-const API_URL = "http://10.2.0.44:3012/private/api/Asociado/ConsultarInformacion";
-const API_URL_CONYUGUE = "http://10.2.0.44:3012/private/api/ActuDatos/ConsultarConyugue";
-const API_URL_OTROSDATOS = "http://10.2.0.44:3012/private/api/ActuDatos/ConsultarOtrosDatosAdicionales";
-const API_URL_AUTORIZACIONES = "http://10.2.0.44:3012/private/api/ActuDatos/ConsultarAutorizaciones";
-const API_URL_REFERENCIAS = "http://10.2.0.44:3012/private/api/ActuDatos/Referencias";
-const API_URL_PERSONASCARGO = "http://10.2.0.44:3012/private/api/ActuDatos/PersonasCargo";
-const API_URL_FAMILIARPEPS = "http://10.2.0.44:3012/private/api/ActuDatos/FamiliaresPeps";
-const API_URL_ADJUNTOSGENERALES = "http://10.2.0.44:3012/private/api/ActuDatos/ConsultarAdjuntosGeneral";
-const API_URL_ADJUNTOSRELACIONADOS = "http://10.2.0.44:3012/private/api/ActuDatos/ConsultarAdjuntosRelacionados";
-const TOKEN_QUEMADO = "";
+const config = require("../config/config");
+
+const BASE_URL = config.apiUrlWeb;
+const TOKEN_QUEMADO = config.tokePruebas;
+const API_URL = `${BASE_URL}/private/api/Asociado/ConsultarInformacion`;
+const API_URL_CONYUGUE = `${BASE_URL}/private/api/ActuDatos/ConsultarConyugue`;
+const API_URL_OTROSDATOS = `${BASE_URL}/private/api/ActuDatos/ConsultarOtrosDatosAdicionales`;
+const API_URL_AUTORIZACIONES = `${BASE_URL}/private/api/ActuDatos/ConsultarAutorizaciones`;
+const API_URL_REFERENCIAS = `${BASE_URL}/private/api/ActuDatos/Referencias`;
+const API_URL_PERSONASCARGO = `${BASE_URL}/private/api/ActuDatos/PersonasCargo`;
+const API_URL_FAMILIARPEPS = `${BASE_URL}/private/api/ActuDatos/FamiliaresPeps`;
+const API_URL_ADJUNTOSGENERALES = `${BASE_URL}/private/api/ActuDatos/ConsultarAdjuntosGeneral`;
+const API_URL_ADJUNTOSRELACIONADOS = `${BASE_URL}/private/api/ActuDatos/ConsultarAdjuntosRelacionados`;
+
 exports.obtenerInformacionAsociado = async (Cedula) => {
     try {
         const urlFetch = Cedula ? `${API_URL}?Cedula=${Cedula}` : API_URL;
@@ -54,6 +58,31 @@ exports.obtenerInformacionConyugue = async (Cedula) => {
         console.error("Error obteniendo la informacion del conyugue:", error);
         return null;
     }
+};
+
+exports.obtenerInformacionOtrosDatosAdicionales = async (Cedula) => {
+    try {
+        const urlFetch = Cedula ? `${API_URL_OTROSDATOS}?Cedula=${Cedula}` : API_URL_OTROSDATOS;
+        const response = await fetch(urlFetch, {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${TOKEN_QUEMADO}`,
+                "Content-Type": "application/json"
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data;
+
+    } catch (error) {
+        console.error("Error obteniendo la informacion de otros datos adicionales:", error);
+        return [[], [], []];
+    }
+
 };
 
 exports.obtenerAutorizaciones = async () => {

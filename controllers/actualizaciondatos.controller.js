@@ -1,6 +1,7 @@
+const config = require("../config/config");
 const actualizaciondatosService = require("../services/actualizaciondatosService");
 
-const cedulaEjemplo = "70566059";
+const cedulaEjemplo = config.cedulaPruebas;
 
 // FUNCION PARA LIMPIAR ESPACIOS Y EXTRAER DEL ARREGLO SI APLICA
 const parseVal = (val) => {
@@ -235,6 +236,57 @@ const mapearInformacionConyugue = (jsonInfoConyugue) => {
     };
 };
 
+function mapearOtrosDatosAdicionales(response, tipoDocumento) {
+    const [personasJuridicas = [], datosRepresentanteLegal = [], listaRepresentantes = []] =
+        Array.isArray(response) ? response : [[], [], []];
+
+    const juridica = personasJuridicas[0] || null;
+    const representante = datosRepresentanteLegal[0] || null;
+
+    const esPersonaJuridica = Boolean(parseVal(juridica?.nit));
+    const usaApoderado = !esPersonaJuridica && (
+            ["T", "R"].includes(tipoDocumento) ||
+            parseVal(representante?.relacion) === "M"
+        );
+
+    return {
+        otrosDatosAdicionales: {
+            cedulaApoderado: usaApoderado ? parseVal(representante?.cedula) : "",
+            nombreApoderado: usaApoderado ? parseVal(representante?.nombreintegrado) : "",
+            profesionApoderado: usaApoderado ? parseVal(representante?.codprofesion) : "",
+            direccionApoderado: usaApoderado ? parseVal(representante?.direccion) : "",
+            telefonoApoderado: usaApoderado ? parseVal(representante?.telefono) : "",
+            movilApoderado: usaApoderado ? parseVal(representante?.movil) : "",
+
+            tipoPersonaJuridica: esPersonaJuridica ? parseVal(juridica?.TipoPersona) : "",
+            tieneRetencionPersonaJuridica: esPersonaJuridica ? parseVal(juridica?.retencion) : "",
+
+            fechaNombramientoRepresentanteLegal: esPersonaJuridica ? parseDate(representante?.fechanombramiento) : "",
+            numeroActaNombramientoRepresentanteLegal: esPersonaJuridica ? parseVal(representante?.numeroacta) : "",
+            numeroCamaraComercio: esPersonaJuridica ? parseVal(representante?.nrocamaracomercio) : "",
+            tipoEmpresaRepresentanteLegal: esPersonaJuridica ? parseVal(representante?.tipoempresa) : "",
+            detalleEmpresaRepresentanteLegal: esPersonaJuridica ? parseVal(representante?.detalletipoempresa) : "",
+            totalActivosRepresentanteLegal: esPersonaJuridica ? parseVal(representante?.activos) : "",
+            totalPasivosRepresentanteLegal: esPersonaJuridica ? parseVal(representante?.pasivos) : "",
+            totalPatrimonioRepresentanteLegal: esPersonaJuridica ? parseVal(representante?.patrimonio) : "",
+            cedulaRepresentanteLegal: esPersonaJuridica ? parseVal(representante?.cedula) : "",
+            nombreRepresentanteLegal: esPersonaJuridica ? parseVal(representante?.nombreintegrado) : "",
+            profesionRepresentanteLegal: esPersonaJuridica ? parseVal(representante?.codprofesion) : "",
+            direccionRepresentanteLegal: esPersonaJuridica ? parseVal(representante?.direccion) : "",
+            paisRepresentanteLegal: esPersonaJuridica ? parseVal(representante?.codpais) : "",
+            departamentoRepresentanteLegal: esPersonaJuridica ? parseVal(representante?.coddepartamentor) : "",
+            ciudadRepresentanteLegal: esPersonaJuridica ? parseVal(representante?.codciudad || representante?.idciudades) : "",
+            telefonoRepresentanteLegal: esPersonaJuridica ? parseVal(representante?.telefono) : "",
+            movilRepresentanteLegal: esPersonaJuridica ? parseVal(representante?.movil) : "",
+            indicativoRepresentanteLegal: esPersonaJuridica ? parseVal(representante?.indicativo) : ""
+        },
+        representantesLegalesRegistrados: Array.isArray(listaRepresentantes) ? listaRepresentantes : [],
+        relacionRepresentanteLegal: parseVal(representante?.relacion),
+        tienePersonaJuridica: parseVal(juridica?.nit)
+    };
+}
+
+
 const mapearAutorizaciones = (jsonInfoAutorizaciones) => {
     if (!jsonInfoAutorizaciones || !Array.isArray(jsonInfoAutorizaciones)) return [];
 
@@ -367,15 +419,22 @@ function resolverAdjuntosParaVista(catalogo, relacionados) {
 exports.getInformacionAsociado = async (req, res) => {
     try {
         const Cedula = cedulaEjemplo;
-        const [datosCrudosInfo, datosCrudosConyugue] = await Promise.all([
+        const [datosCrudosInfo, datosCrudosConyugue, datosCrudosOtrosAdicionales] = await Promise.all([
             actualizaciondatosService.obtenerInformacionAsociado(Cedula),
-            actualizaciondatosService.obtenerInformacionConyugue(Cedula)
+            actualizaciondatosService.obtenerInformacionConyugue(Cedula),
+            actualizaciondatosService.obtenerInformacionOtrosDatosAdicionales(Cedula)
         ]);
         const infoMapeada = mapearInformacionAsociado(datosCrudosInfo);
         const conyugueMapeado = mapearInformacionConyugue(datosCrudosConyugue);
+        const tipodocumento = infoMapeada?.datosPersonales?.tipoDocumento || "";
+        const otrosMapeados = mapearOtrosDatosAdicionales(datosCrudosOtrosAdicionales, tipodocumento)
         const datosAsociadoCompleto = {
             ...infoMapeada,
-            ...conyugueMapeado
+            ...conyugueMapeado,
+            otrosDatosAdicionales: otrosMapeados.otrosDatosAdicionales,
+            representantesLegalesRegistrados: otrosMapeados.representantesLegalesRegistrados,
+            relacionRepresentanteLegal: otrosMapeados.relacionRepresentanteLegal,
+            tienePersonaJuridica: otrosMapeados.tienePersonaJuridica
 
         };
         res.status(200).json(datosAsociadoCompleto);
@@ -468,5 +527,60 @@ exports.getAdjuntos = async (req, res) => {
         });
     }
 };
+
+exports.guardarActualizacionDatos = async (req, res) => {
+    try {
+        const formState = JSON.parse(req.body.formState || "{}");
+        const references = JSON.parse(req.body.references || "[]");
+        const peopleInCharge = JSON.parse(req.body.peopleInCharge || "[]");
+        const familiarPeps = JSON.parse(req.body.familiarPeps || "[]");
+        const adjuntosMeta = JSON.parse(req.body.adjuntosMeta || "[]");
+        const archivos = Array.isArray(req.files) ? req.files : [];
+
+        if (adjuntosMeta.length !== archivos.length) {
+            return res.status(400).json({
+                estado: false,
+                mensaje: "La cantidad de archivos no coincide con la metadata de adjuntos"
+            });
+        }
+
+        console.log("=== GUARDAR ACTUALIZACION DATOS ===");
+        console.log("formState:", formState);
+        console.log("references:", references);
+        console.log("peopleInCharge:", peopleInCharge);
+        console.log("familiarPeps:", familiarPeps);
+        console.log("adjuntosMeta:", adjuntosMeta);
+        console.log(
+            "archivos:",
+            archivos.map(file => ({
+                fieldname: file.fieldname,
+                originalname: file.originalname,
+                mimetype: file.mimetype,
+                size: file.size
+            }))
+        );
+
+        return res.status(200).json({
+            estado: true,
+            mensaje: "Prueba de guardado recibida correctamente",
+            data: {
+                formStateRecibido: Boolean(formState && Object.keys(formState).length),
+                totalReferencias: references.length,
+                totalPersonasCargo: peopleInCharge.length,
+                totalFamiliaresPeps: familiarPeps.length,
+                totalAdjuntosMeta: adjuntosMeta.length,
+                totalArchivos: archivos.length
+            }
+        });
+    } catch (error) {
+        console.error("Error en guardarActualizacionDatos:", error);
+
+        return res.status(500).json({
+            estado: false,
+            mensaje: error.message || "Error procesando la solicitud de guardado"
+        });
+    }
+};
+
 
 

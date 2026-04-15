@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Controller = require("../controllers/actualizaciondatos.controller");
+const uploadActualizacionDatos = require("../middlewares/actualizaciondatosupload");
 
 router.get("/", (_, res) => {
     res.render("actualizaciondatos/index", {
@@ -27,5 +28,7 @@ router.get("/personasCargo", Controller.getPersonasCargo);
 router.get("/familiaresPeps", Controller.getFamiliaresPeps);
 
 router.get("/adjuntos", Controller.getAdjuntos);
+
+router.post("/guardar", uploadActualizacionDatos.array("adjuntos"), Controller.guardarActualizacionDatos);
 
 module.exports = router;

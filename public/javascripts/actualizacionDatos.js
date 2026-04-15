@@ -147,7 +147,7 @@
     }
 
 
-     function isValidEmail(value) {
+    function isValidEmail(value) {
         if (isEmpty(value)) return false;
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value).trim());
     }
@@ -249,7 +249,7 @@
             reglas: [
                 { field: "#numeroDocumento", type: "text", value: d.numeroDocumento, message: "Ingrese número de documento" + msg },
                 { field: "#tipoDocumento", type: "select", value: d.tipoDocumento, message: "Ingrese tipo de documento" + msg },
-                { field: "#fechaExpedicionDocumento", type: "date", value: d.fechaExpedicionDocumento, message: "Ingrese una fecha de expedicion valida"  + msg, min: "1900-01-01", notFuture: true },
+                { field: "#fechaExpedicionDocumento", type: "date", value: d.fechaExpedicionDocumento, message: "Ingrese una fecha de expedicion valida" + msg, min: "1900-01-01", notFuture: true },
                 { field: "#paisDocumento", type: "select", value: d.paisDocumento, message: "Ingrese país del documento" + msg },
                 { field: "#departamentoDocumento", type: "select", value: d.departamentoDocumento, message: "Ingrese departamento del documento" + msg },
                 { field: "#ciudadDocumento", type: "select", value: d.ciudadDocumento, message: "Ingrese ciudad del documento" + msg },
@@ -273,7 +273,7 @@
                 { field: "#barrioResidencia", type: "select", value: d.barrioResidencia, message: "Ingrese barrio residencia" + msg },
                 { field: "#telefono", type: "text", value: d.telefono, message: "Ingrese teléfono" + msg },
                 { field: "#celular", type: "text", value: d.celular, message: "Ingrese celular" + msg },
-                {field: "#email", type: "email", value: d.email, message: "Ingrese un correo electronico valido" + msg}
+                { field: "#email", type: "email", value: d.email, message: "Ingrese un correo electronico valido" + msg }
             ]
         });
     }
@@ -412,7 +412,7 @@
                     { field: "#cargoFamiliarRecursosPublicos", type: "text", value: o.cargoFamiliarRecursosPublicos, message: "Ingrese cargo familiar recursos públicos" + msg },
                     { field: "#nombreEntidadFamiliarRecursosPublicos", type: "text", value: o.nombreEntidadFamiliarRecursosPublicos, message: "Ingrese entidad familiar recursos públicos" + msg },
                     { field: "#desdeCuandoFamiliarRecursosPublicos", type: "date", value: o.desdeCuandoFamiliarRecursosPublicos, message: "Ingrese una fecha valida" + msg, min: "1900-01-01", notFuture: true },
-                    { field: "#hastaCuandoFamiliarRecursosPublicos", type: "date", value: o.hastaCuandoFamiliarRecursosPublicos, message: "Ingrese una fecha valida" + msg,  min: "1900-01-01", notFuture: false, notPast: true }
+                    { field: "#hastaCuandoFamiliarRecursosPublicos", type: "date", value: o.hastaCuandoFamiliarRecursosPublicos, message: "Ingrese una fecha valida" + msg, min: "1900-01-01", notFuture: false, notPast: true }
                 ]
             });
             if (!r2.ok) return r2;
@@ -506,17 +506,18 @@
         });
     }
 
+
+
     function validarOtrosDatosAdicionales() {
-        const tipoDocumento = formState?.datosPersonales?.tipoDocumento;
-
-        if (!["T", "R", "N"].includes(tipoDocumento)) {
-            return { ok: true };
-        }
-
+        const modoOtros = resolverModoOtrosDatosAdicionales();
         const o = formState.otrosDatosAdicionales;
         const msg = " - De la ficha OTROS DATOS ADICIONALES";
 
-        if (["T", "R"].includes(tipoDocumento)) {
+        if (!modoOtros.mostrarTab) {
+            return { ok: true };
+        }
+
+        if (modoOtros.esApoderado) {
             return validarReglas({
                 tab: "otrosDatosAdicionales",
                 reglas: [
@@ -530,7 +531,7 @@
             });
         }
 
-        if (tipoDocumento === "N") {
+        if (modoOtros.esPersonaJuridica) {
             const base = validarReglas({
                 tab: "otrosDatosAdicionales",
                 reglas: [
@@ -570,34 +571,65 @@
     }
 
 
-
     //MANEJO DE CONDICIONES PARA TABS DINAMICAS ---------------------------------------------------------------------
+
+
     //MOSTRAR TAB OTROS DATOS ADICIONALES
-    function evaluarTabsDinamicas() {
+    function resolverModoOtrosDatosAdicionales() {
         const tipoDocumento = formState?.datosPersonales?.tipoDocumento;
+
+        const esPersonaJuridica = tienePersonaJuridica;
+        const esApoderadoPorTipo = ["T", "R"].includes(tipoDocumento);
+        const esApoderadoPorRelacion = relacionRepresentanteLegal === "M";
+
+        const esApoderado = !esPersonaJuridica && (esApoderadoPorTipo || esApoderadoPorRelacion);
+        const mostrarTab = esPersonaJuridica || esApoderado;
+
+        return {
+            esPersonaJuridica,
+            esApoderado,
+            mostrarTab
+        };
+    }
+
+    function evaluarTabsDinamicas() {
         const estadoCivil = formState?.otrosDatos?.estadoCivil;
         const politicamenteExpuesto = formState?.otrosDatos?.esPep;
-
-        const esApoderado = ["T", "R"].includes(tipoDocumento);
-        const esJuridica = tipoDocumento === "N";
-        const mostrarOtrosDatos = esApoderado || esJuridica;
+        const modoOtros = resolverModoOtrosDatosAdicionales();
 
         const tieneConyugue = ["C", "V"].includes(estadoCivil);
         const esPeps = politicamenteExpuesto === "S";
-        $("#tab-otrosDatosAdicionales").toggle(mostrarOtrosDatos);
+
+        $("#tab-otrosDatosAdicionales").toggle(modoOtros.mostrarTab);
         $("#tab-conyugue").toggle(tieneConyugue);
         $("#tab-familiaresPeps").toggle(esPeps);
     }
 
     //EVALUAR CONTENIDO OTROS DATOS ADICIONALES
     function evaluarContenidoOtrosDatosAdicionales() {
-        const tipoDocumento = formState.datosPersonales.tipoDocumento;
-        const esApoderado = ["T", "R"].includes(tipoDocumento);
-        const esJuridica = tipoDocumento === "N";
-        $("#apoderadoAsociado").toggle(esApoderado);
-        $("#personaJuridica").toggle(esJuridica);
-        $("#datosRepresentanteLegal").toggle(esJuridica);
+        const modoOtros = resolverModoOtrosDatosAdicionales();
+
+        $("#apoderadoAsociado").toggle(modoOtros.esApoderado);
+        $("#personaJuridica").toggle(modoOtros.esPersonaJuridica);
+        $("#datosRepresentanteLegal").toggle(modoOtros.esPersonaJuridica);
     }
+
+    //AUTOCOMPLETADO OTROS DATOS ADICIONALES
+    $(document).on("input change", "#cedulaRepresentanteLegal", function () {
+        const cedula = $(this).val().trim();
+        if (!cedula) return;
+
+        const encontrado = representantesLegalesRegistrados.find(item =>
+            String(item.cedula || "").trim() === cedula
+        );
+
+        if (!encontrado) return;
+
+        $("#nombreRepresentanteLegal")
+            .val(String(encontrado.nombreintegrado || "").trim())
+            .trigger("change");
+    });
+
 
     //MANEJO DE LOS CAMPOS DEPENDIENTES PARA ESTAR O NO ESTAR HABILITADOS (pruebas)
     const camposQueMuestranTabs = [
@@ -605,7 +637,7 @@
         "estadoCivil",
         "esPep"
     ];
-    const camposQueCambianContenidoOtrosDatos =[
+    const camposQueCambianContenidoOtrosDatos = [
         "tipoDocumento"
     ];
     const camposQueCambianDeshabilitados = [
@@ -681,7 +713,7 @@
             if (deshabilitado) {
                 limpiarCampoEstado($campo, tab);
             }
-            
+
         });
     }
 
@@ -692,7 +724,7 @@
         const habilitarMonedaExtranjera = realizaOperacionesMonedaExtranjera == "S"
         const campoOperacionMonedaExtranjera = ["#cualesOperacionesMonedaExtranjera"];
         marcarCamposDeshabilitados(campoOperacionMonedaExtranjera, !habilitarMonedaExtranjera, "otrosDatos");
-        campoOperacionMonedaExtranjera.forEach(id =>{
+        campoOperacionMonedaExtranjera.forEach(id => {
             marcarCampoRequired(id, habilitarMonedaExtranjera)
         });
 
@@ -708,7 +740,7 @@
         ];
 
         marcarCamposDeshabilitados(camposMonedaExtranjera, !habilitarCuentaMonedaExtranjera, "otrosDatos");
-        camposMonedaExtranjera.forEach(id=>{
+        camposMonedaExtranjera.forEach(id => {
             marcarCampoRequired(id, habilitarCuentaMonedaExtranjera)
         });
 
@@ -717,7 +749,7 @@
         const habilitarTipoPep = esPep == "S"
         const campoTipoPep = ["#tipoPep", "#administraRecursosPublicos"];
         marcarCamposDeshabilitados(campoTipoPep, !habilitarTipoPep, "otrosDatos");
-        campoTipoPep.forEach(id=>{
+        campoTipoPep.forEach(id => {
             marcarCampoRequired(id, habilitarTipoPep)
         });
 
@@ -796,10 +828,10 @@
             "#fechaRetiroRecursosPublicos"
         ];
         marcarCamposDeshabilitados(camposAdminitraRecursos, !habilitarAdministraRecursos, "otrosDatos");
-        camposAdminitraRecursos.forEach(id =>{
+        camposAdminitraRecursos.forEach(id => {
             marcarCampoRequired(id, habilitarAdministraRecursos);
         });
-        
+
     }
 
 
@@ -906,8 +938,8 @@
 
 
     //FUNCION DE MODAL CON INFORMACION
-       function infoModal(mensaje, tipo, onClose = null) {
-         const configPorTipo = {
+    function infoModal(mensaje, tipo, onClose = null) {
+        const configPorTipo = {
             informacion: {
                 color: "#3beaf6",
                 icono: "i",
@@ -929,7 +961,7 @@
                 tituloDefault: "Error"
             }
         };
-        const config= configPorTipo[tipo] || configPorTipo["informacion"];
+        const config = configPorTipo[tipo] || configPorTipo["informacion"];
         const modalHTML = `
             <div class="modal fade app-modal " id="infoModalTemp" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered" style="max-width: 650px; max-height: 580px;">
@@ -1066,7 +1098,7 @@
 
 
     // ADJUNTOS -----------------------------------------------------------------------------------------------------------
- 
+
     async function cargarAdjuntosBackend() {
         try {
             const response = await fetch('/actualizaciondatos/adjuntos');
@@ -1143,70 +1175,70 @@
     const ADJUNTOS_STORE_NAME = "adjuntos";
 
     let adjuntosCatalogo = [];
-    let adjuntosState = {}; 
+    let adjuntosState = {};
 
 
     function abrirAdjuntosDB() {
-    return new Promise((resolve, reject) => {
-        const request = indexedDB.open(ADJUNTOS_DB_NAME, 1);
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open(ADJUNTOS_DB_NAME, 1);
 
-        request.onupgradeneeded = function (event) {
-        const db = event.target.result;
-        if (!db.objectStoreNames.contains(ADJUNTOS_STORE_NAME)) {
-            db.createObjectStore(ADJUNTOS_STORE_NAME, { keyPath: "codigo" });
-        }
-        };
+            request.onupgradeneeded = function (event) {
+                const db = event.target.result;
+                if (!db.objectStoreNames.contains(ADJUNTOS_STORE_NAME)) {
+                    db.createObjectStore(ADJUNTOS_STORE_NAME, { keyPath: "codigo" });
+                }
+            };
 
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error);
-    });
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
+        });
     }
 
     async function guardarAdjuntoDB(codigo, file) {
-    const db = await abrirAdjuntosDB();
+        const db = await abrirAdjuntosDB();
 
-    return new Promise((resolve, reject) => {
-        const tx = db.transaction(ADJUNTOS_STORE_NAME, "readwrite");
-        const store = tx.objectStore(ADJUNTOS_STORE_NAME);
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction(ADJUNTOS_STORE_NAME, "readwrite");
+            const store = tx.objectStore(ADJUNTOS_STORE_NAME);
 
-        store.put({
-        codigo,
-        file,
-        nombre: file.name,
-        size: file.size,
-        type: file.type
+            store.put({
+                codigo,
+                file,
+                nombre: file.name,
+                size: file.size,
+                type: file.type
+            });
+
+            tx.oncomplete = () => resolve();
+            tx.onerror = () => reject(tx.error);
         });
-
-        tx.oncomplete = () => resolve();
-        tx.onerror = () => reject(tx.error);
-    });
     }
 
     async function obtenerAdjuntoDB(codigo) {
-    const db = await abrirAdjuntosDB();
+        const db = await abrirAdjuntosDB();
 
-    return new Promise((resolve, reject) => {
-        const tx = db.transaction(ADJUNTOS_STORE_NAME, "readonly");
-        const store = tx.objectStore(ADJUNTOS_STORE_NAME);
-        const request = store.get(codigo);
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction(ADJUNTOS_STORE_NAME, "readonly");
+            const store = tx.objectStore(ADJUNTOS_STORE_NAME);
+            const request = store.get(codigo);
 
-        request.onsuccess = () => resolve(request.result || null);
-        request.onerror = () => reject(request.error);
-    });
+            request.onsuccess = () => resolve(request.result || null);
+            request.onerror = () => reject(request.error);
+        });
     }
 
     async function eliminarAdjuntoDB(codigo) {
-    const db = await abrirAdjuntosDB();
+        const db = await abrirAdjuntosDB();
 
-    return new Promise((resolve, reject) => {
-        const tx = db.transaction(ADJUNTOS_STORE_NAME, "readwrite");
-        const store = tx.objectStore(ADJUNTOS_STORE_NAME);
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction(ADJUNTOS_STORE_NAME, "readwrite");
+            const store = tx.objectStore(ADJUNTOS_STORE_NAME);
 
-        store.delete(codigo);
+            store.delete(codigo);
 
-        tx.oncomplete = () => resolve();
-        tx.onerror = () => reject(tx.error);
-    });
+            tx.oncomplete = () => resolve();
+            tx.onerror = () => reject(tx.error);
+        });
     }
 
 
@@ -1220,28 +1252,28 @@
     }
 
     function validarArchivoAdjunto(file) {
-    if (!file) {
-        return { ok: false, message: "Debe seleccionar un archivo" };
-    }
+        if (!file) {
+            return { ok: false, message: "Debe seleccionar un archivo" };
+        }
 
-    const ext = file.name.split(".").pop()?.toLowerCase();
-    const esPdfMime = file.type === "application/pdf";
-    const esPdfExt = ext === "pdf";
-    const sizeMax = 5 * 1024 * 1024;
+        const ext = file.name.split(".").pop()?.toLowerCase();
+        const esPdfMime = file.type === "application/pdf";
+        const esPdfExt = ext === "pdf";
+        const sizeMax = 8 * 1024 * 1024;
 
-    if (!esPdfMime && !esPdfExt) {
-        return { ok: false, message: "Solo se permiten archivos PDF" };
-    }
+        if (!esPdfMime && !esPdfExt) {
+            return { ok: false, message: "Solo se permiten archivos PDF" };
+        }
 
-    if (file.size > sizeMax) {
-        return { ok: false, message: "El archivo supera el tamaño permitido" };
-    }
+        if (file.size > sizeMax) {
+            return { ok: false, message: "El archivo supera el tamaño permitido" };
+        }
 
-    return { ok: true };
+        return { ok: true };
     }
 
     function pintarEstadoAdjunto($item, mensaje) {
-    $item.find(".adjunto-estado").text(mensaje);
+        $item.find(".adjunto-estado").text(mensaje);
     }
 
     function pintarErrorAdjunto($item, mensaje) {
@@ -1249,7 +1281,7 @@
     }
 
     $(document).on("change", ".adjuntospintados", async function () {
-        try{
+        try {
             const $input = $(this);
             const $item = $input.closest(".adjunto-item");
             const codigo = String($item.data("codigo"));
@@ -1283,14 +1315,14 @@
             pintarEstadoAdjunto($item, `Archivo cargado: ${file.name}`);
             guardarAdjuntosSession();
             modificado = true;
-        } catch{
+        } catch (error){
             console.error("Error guardando adjunto:", error);
             pintarErrorAdjunto($(this).closest(".adjunto-item"), "No fue posible guardar el adjunto");
         }
     });
 
     async function validarAdjuntos() {
-        try{
+        try {
             if (!adjuntosCatalogo.length) {
                 const data = await cargarAdjuntosBackend();
                 adjuntosCatalogo = Array.isArray(data.items) ? data.items : [];
@@ -1303,16 +1335,16 @@
                 const persistido = await obtenerAdjuntoDB(adj.codigo);
 
                 if (!meta || !persistido) {
-                return crearError(
-                    "adjuntos",
-                    `.adjunto-item[data-codigo="${adj.codigo}"] input[type="file"]`,
-                    `Debe adjuntar ${formatearNombreAdjunto(adj.nombre)}`
-                );
+                    return crearError(
+                        "adjuntos",
+                        `.adjunto-item[data-codigo="${adj.codigo}"] input[type="file"]`,
+                        `Debe adjuntar ${formatearNombreAdjunto(adj.nombre)}`
+                    );
                 }
             }
 
             return { ok: true };
-        } catch{
+        } catch (error){
             console.error("Error validando adjuntos:", error);
             return crearError("adjuntos", null, "No fue posible validar los adjuntos");
         }
@@ -1361,10 +1393,6 @@
             request.onerror = () => reject(request.error);
         });
     }
-
-    obtenerTodosAdjuntosDB().then(console.log);
-
-    
 
     // OTROS DATOS, SE USA PARA EL MODAL DE GRUPO PROTECCION
     function initOtrosDatos() {
@@ -2572,7 +2600,7 @@
         }
 
         procesarTotalesIngresosEgresos(tab, name);
-         if (e.type === "change") {
+        if (e.type === "change") {
             procesarCambioPorCampos(name, e);
         }
     });
@@ -2615,25 +2643,6 @@
         });
 
     }
-
-
-    //CUANDO SE PULSA EL BOTON FINALIZAR (PRUEBA TEMPORAL)
-    $(document).on("click", "#btnFinalizar", async function (e) {
-        e.preventDefault();
-      
-        const esValido = await validarActualizacionDatos();
-        if (!esValido) {
-            return;
-        }
-
-        infoModal("La validacion fue exitosa", "exito");
-        console.log("FormSate:", formState)
-        await limpiarSessionStorage();
-        enviado = true;
-    });
-
-
-
 
     //PRUEBA DE PERSISTENCIA EN SESSION STORAGE
     const STORAGE_KEY = "testSavingFormState";
@@ -2716,6 +2725,12 @@
         }
     }
 
+
+    //ESTAS VARIABLES SE USAN PARA LA LOGICA DE SI SE MUESTRA O NO OTROS DATOS ADICIONALES
+    let representantesLegalesRegistrados = [];
+    let relacionRepresentanteLegal = "";
+    let tienePersonaJuridica = false;
+
     // CARGA LOS DATOS DEL BACKEND AL FORMSTATE
     async function cargarDatosBackend() {
         try {
@@ -2727,9 +2742,15 @@
             const resData = await response.json();
 
             if (resData) {
+                const { representantesLegalesRegistrados: lista = [], relacionRepresentanteLegal: relacion = "", tienePersonaJuridica: juridica = false, ...datosFormulario } = resData;
+                representantesLegalesRegistrados = Array.isArray(lista) ? lista : [];
+                relacionRepresentanteLegal = String(relacion || "").trim();
+                tienePersonaJuridica = Boolean(juridica);
+
+
                 formState = {
                     ...formState,
-                    ...resData
+                    ...datosFormulario
                 };
                 console.log("Datos del backend asignados a formState:", formState);
             } else {
@@ -2754,7 +2775,7 @@
 
 
         } else {
-           await  cargarSessionStorage();
+            await cargarSessionStorage();
             infoModal("Aun tiene datos sin enviar, continúe con la actualizacion de datos y presione finalizar para enviar la información", "alerta");
         }
         evaluarTabsDinamicas();
@@ -2808,9 +2829,6 @@
         ciiu: { id: "codciiu", text: "nombre" },
         tipocontrato: { id: "codigotipocontrato", text: "nombretipocontrato" }
     };
-
-
-
 
     async function obtenerDatos(url, tipo) {
 
@@ -2934,7 +2952,102 @@
         await Promise.all(promises);
 
     }
+    
+    //CUANDO SE PULSA EL BOTON FINALIZAR
+    $(document).on("click", "#btnFinalizar", async function (e) {
+        e.preventDefault();
 
+        const esValido = await validarActualizacionDatos();
+        if (!esValido) {
+            return;
+        }
+
+        // // infoModal("La validacion fue exitosa", "exito");
+        // // console.log("FormSate:", formState)
+        await enviarSolicitudActualizacionDatos();
+        //  await limpiarSessionStorage();
+        // enviado = true;
+    });
+
+
+    async function enviarSolicitudActualizacionDatos() {
+        const confirmar = window.confirm("¿Desea enviar la solicitud de actualización de datos?");
+        if (!confirmar) {
+            return;
+        }
+
+        const $btn = $("#btnFinalizar");
+        const textoOriginal = $btn.html();
+
+        try {
+            $btn.prop("disabled", true).text("Enviando...");
+
+            // Asegura que sessionStorage e IndexedDB estén sincronizados
+            await reconciliarAdjuntosSession();
+
+            const adjuntosGuardados = await obtenerTodosAdjuntosDB();
+
+            // Metadata de adjuntos en el mismo orden en que se enviarán los archivos
+            const adjuntosMeta = adjuntosGuardados.map((adjunto, index) => {
+                const codigo = String(adjunto.codigo || "");
+                const estadoAdjunto = adjuntosState[codigo] || {};
+                const catalogoAdjunto = Array.isArray(adjuntosCatalogo)
+                    ? adjuntosCatalogo.find(item => String(item.codigo) === codigo)
+                    : null;
+
+                return {
+                    index,
+                    codigo,
+                    nombreArchivo: adjunto.nombre || estadoAdjunto.nombre || "",
+                    tipo: adjunto.type || estadoAdjunto.type || "",
+                    size: adjunto.size || estadoAdjunto.size || 0,
+                    obligatorio: Boolean(estadoAdjunto.obligatorio),
+                    nombreAdjunto: catalogoAdjunto?.nombre || ""
+                };
+            });
+
+            const formData = new FormData();
+
+            formData.append("formState", JSON.stringify(formState || {}));
+            formData.append("references", JSON.stringify(referencesNew || []));
+            formData.append("peopleInCharge", JSON.stringify(peopleInChargeNew || []));
+            formData.append("familiarPeps", JSON.stringify(familiarPepsNew || []));
+            formData.append("adjuntosMeta", JSON.stringify(adjuntosMeta));
+
+            for (const adjunto of adjuntosGuardados) {
+                if (adjunto?.file) {
+                    formData.append("adjuntos", adjunto.file);
+                }
+            }
+
+            const response = await fetch("/actualizaciondatos/guardar", {
+                method: "POST",
+                body: formData
+            });
+
+            let result = {};
+            try {
+                result = await response.json();
+            } catch {
+                result = {};
+            }
+
+            if (!response.ok || !result.estado) {
+                throw new Error(result.mensaje || "No fue posible guardar la actualización de datos");
+            }
+
+            await limpiarSessionStorage();
+            enviado = true;
+            modificado = false;
+
+            infoModal(result.mensaje || "La actualización de datos fue enviada correctamente", "exito");
+        } catch (error) {
+            console.error("Error enviando actualización de datos:", error);
+            infoModal(error.message || "Ocurrió un error al enviar la información", "alerta");
+        } finally {
+            $btn.prop("disabled", false).html(textoOriginal);
+        }
+    }
 
 
 })();

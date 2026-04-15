@@ -1,3 +1,8 @@
+const config = require("../config/config");
+const BASE_URL = config.apiUrlWeb;
+
+
+
 const configCombos = {
     paises: { tabla: "pais" },
     departamentos: { tabla: "departamentos", condicion: ["pais"] },
@@ -38,8 +43,7 @@ exports.obtenerCombo = async (params) => {
     form.append("condicion", condicion);
 
     console.log("Body enviado", form);
-
-    const response = await fetch("http://10.2.0.44:3012/public/api/General/CargarCombos", {
+    const response = await fetch(`${BASE_URL}/public/api/General/CargarCombos`, {
         method: "POST",
         headers: {
             "Content-Type": "application/x-www-form-urlencoded"
