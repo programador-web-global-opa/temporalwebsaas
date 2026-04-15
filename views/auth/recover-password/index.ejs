@@ -9,39 +9,136 @@
       <div id="step-1" style="width: 100%">
         <h2 class="bienvenido">Recordar Password</h2>
 
-        <div class="contenedor-global">
+        <!-- CONTENEDOR CODIGO OTP -->
+        <div class="contenedor-global d-none" id="contenedor-step-1">
+
           <div class="contenedor-formulario">
-            <div class="mui-textfield" id="cedula-recover-group">
-              <span class="material-icons mui-icon">document_scanner</span>
-              <input
-                type="number"
-                id="cedula"
-                placeholder="Cedula"
-                required
-                autofocus
-                autocomplete="off"
-              />
-            </div>
-            <small class="error" id="error-cedula"></small>
 
-            <div class="mui-textfield" id="celular-recover-group">
-              <span class="material-icons mui-icon">phone_android</span>
+            <p id="info-step-1" class="text-justify my-3"></p>
+
+            <div class="mui-textfield" id="code-recover-group">
+              <span class="material-icons mui-icon">password</span>
               <input
-                type="number"
-                id="celular"
-                placeholder="Celular"
+                type="text"
+                id="code-recover"
+                placeholder="Ingrese el codigo"
                 required
                 autocomplete="off"
               />
             </div>
-            <small class="error" id="error-celular"></small>
-
-            <div class="contenedor-boton">
-              <button type="button" class="boton-nuevo" id="btnRecover">
-                Enviar
-              </button>
-            </div>
+            <small class="error" id="error-code-recover"></small>
           </div>
+
+          <div class="contenedor-boton" id="btn-container">
+            <button type="button" class="boton-nuevo w-100" id="btnRecoverStep1">
+              Enviar
+            </button>
+          </div>
+        </div>
+
+        <!-- CONTENEDOR INPUT PASSWORD NEW Y CONFIRMAR PASSWORD NEW -->
+        <div class="contenedor-global d-none" id="contenedor-step-2">
+          <div class="contenedor-formulario">
+            
+            <div
+              class="mui-textfield"
+              id="recover-password-group"
+              style="margin-top: 16px"
+            >
+              <span class="material-icons mui-icon">lock</span>
+              <input
+                type="password"
+                id="recover-password"
+                placeholder="Password"
+                autocomplete="off"
+              />
+              <span
+                class="material-icons mui-icon-eye"
+                id="togglePassword"
+                style="cursor: pointer; color: #757575"
+              >
+                visibility_off
+              </span>
+            </div>
+            <small class="error" id="error-recover-password"></small>
+
+            <div
+              class="mui-textfield"
+              id="recover-password-confirm-group"
+              style="margin-top: 16px"
+            >
+              <span class="material-icons mui-icon">lock</span>
+              <input
+                type="password"
+                id="recover-password-confirm"
+                placeholder="Confirmar Password"
+                required
+                autocomplete="off"
+              />
+              <span
+                class="material-icons mui-icon-eye"
+                id="togglePassword"
+                style="cursor: pointer; color: #757575"
+              >
+                visibility_off
+              </span>
+            </div>
+            <small class="error" id="error-recover-password-confirm"></small>
+          </div>
+          <div class="contenedor-boton" id="btn-container">
+            <button type="button" class="boton-nuevo w-100" id="btnRecoverStep2">
+              Enviar
+            </button>
+          </div>
+        </div>
+
+        <!-- CONTENER DE INPUTS DE PREGUNTAS SI LAS TIENEN ACTIVAS -->
+        <div class="contenedor-global d-none" id="contenedor-step-3">
+          <div class="contenedor-formulario">
+            <div class="mui-textfield" id="code-recover-group">
+              <span class="material-symbols-outlined">ballot</span>
+              <input
+                type="text"
+                id="code-recover"
+                placeholder="Pregunta 1"
+                required
+                autocomplete="off"
+              />
+            </div>
+            <small class="error" id="error-code-recover"></small>
+            <div class="mui-textfield" id="code-recover-group">
+              <span class="material-symbols-outlined">ballot</span>
+              <input
+                type="text"
+                id="code-recover"
+                placeholder="Pregunta 2"
+                required
+                autocomplete="off"
+              />
+            </div>
+            <small class="error" id="error-code-recover"></small>
+            <div class="mui-textfield" id="code-recover-group">
+              <span class="material-symbols-outlined">ballot</span>
+              <input
+                type="text"
+                id="code-recover"
+                placeholder="Pregunta 3"
+                required
+                autocomplete="off"
+              />
+            </div>
+            <small class="error" id="error-code-recover"></small>
+          </div>
+          <div class="contenedor-boton" id="btn-container-step-3">
+            <button type="button" class="boton-nuevo w-100" id="btnRecoverStep3">
+              Enviar
+            </button>
+          </div>
+        </div>
+
+        <div id="loading" class="loading active">
+          <div class="spinner"></div>
+          <span>Cargando...</span>
         </div>
       </div>
 
@@ -49,11 +146,6 @@
         <a href="/auth/login" class="urls-basicas">¿Ya tienes una cuenta?</a>
       </div>
     </form>
-
-    <div id="loading" class="loading">
-      <div class="spinner"></div>
-      <span>Cargando...</span>
-    </div>
   </div>
 
   <p class="app-copy mt-4" style="text-align: center">
@@ -77,7 +169,7 @@
         <div>
           <div
             class="py-2 px-3"
-            style="text-align: justify"
+            style="text-align: center"
             id="body-recover"
           ></div>
           <div class="contenedor-boton">
@@ -92,55 +184,74 @@
 </div>
 
 <script>
+  const loading = document.getElementById("loading");
+  const inputGroupCode = document.getElementById("code-recover-group");
   const form = document.getElementById("recover-password-form");
-  const formBtn = document.getElementById("btnRecover");
+
+  const formStep1 = document.getElementById("contenedor-step-1");
+  const formStep2 = document.getElementById("contenedor-step-2");
+  const formStep3 = document.getElementById("contenedor-step-3");
+
+  const textStep1 = document.getElementById("info-step-1");
+
+  const formBtn1 = document.getElementById("btnRecoverStep1");
+  const formBtn2 = document.getElementById("btnRecoverStep2");
+  const formBtn3 = document.getElementById("btnRecoverStep3");
+
   const bodyModalMessage = document.getElementById("body-recover");
   const btnModal = document.getElementById("btn-modal-recover");
+  const togglePassword = document.querySelectorAll("#togglePassword");
 
-  formBtn.addEventListener("click", sendRecoverPassword);
+  togglePassword.forEach((toggle) => {
+    toggle.addEventListener("click", function () {
+      const passwordField = this.previousElementSibling;
+      const type =
+        passwordField.getAttribute("type") === "password" ? "text" : "password";
+      passwordField.setAttribute("type", type);
+      this.textContent = type === "password" ? "visibility_off" : "visibility";
+    });
+  });
+
+  window.addEventListener("DOMContentLoaded", init);
+
+  formBtn1.addEventListener("click", async (e) => await sendRecoverPasswordCode(e));
+
+  formBtn2.addEventListener("click", async (e) => await validateSendNewPassword(e));
+
+  formBtn3.addEventListener("click", async (e) => await sendQuestionsPassword(e));
 
   btnModal.addEventListener("click", () => closeModal("modalrecover"));
 
-  function validateInputs() {
-    const documentInput = document.getElementById("cedula");
-    const phoneInput = document.getElementById("celular");
-    const inputDocumentGroup = document.getElementById("cedula-recover-group");
-    const inputPhoneGroup = document.getElementById("celular-recover-group");
-    const errorDocumentGroup = document.getElementById("error-cedula");
-    const errorPhoneGroup = document.getElementById("error-celular");
-
-    if (documentInput.value === "" && phoneInput.value === "") {
-      inputDocumentGroup.classList.add("error");
-      errorDocumentGroup.innerText = "Cedula es requerida";
-      inputPhoneGroup.classList.add("error");
-      errorPhoneGroup.innerText = "Celular es requerido";
-      return false;
-    } else {
-      inputDocumentGroup.classList.remove("error");
-      errorDocumentGroup.innerText = "";
-      inputPhoneGroup.classList.remove("error");
-      errorPhoneGroup.innerText = "";
+  function step(n = 1) {
+    form.classList.remove("d-none");
+    switch (n) {
+      case 1:
+        formStep1.classList.remove("d-none");
+        formStep2.classList.add("d-none");
+        formStep3.classList.add("d-none");
+        break;
+      case 2:
+        formStep1.classList.add("d-none");
+        formStep2.classList.remove("d-none");
+        formStep3.classList.add("d-none");
+        break;
+      case 3:
+        formStep1.classList.add("d-none");
+        formStep2.classList.add("d-none");
+        formStep3.classList.remove("d-none");
+        break;
+      default:
+        formStep1.classList.remove("d-none");
+        formStep2.classList.add("d-none");
+        formStep3.classList.add("d-none");
+        break;
     }
+  }
 
-    if (documentInput.value === "") {
-      inputDocumentGroup.classList.add("error");
-      errorDocumentGroup.innerText = "Cedula es requerida";
-      return false;
-    } else {
-      inputDocumentGroup.classList.remove("error");
-      errorDocumentGroup.innerText = "";
-    }
-
-    if (phoneInput.value === "") {
-      inputPhoneGroup.classList.add("error");
-      errorPhoneGroup.innerText = "Celular es requerido";
-      return false;
-    } else {
-      inputPhoneGroup.classList.remove("error");
-      errorPhoneGroup.innerText = "";
-    }
-
-    return true;
+  function validateInputs(validator = 1) {
+    if (validator == 1) return validateInputCode();
+    if (validator == 2) return validateInputsPassword();
+    if (validator == 3) return validateInputsQuestions();
   }
 
   function openModal(modalId, isStatic = false) {
@@ -181,35 +292,275 @@
     return myHeaders;
   }
 
-  async function sendRecoverPassword(e) {
-    e.preventDefault();
-    const documentInput = document.getElementById("cedula");
-    const phoneInput = document.getElementById("celular");
+  function validateInputCode() {
+      const codeInput = document.getElementById("code-recover");
+      const inputGroupCode = document.getElementById("code-recover-group");
+      const errorCodeGroup = document.getElementById("error-code-recover");
 
-    if (!validateInputs()) return;
+      if (codeInput.value === "") {
+        inputGroupCode.classList.add("error");
+        errorCodeGroup.innerText = "Código es requerido";
+        return false;
+      } else {
+        inputGroupCode.classList.remove("error");
+        errorCodeGroup.innerText = "";
+      }
+      return true;
+  }
+
+  function validateInputsPassword() {
+    const inputPasswordGroup = document.getElementById("recover-password-group");
+    const inputPasswordGroupConfirm = document.getElementById("recover-password-confirm-group");
+    const inputPassword = document.getElementById("recover-password");
+    const inputPasswordConfirm = document.getElementById("recover-password-confirm");
+    const errorPassword= document.getElementById("error-recover-password");
+    const errorPasswordConfirm = document.getElementById("error-recover-password-confirm");
+
+    if (inputPassword.value === "") {
+      inputPasswordGroup.classList.add("error");
+      errorPassword.innerText = "La contraseña no puede estar vacia";
+    }
+    
+    if (inputPasswordConfirm.value === "") {
+      inputPasswordGroupConfirm.classList.add("error");
+      errorPasswordConfirm.innerText = "La confirmación de la contraseña no puede estar vacia";
+    }
+    
+    if (!inputPassword.value.trim() || !inputPasswordConfirm.value.trim()) {
+      bodyModalMessage.innerText = "Los campos no pueden estar vacios, por favor verifique";
+      openModal("modalrecover");
+      return false;
+    } else {
+      inputPasswordGroup.classList.remove("error");
+      errorPassword.innerText = "";
+      inputPasswordGroupConfirm.classList.remove("error");
+      errorPasswordConfirm.innerText = "";
+    }
+
+    if (
+      inputPassword.value.length < 4 || inputPassword.value.length > 20
+      || !inputPassword.value.match(/[0-9]/g)
+      || !inputPassword.value.match(/[A-Z]/g)
+      || !inputPassword.value.match(/[a-z]/g)
+      || !inputPassword.value.match(/[@#$%*]/)
+    ) {
+      inputPasswordGroup.classList.add("error");
+      errorPassword.innerText = "La contraseña debe tener entre 4 y 20 caracteres, al menos un número, una letra mayúscula, una letra minúscula y un símbolo";
+      inputPasswordGroupConfirm.classList.add("error");
+      errorPasswordConfirm.innerText = "La contraseña debe tener entre 4 y 20 caracteres, al menos un número, una letra mayúscula, una letra minúscula y un símbolo";
+      return false;
+    } else {
+      inputPasswordGroup.classList.remove("error");
+      errorPassword.innerText = "";
+      inputPasswordGroupConfirm.classList.remove("error");
+      errorPasswordConfirm.innerText = "";
+    }
+
+    if (inputPassword.value !== inputPasswordConfirm.value) {
+      inputPasswordGroup.classList.add("error");
+      errorPassword.innerText = "Las contraseñas no coinciden...Verifique por favor";
+      inputPasswordGroupConfirm.classList.add("error");
+      errorPasswordConfirm.innerText = "Las contraseñas no coinciden...Verifique por favor";
+      return false;
+    } else {
+      inputPasswordGroup.classList.remove("error");
+      errorPassword.innerText = "";
+      inputPasswordGroupConfirm.classList.remove("error");
+      errorPasswordConfirm.innerText = "";
+    }
+
+    return true;
+  }
+
+  function validateInputsQuestions() {
+    return true;
+  }
+
+  async function init() {
+    await getRecoverPasswordCode();
+  }
+
+  async function getRecoverPasswordCode() {
+    try {
+      const params = {
+        tipo: "Genera",
+        Operador: sessionStorage.getItem("opa:movil:cedula:temp") || "",
+        codigo: "",
+        esoperador: "N",
+      };
+
+      const response = await fetchData("/auth/recover-password", params);
+
+      console.log("sendRecoverPasswordCode", response);
+
+      if (response?.status == 400 || response?.status == 401) {
+        openModal("modalrecover");
+        bodyModalMessage.innerText = response?.message;
+        loading.classList.remove("active");
+        formStep1.classList.remove("d-none");
+        return;
+      }
+
+      if (response?.codigo === "128") {
+        textStep1.innerHTML = `<strong>${response?.message}</strong>`;
+        formStep1.classList.remove("d-none");
+        loading.classList.remove("active");
+        return;
+      }
+
+      openModal("modalrecover");
+      bodyModalMessage.innerText =
+        response?.message || "Ha ocurrido un error inesperado";
+      loading.classList.remove("active");
+    } catch (error) {
+      openModal("modalrecover");
+      bodyModalMessage.innerText =
+        "Ha ocurrido un error inesperado, vuelva a intentarlo";
+      loading.classList.remove("active");
+      formStep1.classList.remove("d-none");
+    }
+  }
+
+  async function sendRecoverPasswordCode(e) {
+    e.preventDefault();
+    const codeInput = document.getElementById("code-recover");
+
+    if (!validateInputs(1)) return;
 
     form.classList.add("d-none");
     loading.classList.add("active");
 
     const params = {
-      cedula: documentInput.value,
-      celular: phoneInput.value,
+      Operador: sessionStorage.getItem("opa:movil:cedula:temp") || "",
+      tipo: "Valida",
+      codigo: codeInput.value,
+      esoperador: "N",
     };
 
-    const response = await fetchData("/auth/recover-user", params);
+    const response = await fetchData("/auth/recover-password", params);
+
+    console.log("sendRecoverPassword", response);
 
     if (response?.error) {
-      openModal("modalrecover");
       bodyModalMessage.innerText = response?.message;
       loading.classList.remove("active");
       form.classList.remove("d-none");
+      openModal("modalrecover");
       return;
     }
+
+    if (response?.status == 200 && response?.codigo == "132") {
+      bodyModalMessage.innerText = response?.message;
+      loading.classList.remove("active");
+      step(2);
+      openModal("modalrecover");
+      return;
+    }
+
+    if (
+      response?.status == 200 &&
+      response?.codigo == "131" &&
+      response?.result?.preguntasclaveprincipal == "N"
+    ) {
+      bodyModalMessage.innerText = response?.message;
+      loading.classList.remove("active");
+      step(2);
+      openModal("modalrecover");
+      return;
+    }
+
+    if (
+      response?.status == 200 &&
+      response?.codigo == "131" &&
+      response?.result?.preguntasclaveprincipal == "S"
+    ) {
+      bodyModalMessage.innerText = response?.message;
+      loading.classList.remove("active");
+      step(3);
+      openModal("modalrecover");
+      return;
+    }
+
+    console.log("todo");
 
     openModal("modalrecover");
     bodyModalMessage.innerText = response?.message;
     loading.classList.remove("active");
     form.classList.remove("d-none");
+  }
+
+  async function validateSendNewPassword(e) {
+    e.preventDefault();
+    try {
+      if (!validateInputs(2)) return;
+      
+      const cedula = sessionStorage.getItem("opa:movil:cedula:temp") || "";
+      const password = document.getElementById("recover-password");
+      const params = {
+        usuario: cedula,
+        clave: password.value
+      }
+
+      const response = await fetchData("", params);
+
+      console.log("validateSendNewPassword", response);
+
+      if (response?.status == 400) {
+        bodyModalMessage.innerText = response?.message;
+        loading.classList.remove("active");
+        openModal("modalrecover");
+      }
+
+      if (response?.status == 200) {
+        bodyModalMessage.innerText = response?.message;
+        loading.classList.remove("active");
+        formStep1.classList.remove("d-none");
+        openModal("modalrecover");
+
+        if (response?.codigo === "133") {
+          window.location.href = "/auth/login";
+        }
+      }
+
+    } catch (error) {
+      bodyModalMessage.innerText = response?.message ?? "Ha ocurrido un error al realizar la acción, por favor vuelva e intente mas tarde.";
+      loading.classList.remove("active");
+      formStep1.classList.remove("d-none");
+      openModal("modalrecover");
+    }
+  }
+
+  async function getQuestionsPassword() {
+    try {
+      const cedula = sessionStorage.getItem("opa:movil:cedula:temp") || "";
+      const params = {
+        operador: cedula,
+        esoperador: 'N',
+        xml: "<root><parameters><Tipo>CONPRE</Tipo></parameters></root>"
+      }
+      const response = await fetchData("", params);
+
+      console.log("getQuestionsPassword", response);
+
+      console.log(response);
+
+    } catch (error) {
+      bodyModalMessage.innerText = response?.message ?? "Ha ocurrido un error al realizar la acción, por favor vuelva e intente mas tarde.";
+      loading.classList.remove("active");
+      openModal("modalrecover");
+    }
+  }
+
+  async function sendQuestionsPassword(e) {
+    try {
+      const params = {};
+      const response = await fetchData("", params);
+      console.log("sendQuestionsPassword", response);
+    } catch (error) {
+      bodyModalMessage.innerText = response?.message ?? "Ha ocurrido un error al realizar la acción, por favor vuelva e intente mas tarde.";
+      loading.classList.remove("active");
+      openModal("modalrecover");
+    }
   }
 
   async function fetchData(url = "", params = {}) {
@@ -223,8 +574,10 @@
       return data;
     } catch (error) {
       return {
-        error: true,
+        codigo: "000",
         message: "Ha ocurrido un error al realizar la petición",
+        status: 500,
+        error: true,
       };
     }
   }
