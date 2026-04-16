@@ -66,7 +66,6 @@
           type="text"
           id="codigo-user"
           placeholder="Ingrese Código"
-          autofocus
           autocomplete="off"
         />
       </div>
@@ -78,7 +77,6 @@
           type="password"
           id="password"
           placeholder="Password"
-          autofocus
           autocomplete="off"
         />
         <span class="material-icons mui-icon-eye" id="togglePassword" style="cursor: pointer; color: #757575;">
@@ -206,7 +204,7 @@
   const inputPassword = document.getElementById('password');
   const btnToggle = document.getElementById('togglePassword');
 
-  window.onload = () => inputPassword.focus();
+  window.onload = () => document.getElementById("usuario").focus();
 
   window.addEventListener('click', (event) => {
     if (event.target === modal) {
@@ -215,7 +213,7 @@
   });
 
   document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && modal.classList.contains('show')) {
+    if (event.key === 'Escape' && modal.classList.contains('show-custom')) {
       cerrarModal();
     }
   });
@@ -302,7 +300,7 @@
 
     form1.classList.add("d-none");
     form2.classList.add("d-none");
-    loading.classList.remove("active");
+    activeLoading(false);
 
     if (n === 1) {
       form1.classList.remove("d-none");
@@ -316,6 +314,9 @@
       document.getElementById("error-password").textContent = "";
       document.getElementById("error-check").textContent = "";
       document.getElementById("confirm-image").checked = false;
+      document.querySelector('input[data-code]').dataset.code = "N";
+      document.getElementById("error-codigo-user").textContent = "";
+      document.getElementById("error-codigo-user").classList.remove("error");
       return;
     }
     if (n === 2) {
@@ -332,11 +333,6 @@
     const loading = document.getElementById("loading");
     if (status) loading.classList.add("active");
     if (!status) loading.classList.remove("active");
-  }
-
-  function togglePassword() {
-    const inputPassword = document.getElementById("password");
-    inputPassword.type = inputPassword.type === "password" ? "text" : "password";
   }
 
   function headers(headersOptions = {}) {
@@ -390,13 +386,13 @@
   }
 
   async function validateUser(user) {
+    const errorUser = document.getElementById("error-usuario");
     try {
       const inputCode = document.querySelector('input[data-code]');
       const errorCode = document.getElementById("error-codigo-user");
       const inputCodeUser = document.getElementById("input-codigo-user");
       const inputUser = document.getElementById("input-login-user");
       const securityImage = document.getElementById("security-image");
-      const errorUser = document.getElementById("error-usuario");
 
       const response = await fetch("/auth/validateUser", {
         method: 'POST',
@@ -411,7 +407,7 @@
       if (!data?.result?.cedula) {
         form1.classList.remove("d-none");
         inputUser.classList.add("error");
-        errorUser.textContent = data?.message ?? "Usuario no invalido";
+        errorUser.textContent = data?.message ?? "Usuario no válido";
         return;
       }
 
@@ -437,7 +433,7 @@
       goToStep(2);
 
     } catch (error) {
-      errorUser.textContent = "Usuario no invalido";
+      errorUser.textContent = "Usuario no válido";
     } finally {
       activeLoading(false);
     }
@@ -459,31 +455,34 @@
       const data = await response.json();
 
       if (data?.codigo === "820") {
+        activeLoading(false);
         form2.classList.remove("d-none");
         document.getElementById("confirm-image").checked = false;
         document.getElementById("password").value = "";
         document.getElementById("error-password").classList.add("error");
-        document.getElementById("error-password").textContent = data?.message ?? "Usuario no invalido";
+        document.getElementById("error-password").textContent = data?.message ?? "Usuario no válido";
         document.getElementById("input-login-password").classList.add("error");
         return;
       }
 
       if (data?.codigo === "819") {
+        activeLoading(false);
         form2.classList.remove("d-none");
         document.getElementById("confirm-image").checked = false;
         document.getElementById("password").value = "";
-        document.getElementById("error-password").textContent = data?.message ?? "Usuario no invalido";
+        document.getElementById("error-password").textContent = data?.message ?? "Usuario no válido";
         document.getElementById("input-login-password").classList.add("error");
         setTimeout(() => window.location.href = "/auth/recover-password", 3000);
         return;
       }
 
       if (data?.codigo === "848" || data?.codigo === "854") {
+        activeLoading(false);
         form2.classList.remove("d-none");
         document.getElementById("confirm-image").checked = false;
         document.getElementById("password").value = "";
         document.getElementById("error-password").innerText = "";
-        document.getElementById("body-error").innerText = data?.message ?? "Usuario no invalido";
+        document.getElementById("body-error").innerText = data?.message ?? "Usuario no válido";
         document.getElementById("input-login-password").classList.remove("error");
         document.getElementById("error-check").innerText = "";
         openModal("modalerror");
@@ -491,20 +490,20 @@
       }
 
       if (!data?.result) {
+        activeLoading(false);
         form2.classList.remove("d-none");
         document.getElementById("confirm-image").checked = false;
         document.getElementById("input-login-password").classList.add("error");
-        document.getElementById("error-password").textContent = data?.message ?? "Usuario no invalido";
+        document.getElementById("error-password").textContent = data?.message ?? "Usuario no válido";
         return;
       }
 
       window.location.href = "/ahorro/crear";
     } catch (error) {
+      activeLoading(false);
       form2.classList.remove("d-none");
       document.getElementById("input-login-password").classList.add("error");
-      document.getElementById("error-password").textContent = "Usuario no invalido";
-    } finally {
-      activeLoading(false);
+      document.getElementById("error-password").textContent = "Usuario no válido";
     }
   }
 </script>

@@ -1,7 +1,6 @@
 const config = require("../config/config");
 
 const BASE_URL = config.apiUrlWeb;
-const TOKEN_QUEMADO = config.tokePruebas;
 const API_URL = `${BASE_URL}/private/api/Asociado/ConsultarInformacion`;
 const API_URL_CONYUGUE = `${BASE_URL}/private/api/ActuDatos/ConsultarConyugue`;
 const API_URL_OTROSDATOS = `${BASE_URL}/private/api/ActuDatos/ConsultarOtrosDatosAdicionales`;
@@ -12,13 +11,13 @@ const API_URL_FAMILIARPEPS = `${BASE_URL}/private/api/ActuDatos/FamiliaresPeps`;
 const API_URL_ADJUNTOSGENERALES = `${BASE_URL}/private/api/ActuDatos/ConsultarAdjuntosGeneral`;
 const API_URL_ADJUNTOSRELACIONADOS = `${BASE_URL}/private/api/ActuDatos/ConsultarAdjuntosRelacionados`;
 
-exports.obtenerInformacionAsociado = async (Cedula) => {
+exports.obtenerInformacionAsociado = async (Cedula, token) => {
     try {
         const urlFetch = Cedula ? `${API_URL}?Cedula=${Cedula}` : API_URL;
         const response = await fetch(urlFetch, {
             method: "GET",
             headers: {
-                "Authorization": `Bearer ${TOKEN_QUEMADO}`,
+                "Authorization": `Bearer ${token}`,
                 "Content-Type": "application/json"
             }
         });
@@ -36,13 +35,13 @@ exports.obtenerInformacionAsociado = async (Cedula) => {
     }
 };
 
-exports.obtenerInformacionConyugue = async (Cedula) => {
+exports.obtenerInformacionConyugue = async (Cedula, token) => {
     try {
         const urlFetch = Cedula ? `${API_URL_CONYUGUE}?Cedula=${Cedula}` : API_URL_CONYUGUE;
         const response = await fetch(urlFetch, {
             method: "GET",
             headers: {
-                "Authorization": `Bearer ${TOKEN_QUEMADO}`,
+                "Authorization": `Bearer ${token}`,
                 "Content-Type": "application/json"
             }
         });
@@ -60,13 +59,13 @@ exports.obtenerInformacionConyugue = async (Cedula) => {
     }
 };
 
-exports.obtenerInformacionOtrosDatosAdicionales = async (Cedula) => {
+exports.obtenerInformacionOtrosDatosAdicionales = async (Cedula, token) => {
     try {
         const urlFetch = Cedula ? `${API_URL_OTROSDATOS}?Cedula=${Cedula}` : API_URL_OTROSDATOS;
         const response = await fetch(urlFetch, {
             method: "GET",
             headers: {
-                "Authorization": `Bearer ${TOKEN_QUEMADO}`,
+                "Authorization": `Bearer ${token}`,
                 "Content-Type": "application/json"
             }
         });
@@ -85,13 +84,13 @@ exports.obtenerInformacionOtrosDatosAdicionales = async (Cedula) => {
 
 };
 
-exports.obtenerAutorizaciones = async () => {
+exports.obtenerAutorizaciones = async (token) => {
     try {
         const urlFetch = API_URL_AUTORIZACIONES;
         const response = await fetch(urlFetch, {
             method: "GET",
             headers: {
-                "Authorization": `Bearer ${TOKEN_QUEMADO}`,
+                "Authorization": `Bearer ${token}`,
                 "Content-Type": "application/json"
             }
         });
@@ -109,13 +108,13 @@ exports.obtenerAutorizaciones = async () => {
     }
 }
 
-exports.obtenerReferencias = async (Cedula) => {
+exports.obtenerReferencias = async (Cedula, token) => {
     try {
         const urlFetch = Cedula ? `${API_URL_REFERENCIAS}?Cedula=${Cedula}` : API_URL_REFERENCIAS;
         const response = await fetch(urlFetch, {
             method: "GET",
             headers: {
-                "Authorization": `Bearer ${TOKEN_QUEMADO}`,
+                "Authorization": `Bearer ${token}`,
                 "Content-Type": "application/json"
             }
         });
@@ -133,13 +132,13 @@ exports.obtenerReferencias = async (Cedula) => {
     }
 }
 
-exports.obtenerPersonasCargo = async (Cedula) => {
+exports.obtenerPersonasCargo = async (Cedula, token) => {
     try {
         const urlFetch = Cedula ? `${API_URL_PERSONASCARGO}?Cedula=${Cedula}` : API_URL_PERSONASCARGO;
         const response = await fetch(urlFetch, {
             method: "GET",
             headers: {
-                "Authorization": `Bearer ${TOKEN_QUEMADO}`,
+                "Authorization": `Bearer ${token}`,
                 "Content-Type": "application/json"
             }
         });
@@ -157,13 +156,13 @@ exports.obtenerPersonasCargo = async (Cedula) => {
     }
 };
 
-exports.obtenerFamiliaresPeps = async (Cedula) => {
+exports.obtenerFamiliaresPeps = async (Cedula, token) => {
     try {
         const urlFetch = Cedula ? `${API_URL_FAMILIARPEPS}?Cedula=${Cedula}` : API_URL_FAMILIARPEPS;
         const response = await fetch(urlFetch, {
             method: "GET",
             headers: {
-                "Authorization": `Bearer ${TOKEN_QUEMADO}`,
+                "Authorization": `Bearer ${token}`,
                 "Content-Type": "application/json"
             }
         });
@@ -181,13 +180,13 @@ exports.obtenerFamiliaresPeps = async (Cedula) => {
     }
 };
 
-exports.obtenerAdjuntosGenerales = async () => {
+exports.obtenerAdjuntosGenerales = async (token) => {
     try {
         const urlFetch = API_URL_ADJUNTOSGENERALES;
         const response = await fetch(urlFetch, {
             method: "GET",
             headers: {
-                "Authorization": `Bearer ${TOKEN_QUEMADO}`,
+                "Authorization": `Bearer ${token}`,
                 "Content-Type": "application/json"
             }
         });
@@ -205,14 +204,14 @@ exports.obtenerAdjuntosGenerales = async () => {
     }
 };
 
-exports.obtenerAdjuntosRelacionados = async (Cedula) => {
+exports.obtenerAdjuntosRelacionados = async (Cedula, token) => {
     try {
         const form = new URLSearchParams();
         form.append("Cedula", Cedula);
         const response = await fetch(API_URL_ADJUNTOSRELACIONADOS, {
             method: "POST",
             headers: {
-                "Authorization": `Bearer ${TOKEN_QUEMADO}`,
+                "Authorization": `Bearer ${token}`,
                 "Content-Type": "application/x-www-form-urlencoded"
             },
             body: form

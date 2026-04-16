@@ -15,6 +15,8 @@ const combosRouter = require('./routes/combos')
 const app = express();
 
 const expressLayouts = require('express-ejs-layouts');
+const config = require('./config/config');
+const { formatFechaHoy, formatUltimoIngreso } = require('./helpers/dateHelpers');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -26,15 +28,9 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({
-  secret: "%J[vr2o@T%1{6mx.^#1w7M%dw?45u0R0B[Mxqj3>sl#:3#^zh=tTVh|,q(7+.Tu",
+  secret: config.sessionSecret,
   saveUninitialized: false,
-  resave: false,
-  cookie: {
-    maxAge: 1000 * 60 * 60 * 24,
-    httpOnly: false,
-    secure: false,
-    sameSite: 'lax'
-  }
+  resave: false
 }));
 
 app.use(expressLayouts);
@@ -52,10 +48,17 @@ app.use(function (_, _, next) {
   next(createError(404));
 });
 
+app.locals.formatFechaHoy = formatFechaHoy;
+app.locals.formatUltimoIngreso = formatUltimoIngreso;
+
+app.use((req, res, next) => {
+  res.locals.title = "FONDOOPA | Servicios en Linea";
+  next();
+});
+
 // error handler
 app.use(function (err, req, res, _) {
   // set locals, only providing error in development
-  res.locals.user = req.session.user || null; 
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 

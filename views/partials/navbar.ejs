@@ -16,6 +16,15 @@
 
     <!-- Info -->
     <div class="app-navbar__info" id="Meta-informacion">
+      <% if (session && session.user) { %>
+      <span class="app-navbar__user">
+        Asociado(a): <strong><%- session.user.nombreusuario %></strong>
+      </span>
+      <span class="app-navbar__meta">
+          Hoy es <strong><%- formatFechaHoy(new Date()) %></strong> :
+          Ultimo ingreso: <strong><%- formatUltimoIngreso(session.user.ultimoingreso) %></strong>
+      </span>
+      <% } %>
     </div>
 
     <div class="app-navbar__spacer"></div>

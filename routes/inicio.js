@@ -3,7 +3,8 @@ const router = express.Router();
 
 router.get('/ejemplo', (req, res) => {
   res.render('inicio', {
-    title: 'inicio'
+    title: 'inicio',
+    session: req.session,
   });
 });
 

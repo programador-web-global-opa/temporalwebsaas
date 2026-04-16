@@ -12,7 +12,8 @@
             <div class="mui-textfield" id="cedula-recover-group">
               <span class="material-icons mui-icon">document_scanner</span>
               <input
-                type="number"
+                type="text"
+                inputmode="numeric"
                 id="cedula"
                 placeholder="Cedula"
                 required
@@ -25,7 +26,7 @@
             <div class="mui-textfield" id="celular-recover-group">
               <span class="material-icons mui-icon">phone_android</span>
               <input
-                type="number"
+                type="tel"
                 id="celular"
                 placeholder="Celular"
                 required
@@ -85,14 +86,18 @@
   const formBtn = document.getElementById("btnRecover");
   const bodyModalMessage = document.getElementById("body-recover");
   const btnModal = document.getElementById("btn-modal-recover");
+  const loading = document.getElementById("loading");
+  let recoverSuccess = false;
 
   formBtn.addEventListener("click", sendRecoverUser);
 
   btnModal.addEventListener("click", () => {
     closeModal("modalrecover");
-    setTimeout(() => {
-      window.location.href = "/auth/login";
-    }, 3000)
+    if (recoverSuccess) {
+      setTimeout(() => {
+        window.location.href = "/auth/login";
+      }, 3000);
+    }
   });
 
   function openModal(modalId, isStatic = false) {
@@ -188,25 +193,24 @@
     form.classList.add("d-none");
     loading.classList.add("active");
 
-    const params = {
-      "cedula": documentInput.value,
-      "celular": phoneInput.value,
-    };
+    try {
+      const params = {
+        "cedula": documentInput.value,
+        "celular": phoneInput.value,
+      };
 
-    const response = await fetchData("/auth/recover-user", params);
-
-    if (response?.error) {
+      const response = await fetchData("/auth/recover-user", params);
+      recoverSuccess = !response?.error;
+      bodyModalMessage.innerText = response?.message ?? "Ha ocurrido un error inesperado";
       openModal("modalrecover");
-      bodyModalMessage.innerText = response?.message;
+    } catch (error) {
+      recoverSuccess = false;
+      bodyModalMessage.innerText = "Ha ocurrido un error inesperado";
+      openModal("modalrecover");
+    } finally {
       loading.classList.remove("active");
       form.classList.remove("d-none");
-      return;
     }
-
-    openModal("modalrecover");
-    bodyModalMessage.innerText = response?.message;
-    loading.classList.remove("active");
-    form.classList.remove("d-none");
   }
 
   async function fetchData(url = "", params = {}) {

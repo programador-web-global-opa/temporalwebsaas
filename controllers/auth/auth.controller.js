@@ -227,8 +227,6 @@ const recoverUser = async (req, res) => {
       });
     }
 
-    const recoverService = data[0][0] ?? {};
-
     res.status(200).json({
       message: recoverService?.Mensaje,
       status: 200,
@@ -253,8 +251,6 @@ const recoverPasswordCode = async (req, res) => {
     esoperador = "N"
   } = req.body;
 
-  console.log("recover password", req.body);
-
   try {
     const result = await fetch(`${config.apiBaseUrlApp}/validacionesrecuperacion`, {
       method: "POST",
@@ -271,8 +267,6 @@ const recoverPasswordCode = async (req, res) => {
     });
     const data = await result.json();
     
-    console.log(data);
-    
     if (data?.campo && data?.mensaje) {
       return res.status(400).json({
         message: "Error al realizar la peticion",
@@ -283,7 +277,6 @@ const recoverPasswordCode = async (req, res) => {
     }
     
     const recoverService = data[0][0] ?? {};
-    console.log(recoverService);
 
     res.json({
       message: recoverService?.Mensaje,
@@ -314,8 +307,6 @@ const recoverPassword = async (req, res) => {
     esoperador = "N"
   } = req.body;
 
-  console.log("recover password", req.body);
-
   try {
     const result = await fetch(`${config.apiBaseUrlApp}/validacionesrecuperacion`, {
       method: "POST",
@@ -332,8 +323,6 @@ const recoverPassword = async (req, res) => {
     });
     const data = await result.json();
     
-    console.log(data);
-    
     if (data?.campo && data?.mensaje) {
       return res.status(400).json({
         message: "Error al realizar la peticion",
@@ -344,7 +333,6 @@ const recoverPassword = async (req, res) => {
     }
     
     const recoverService = data[0][0] ?? {};
-    console.log(recoverService);
 
     res.json({
       message: recoverService?.Mensaje,
@@ -368,33 +356,15 @@ const recoverPassword = async (req, res) => {
 }
 
 const recoverPasswordQuestions = async (req, res) => {
-  const {
-    Operador,
-    tipo,
-    codigo,
-    esoperador = "N"
-  } = req.body;
-
-  console.log("recover password", req.body);
-
+  const { operador, esoperador = "N", xml } = req.body;
   try {
-    const result = await fetch(`${config.apiBaseUrlApp}/validacionesrecuperacion`, {
+    const result = await fetch(`${config.apiBaseUrlApp}/preguntasseguridad`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        Tipo: tipo,
-        Operador: Operador,
-        CedulaAsociado: Operador,
-        codigo: codigo ?? "",
-        esoperador: esoperador,
-      }),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ operador, esoperador, xml }),
     });
     const data = await result.json();
-    
-    console.log(data);
-    
+
     if (data?.campo && data?.mensaje) {
       return res.status(400).json({
         message: "Error al realizar la peticion",
@@ -403,21 +373,24 @@ const recoverPasswordQuestions = async (req, res) => {
         result: null,
       });
     }
-    
-    const recoverService = data[0][0] ?? {};
-    console.log(recoverService);
 
+    const isQuery = xml?.includes("CONPRE");
+    if (isQuery) {
+      return res.json({
+        message: "OK",
+        status: 200,
+        codigo: "200",
+        result: { questions: data[0] ?? [] },
+      });
+    }
+
+    const service = data[0][0] ?? {};
     res.json({
-      message: recoverService?.Mensaje,
+      message: service?.Mensaje,
       status: 200,
-      codigo: recoverService?.Codigo,
-      result: {
-        campo: recoverService?.campo,
-        mensaje: recoverService?.mensaje,
-        preguntasclaveprincipal: recoverService?.preguntasclaveprincipal
-      },
+      codigo: service?.Codigo?.replace(/ /g, ""),
+      result: {},
     });
-    
   } catch (error) {
     res.status(500).json({
       message: "Hubo un error al realizar el proceso",
@@ -428,6 +401,48 @@ const recoverPasswordQuestions = async (req, res) => {
   }
 }
 
+const changePassword = async (req, res) => {
+  const { usuario, clave } = req.body;
+  try {
+    const result = await fetch(`${config.apiBaseUrlApp}/Recuperaclave`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ USUARIO: usuario, CLAVE: clave }),
+    });
+    const data = await result.json();
+
+    if (data?.campo && data?.mensaje) {
+      return res.status(400).json({
+        message: "Error al realizar la peticion",
+        codigo: "000",
+        status: 400,
+        result: null,
+      });
+    }
+
+    const service = data[0][0] ?? {};
+    res.json({
+      message: service?.Mensaje,
+      status: 200,
+      codigo: service?.codigo?.replace(/ /g, ""),
+      result: {},
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Hubo un error al realizar el proceso",
+      status: 500,
+      codigo: null,
+      result: null,
+    });
+  }
+}
+
+const logout = async (req, res) => {
+  req.session.destroy(() => {
+    res.redirect("/auth/login");
+  });
+}
+
 module.exports = {
   validateUser,
   getIdentification,
@@ -436,5 +451,7 @@ module.exports = {
   recoverUser,
   recoverPassword,
   recoverPasswordCode,
-  recoverPasswordQuestions
+  recoverPasswordQuestions,
+  changePassword,
+  logout
 };

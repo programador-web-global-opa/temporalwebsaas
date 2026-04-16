@@ -418,11 +418,11 @@ function resolverAdjuntosParaVista(catalogo, relacionados) {
 //JUNTAR LA INFORMACION Y DEVOLVERLA
 exports.getInformacionAsociado = async (req, res) => {
     try {
-        const Cedula = cedulaEjemplo;
+        const Cedula = req.session.user.id;
         const [datosCrudosInfo, datosCrudosConyugue, datosCrudosOtrosAdicionales] = await Promise.all([
-            actualizaciondatosService.obtenerInformacionAsociado(Cedula),
-            actualizaciondatosService.obtenerInformacionConyugue(Cedula),
-            actualizaciondatosService.obtenerInformacionOtrosDatosAdicionales(Cedula)
+            actualizaciondatosService.obtenerInformacionAsociado(Cedula, req.session.user.tokenWeb),
+            actualizaciondatosService.obtenerInformacionConyugue(Cedula, req.session.user.tokenWeb),
+            actualizaciondatosService.obtenerInformacionOtrosDatosAdicionales(Cedula, req.session.user.tokenWeb)
         ]);
         const infoMapeada = mapearInformacionAsociado(datosCrudosInfo);
         const conyugueMapeado = mapearInformacionConyugue(datosCrudosConyugue);
@@ -447,7 +447,7 @@ exports.getInformacionAsociado = async (req, res) => {
 //INFORMACION DE LAS AUTORIZACIONES
 exports.getAutorizaciones = async (req, res) => {
     try {
-        const datosCrudosAutorizaciones = await actualizaciondatosService.obtenerAutorizaciones();
+        const datosCrudosAutorizaciones = await actualizaciondatosService.obtenerAutorizaciones(req.session.user.tokenWeb);
         const autorizacionesMapeadas = mapearAutorizaciones(datosCrudosAutorizaciones);
         res.status(200).json(autorizacionesMapeadas);
     } catch (error) {
@@ -459,10 +459,10 @@ exports.getAutorizaciones = async (req, res) => {
 //DEVOLVER REFERENCIAS
 exports.getReferencias = async (req, res) => {
     try {
-        const Cedula = cedulaEjemplo;
+        const Cedula = req.session.user.id;
 
         const datosCrudosReferencias =
-            await actualizaciondatosService.obtenerReferencias(Cedula);
+            await actualizaciondatosService.obtenerReferencias(Cedula, req.session.user.tokenWeb);
 
         const referencias = mapearReferencias(datosCrudosReferencias);
 
@@ -477,10 +477,10 @@ exports.getReferencias = async (req, res) => {
 
 exports.getPersonasCargo = async (req, res) => {
     try {
-        const Cedula = cedulaEjemplo;
+        const Cedula = req.session.user.id;
 
         const datosCrudosPersonasCargo =
-            await actualizaciondatosService.obtenerPersonasCargo(Cedula);
+            await actualizaciondatosService.obtenerPersonasCargo(Cedula, req.session.user.tokenWeb);
 
         const personasCargo = mapearPersonasCargo(datosCrudosPersonasCargo);
 
@@ -495,10 +495,10 @@ exports.getPersonasCargo = async (req, res) => {
 
 exports.getFamiliaresPeps = async (req, res) => {
     try {
-        const Cedula = cedulaEjemplo;
+        const Cedula = req.session.user.id;
 
         const datosCrudosFamiliaresPeps =
-            await actualizaciondatosService.obtenerFamiliaresPeps(Cedula);
+            await actualizaciondatosService.obtenerFamiliaresPeps(Cedula, req.session.user.tokenWeb);
 
         const familiaresPeps = mapearFamiliaresPeps(datosCrudosFamiliaresPeps);
 
@@ -513,9 +513,9 @@ exports.getFamiliaresPeps = async (req, res) => {
 
 exports.getAdjuntos = async (req, res) => {
     try {
-        const Cedula = cedulaEjemplo;
-        const Catalogo = await actualizaciondatosService.obtenerAdjuntosGenerales();
-        const Relacionados = await actualizaciondatosService.obtenerAdjuntosRelacionados(Cedula);
+        const Cedula = req.session.user.id;
+        const Catalogo = await actualizaciondatosService.obtenerAdjuntosGenerales(req.session.user.tokenWeb);
+        const Relacionados = await actualizaciondatosService.obtenerAdjuntosRelacionados(Cedula, req.session.user.tokenWeb);
 
         const adjuntos = resolverAdjuntosParaVista(Catalogo, Relacionados);
 

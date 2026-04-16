@@ -6,7 +6,9 @@ const {
   recoverUser,
   recoverPasswordCode,
   recoverPassword,
-  recoverPasswordQuestions
+  recoverPasswordQuestions,
+  changePassword,
+  logout
 } = require("../controllers/auth/auth.controller");
 const router = express.Router();
 
@@ -53,5 +55,9 @@ router.post("/recover-password", recoverPassword);
 router.post("/recover-password/code", recoverPasswordCode);
 
 router.post("/recover-password/questions", recoverPasswordQuestions);
+
+router.post("/recover-password/change", changePassword);
+
+router.post("/logout", logout);
 
 module.exports = router;

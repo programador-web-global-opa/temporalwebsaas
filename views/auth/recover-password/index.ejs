@@ -95,40 +95,45 @@
         <!-- CONTENER DE INPUTS DE PREGUNTAS SI LAS TIENEN ACTIVAS -->
         <div class="contenedor-global d-none" id="contenedor-step-3">
           <div class="contenedor-formulario">
-            <div class="mui-textfield" id="code-recover-group">
-              <span class="material-symbols-outlined">ballot</span>
+
+            <label for="questions-one" id="label-question-one">Pregunta 1</label>
+            <div class="mui-textfield" id="questions-one-group">
               <input
                 type="text"
-                id="code-recover"
-                placeholder="Pregunta 1"
+                id="questions-one"
+                placeholder="Respuesta 1"
                 required
                 autocomplete="off"
               />
             </div>
-            <small class="error" id="error-code-recover"></small>
-            <div class="mui-textfield" id="code-recover-group">
-              <span class="material-symbols-outlined">ballot</span>
+            <small class="error" id="error-questions-one"></small>
+
+            <label for="questions-two" id="label-question-two">Pregunta 2</label>
+            <div class="mui-textfield" id="questions-two-group">
               <input
                 type="text"
-                id="code-recover"
-                placeholder="Pregunta 2"
+                id="questions-two"
+                placeholder="Respuesta 2"
                 required
                 autocomplete="off"
               />
             </div>
-            <small class="error" id="error-code-recover"></small>
-            <div class="mui-textfield" id="code-recover-group">
-              <span class="material-symbols-outlined">ballot</span>
+            <small class="error" id="error-questions-two"></small>
+
+            <label for="questions-three" id="label-question-three">Pregunta 3</label>
+            <div class="mui-textfield" id="questions-three-group">
               <input
                 type="text"
-                id="code-recover"
-                placeholder="Pregunta 3"
+                id="questions-three"
+                placeholder="Respuesta 3"
                 required
                 autocomplete="off"
               />
             </div>
-            <small class="error" id="error-code-recover"></small>
+            <small class="error" id="error-questions-three"></small>
+
           </div>
+
           <div class="contenedor-boton" id="btn-container-step-3">
             <button type="button" class="boton-nuevo w-100" id="btnRecoverStep3">
               Enviar
@@ -187,6 +192,10 @@
   const loading = document.getElementById("loading");
   const inputGroupCode = document.getElementById("code-recover-group");
   const form = document.getElementById("recover-password-form");
+
+  let pregunta1Id = "";
+  let pregunta2Id = "";
+  let pregunta3Id = "";
 
   const formStep1 = document.getElementById("contenedor-step-1");
   const formStep2 = document.getElementById("contenedor-step-2");
@@ -373,6 +382,44 @@
   }
 
   function validateInputsQuestions() {
+    const questionOneGroup = document.getElementById("questions-one-group");
+    const questionTwoGroup = document.getElementById("questions-two-group");
+    const questionThreeGroup = document.getElementById("questions-three-group");
+    const inputQuestionOne = document.getElementById("questions-one");
+    const inputQuestionTwo = document.getElementById("questions-two");
+    const inputQuestionThree = document.getElementById("questions-three");
+    const errorQuestionOne = document.getElementById("error-questions-one");
+    const errorQuestionTwo = document.getElementById("error-questions-two");
+    const errorQuestionThree = document.getElementById("error-questions-three");
+
+    if (inputQuestionOne.value == "") {
+      questionOneGroup.classList.add("error");
+      errorQuestionOne.innerText = "La pregunta es obligatoria";
+    }
+    if (inputQuestionTwo.value == "") {
+      questionTwoGroup.classList.add("error");
+      errorQuestionTwo.innerText = "La pregunta es obligatoria";
+    }
+    if (inputQuestionThree.value == "") {
+      questionThreeGroup.classList.add("error");
+      errorQuestionThree.innerText = "La pregunta es obligatoria";
+    }
+
+    if (
+      !inputQuestionOne.value.trim() ||
+      !inputQuestionTwo.value.trim() ||
+      !inputQuestionThree.value.trim()
+    ) {
+      return false;
+    } else {
+      questionOneGroup.classList.remove("error");
+      errorQuestionOne.innerText = "";
+      questionTwoGroup.classList.remove("error");
+      errorQuestionTwo.innerText = "";
+      questionThreeGroup.classList.remove("error");
+      errorQuestionThree.innerText = "";
+    }
+
     return true;
   }
 
@@ -391,8 +438,6 @@
 
       const response = await fetchData("/auth/recover-password", params);
 
-      console.log("sendRecoverPasswordCode", response);
-
       if (response?.status == 400 || response?.status == 401) {
         openModal("modalrecover");
         bodyModalMessage.innerText = response?.message;
@@ -408,14 +453,36 @@
         return;
       }
 
+      if (
+        response?.status == 200 &&
+        response?.codigo == "131" &&
+        response?.result?.preguntasclaveprincipal == "N"
+      ) {
+        bodyModalMessage.innerText = response?.message;
+        loading.classList.remove("active");
+        step(2);
+        openModal("modalrecover");
+        return;
+      }
+
+      if (
+        response?.status == 200 &&
+        response?.codigo == "131" &&
+        response?.result?.preguntasclaveprincipal == "S"
+      ) {
+        bodyModalMessage.innerText = response?.message;
+        loading.classList.remove("active");
+        step(3);
+        await getQuestionsPassword()
+        return;
+      }
+
       openModal("modalrecover");
-      bodyModalMessage.innerText =
-        response?.message || "Ha ocurrido un error inesperado";
+      bodyModalMessage.innerText = response?.message || "Ha ocurrido un error inesperado";
       loading.classList.remove("active");
     } catch (error) {
       openModal("modalrecover");
-      bodyModalMessage.innerText =
-        "Ha ocurrido un error inesperado, vuelva a intentarlo";
+      bodyModalMessage.innerText = "Ha ocurrido un error inesperado, vuelva a intentarlo";
       loading.classList.remove("active");
       formStep1.classList.remove("d-none");
     }
@@ -438,8 +505,6 @@
     };
 
     const response = await fetchData("/auth/recover-password", params);
-
-    console.log("sendRecoverPassword", response);
 
     if (response?.error) {
       bodyModalMessage.innerText = response?.message;
@@ -477,11 +542,9 @@
       bodyModalMessage.innerText = response?.message;
       loading.classList.remove("active");
       step(3);
-      openModal("modalrecover");
+      await getQuestionsPassword();
       return;
     }
-
-    console.log("todo");
 
     openModal("modalrecover");
     bodyModalMessage.innerText = response?.message;
@@ -493,39 +556,32 @@
     e.preventDefault();
     try {
       if (!validateInputs(2)) return;
-      
+
       const cedula = sessionStorage.getItem("opa:movil:cedula:temp") || "";
-      const password = document.getElementById("recover-password");
-      const params = {
-        usuario: cedula,
-        clave: password.value
-      }
+      const password = document.getElementById("recover-password").value;
 
-      const response = await fetchData("", params);
+      formStep2.classList.add("d-none");
+      loading.classList.add("active");
 
-      console.log("validateSendNewPassword", response);
+      const response = await fetchData("/auth/recover-password/change", { usuario: cedula, clave: password });
 
-      if (response?.status == 400) {
-        bodyModalMessage.innerText = response?.message;
-        loading.classList.remove("active");
-        openModal("modalrecover");
-      }
+      localStorage.clear();
+      sessionStorage.clear();
 
-      if (response?.status == 200) {
-        bodyModalMessage.innerText = response?.message;
-        loading.classList.remove("active");
-        formStep1.classList.remove("d-none");
-        openModal("modalrecover");
-
-        if (response?.codigo === "133") {
-          window.location.href = "/auth/login";
-        }
-      }
-
-    } catch (error) {
-      bodyModalMessage.innerText = response?.message ?? "Ha ocurrido un error al realizar la acción, por favor vuelva e intente mas tarde.";
+      bodyModalMessage.innerText = response?.message ?? "";
       loading.classList.remove("active");
-      formStep1.classList.remove("d-none");
+
+      if (response?.codigo === "133") {
+        openModal("modalrecover");
+      }
+
+      loading.querySelector("span").textContent = "Te redirigiremos al inicio de sesión...";
+      loading.classList.add("active");
+      setTimeout(() => { window.location.href = "/auth/login"; }, 1500);
+    } catch (error) {
+      bodyModalMessage.innerText = "Ha ocurrido un error al realizar la acción, por favor vuelva e intente más tarde.";
+      loading.classList.remove("active");
+      formStep2.classList.remove("d-none");
       openModal("modalrecover");
     }
   }
@@ -537,28 +593,64 @@
         operador: cedula,
         esoperador: 'N',
         xml: "<root><parameters><Tipo>CONPRE</Tipo></parameters></root>"
+      };
+      const response = await fetchData("/auth/recover-password/questions", params);
+
+      const questions = response?.result?.questions;
+
+      if (!questions?.length) {
+        bodyModalMessage.innerText = "Usted no ha registrado preguntas de seguridad, comuníquese con su administrador";
+        openModal("modalrecover");
+        return;
       }
-      const response = await fetchData("", params);
 
-      console.log("getQuestionsPassword", response);
-
-      console.log(response);
-
+      document.getElementById("label-question-one").textContent = questions[0]?.pregunta ?? "Pregunta 1";
+      document.getElementById("label-question-two").textContent = questions[1]?.pregunta ?? "Pregunta 2";
+      document.getElementById("label-question-three").textContent = questions[2]?.pregunta ?? "Pregunta 3";
+      pregunta1Id = questions[0]?.idregistro ?? "";
+      pregunta2Id = questions[1]?.idregistro ?? "";
+      pregunta3Id = questions[2]?.idregistro ?? "";
     } catch (error) {
-      bodyModalMessage.innerText = response?.message ?? "Ha ocurrido un error al realizar la acción, por favor vuelva e intente mas tarde.";
-      loading.classList.remove("active");
+      bodyModalMessage.innerText = "Ha ocurrido un error al cargar las preguntas de seguridad";
       openModal("modalrecover");
     }
   }
 
   async function sendQuestionsPassword(e) {
+    e.preventDefault();
     try {
-      const params = {};
-      const response = await fetchData("", params);
-      console.log("sendQuestionsPassword", response);
-    } catch (error) {
-      bodyModalMessage.innerText = response?.message ?? "Ha ocurrido un error al realizar la acción, por favor vuelva e intente mas tarde.";
+      if (!validateInputs(3)) return;
+
+      const cedula = sessionStorage.getItem("opa:movil:cedula:temp") || "";
+      const respuesta1 = document.getElementById("questions-one").value;
+      const respuesta2 = document.getElementById("questions-two").value;
+      const respuesta3 = document.getElementById("questions-three").value;
+
+      formStep3.classList.add("d-none");
+      loading.classList.add("active");
+
+      const params = {
+        operador: cedula,
+        esoperador: 'N',
+        xml: `<root><parameters><Tipo>CONRES</Tipo><pregunta>${pregunta1Id}</pregunta><respuesta>${respuesta1}</respuesta><pregunta1>${pregunta2Id}</pregunta1><respuesta1>${respuesta2}</respuesta1><pregunta2>${pregunta3Id}</pregunta2><respuesta2>${respuesta3}</respuesta2></parameters></root>`
+      };
+
+      const response = await fetchData("/auth/recover-password/questions", params);
+
+      bodyModalMessage.innerText = response?.message ?? "";
       loading.classList.remove("active");
+      openModal("modalrecover");
+
+      if (Number(response?.codigo) === 125) {
+        step(2);
+        return;
+      }
+
+      formStep3.classList.remove("d-none");
+    } catch (error) {
+      bodyModalMessage.innerText = "Ha ocurrido un error al enviar las respuestas, por favor vuelva e intente más tarde.";
+      loading.classList.remove("active");
+      formStep3.classList.remove("d-none");
       openModal("modalrecover");
     }
   }

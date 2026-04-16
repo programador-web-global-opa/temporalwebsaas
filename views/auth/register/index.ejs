@@ -11,7 +11,8 @@
             <div class="mui-textfield" id="document-group">
               <span class="material-icons mui-icon">document_scanner</span>
               <input
-                type="number"
+                type="text"
+                inputmode="numeric"
                 id="document"
                 placeholder="Cedula"
                 required
@@ -42,7 +43,7 @@
                 required
                 autocomplete="off"
               />
-              <span class="material-icons mui-icon-eye" id="togglePassword" style="cursor: pointer; color: #757575;">
+              <span class="material-icons mui-icon-eye togglePassword" style="cursor: pointer; color: #757575;">
                 visibility_off
               </span>
             </div>
@@ -57,7 +58,7 @@
                 required
                 autocomplete="off"
               />
-              <span class="material-icons mui-icon-eye" id="togglePassword" style="cursor: pointer; color: #757575;">
+              <span class="material-icons mui-icon-eye togglePassword" style="cursor: pointer; color: #757575;">
                 visibility_off
               </span>
             </div>
@@ -66,7 +67,7 @@
             <div class="mui-textfield" id="phone-group">
               <span class="material-icons mui-icon">phone_android</span>
               <input
-                type="number"
+                type="tel"
                 id="phone"
                 placeholder="Celular"
                 required
@@ -106,7 +107,7 @@
 <div class="modal fade app-modal" id="modalerrorregister" style="z-index: 2000;" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content app-modal__content">
-      <div class="app-modal__body" id="modalInfo">
+      <div class="app-modal__body">
         <div>
           <div class="py-2 px-3" style="text-align: center;" id="body-register"></div>
           <div class="contenedor-boton">
@@ -124,7 +125,7 @@
 <div class="modal fade app-modal" id="modalerrorregistercode" style="z-index: 2000;" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content app-modal__content">
-      <div class="app-modal__body" id="modalInfo">
+      <div class="app-modal__body">
         <div>
           <div class="py-2 px-3" style="text-align: center;" id="body-register-code">
             <span class="py-2" id="message-code"></span>
@@ -161,7 +162,7 @@
   const btnModalRegister = document.getElementById("btn-modal-register");
   const btnModalCode = document.getElementById("btn-modal-code");
   const bodyModalRegister = document.getElementById("body-register");
-  const togglePassword = document.querySelectorAll('#togglePassword');
+  const togglePassword = document.querySelectorAll('.togglePassword');
 
   togglePassword.forEach(toggle => {
     toggle.addEventListener('click', function () {
@@ -186,65 +187,50 @@
     const inputUser = document.getElementById("user").value;
     const inputPassword1 = document.getElementById("password").value;
     const inputPhone = document.getElementById("phone").value;
-    const btnModal = document.getElementById("btn-modal-register");
 
     loading.classList.add("active");
     step1.classList.add("d-none");
 
-    const params = {
-      "nuevousuario": inputUser,
-      "cedula": inputDocument,
-      "contrasena": inputPassword1,
-      "celular": inputPhone,
-      "codigo": ""
-    };
+    try {
+      const params = {
+        "nuevousuario": inputUser,
+        "cedula": inputDocument,
+        "contrasena": inputPassword1,
+        "celular": inputPhone,
+        "codigo": ""
+      };
 
-    const response = await createNewUser(params);
+      const response = await createNewUser(params);
 
-    const mock = {
-      status: 200,
-      message: 'Se ha generado un codigo otp para validar su usuario',
-      result: {
-        codigo: '000'
+      if (response?.codigo === "025" || response?.codigo === "021") {
+        openModal("modalerrorregister");
+        bodyModalRegister.innerText = response?.message;
+        return;
       }
-    }
 
-    if (response?.codigo === "025") {
+      if (response?.status === 400) {
+        openModal("modalerrorregister");
+        bodyModalRegister.innerText = response?.message;
+        return;
+      }
+
+      if (response?.status === 201 && response?.result?.codigo) {
+        messageCode.innerText = response?.message;
+        openModal("modalerrorregistercode", true);
+        return;
+      }
+
+      if (response?.status === 200) {
+        messageCode.innerText = response?.message;
+        openModal("modalerrorregistercode", true);
+        return;
+      }
+    } catch (error) {
       openModal("modalerrorregister");
-      bodyModalRegister.innerText = response?.message;
-      step1.classList.remove("d-none");
-      loading.classList.remove("active");
-    }
-
-    if (response?.codigo === "021") {
-      openModal("modalerrorregister");
-      bodyModalRegister.innerText = response?.message;
-      step1.classList.remove("d-none");
-      loading.classList.remove("active");
-    }
-
-    if (response?.status === 400) {
-      openModal("modalerrorregister");
-      bodyModalRegister.innerText = response?.message;
+      bodyModalRegister.innerText = "Ha ocurrido un error inesperado";
+    } finally {
       loading.classList.remove("active");
       step1.classList.remove("d-none");
-      return;
-    }
-
-    if (response?.status === 201 && response?.result?.codigo) {
-      messageCode.innerText = response?.message;
-      openModal("modalerrorregistercode", true);
-      loading.classList.remove("active");
-      step1.classList.remove("d-none");
-      return;
-    }
-
-    if (response?.status === 200) {
-      messageCode.innerText = response?.message;
-      openModal("modalerrorregistercode", true);
-      loading.classList.remove("active");
-      step1.classList.remove("d-none");
-      return;
     }
   });
 
@@ -455,67 +441,53 @@
       registerGroup.classList.add("error");
       codeRegisterMessageError.innerText = "Ingresa por favor el código enviado";
       return;
-    }
-
-    if (codeRegister.value.replace(/ /g, "") !== "") {
+    } else {
       registerGroup.classList.remove("error");
       codeRegisterMessageError.innerText = "";
     }
 
     codeRegisterBoton.innerText = "Enviando...";
 
-    const inputDocument = document.getElementById("document").value;
-    const inputUser = document.getElementById("user").value;
-    const inputPassword1 = document.getElementById("password").value;
-    const inputPhone = document.getElementById("phone").value;
+    try {
+      const inputDocument = document.getElementById("document").value;
+      const inputUser = document.getElementById("user").value;
+      const inputPassword1 = document.getElementById("password").value;
+      const inputPhone = document.getElementById("phone").value;
 
-    const params = {
-      "nuevousuario": inputUser,
-      "cedula": inputDocument,
-      "contrasena": inputPassword1,
-      "celular": inputPhone,
-      "codigo": codeRegister.value
-    };
+      const params = {
+        "nuevousuario": inputUser,
+        "cedula": inputDocument,
+        "contrasena": inputPassword1,
+        "celular": inputPhone,
+        "codigo": codeRegister.value
+      };
 
-    const response = await createNewUser(params);
+      const response = await createNewUser(params);
 
-    if (response?.error) {
-      openModal("modalerrorregister");
-      bodyModalRegister.innerText = response?.message;
-      step1.classList.remove("d-none");
-      loading.classList.remove("active");
-    }
+      if (response?.error) {
+        switchModal("modalerrorregistercode", "modalerrorregister");
+        bodyError.innerText = response?.message ?? "Ha ocurrido un error inesperado";
+        return;
+      }
 
-    if (response?.codigo === "025") {
-      codeRegisterBoton.innerText = "Ok";
+      if (response?.codigo === "025" || response?.codigo === "026") {
+        switchModal("modalerrorregistercode", "modalerrorregister");
+        btnModalRegister.addEventListener('click', () => window.location.href = "/auth/login", { once: true });
+        bodyError.innerText = response?.message ?? "";
+        return;
+      }
+
+      if (response?.codigo === "851" || response?.codigo === "021") {
+        messageCode.innerText = response?.message ?? "Error ingresando el código, por favor intente nuevamente";
+        messageCode.classList.add("error");
+        codeRegister.value = "";
+        return;
+      }
+    } catch (error) {
       switchModal("modalerrorregistercode", "modalerrorregister");
-      btnModalRegister.addEventListener('click', () => window.location.href = "/auth/login");
-      bodyError.innerText = response?.message ?? "";
-      return;
-    }
-
-    if (response?.codigo === "026") {
+      bodyError.innerText = "Ha ocurrido un error inesperado";
+    } finally {
       codeRegisterBoton.innerText = "Ok";
-      switchModal("modalerrorregistercode", "modalerrorregister");
-      btnModalRegister.addEventListener('click', () => window.location.href = "/auth/login");
-      bodyError.innerText = response?.message ?? "";
-      return;
-    }
-
-    if (response?.codigo === "851") {
-      messageCode.innerText = response?.message ?? "Error ingresando el codigo por favor intente nuevamente";
-      messageCode.classList.add("error");
-      codeRegisterBoton.innerText = "Ok";
-      codeRegister.value = "";
-      return;
-    }
-
-    if (response?.codigo === "021") {
-      messageCode.innerText = response?.message ?? "Error ingresando el codigo por favor intente nuevamente";
-      messageCode.classList.add("error");
-      codeRegisterBoton.innerText = "Ok";
-      codeRegister.value = "";
-      return;
     }
   }
 </script>

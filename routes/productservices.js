@@ -1,29 +1,37 @@
 const express = require("express");
 const router = express.Router();
 
-router.get('/', (_, res) => {
+router.get('/', (req, res) => {
+    if (!req.session.user) res.redirect("/auth/login");
     res.render('productservices/index', {
-        title: 'Productos y Servicios'
+        title: 'Productos y Servicios',
+        session: req.session,
     });
 });
 
 router.get('/tab/:tab', (req, res) => {
+    if (!req.session.user) res.redirect("/auth/login");
     const { tab } = req.params;
     res.render(`productservices/partials/${tab}`, {
         title: 'Productos y Servicios',
+        session: req.session,
         layout: false
     });
 });
 
-router.get('/details', (_, res) => {
+router.get('/details', (req, res) => {
+    if (!req.session.user) res.redirect("/auth/login");
     res.render('productservices/partials/details', {
-        title: 'Productos y Servicios'
+        title: 'Productos y Servicios',
+        session: req.session,
     });
 });
 
-router.get('/generate', (_, res) => {
+router.get('/generate', (req, res) => {
+    if (!req.session.user) res.redirect("/auth/login");
     res.render('productservices/partials/generate', {
-        title: 'Productos y Servicios'
+        title: 'Productos y Servicios',
+        session: req.session,
     });
 });
 
