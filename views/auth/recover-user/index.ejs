@@ -2,7 +2,7 @@
 <!-- IZQUIERDA (contenido login) -->
 <div class="main-container">
   <div class="paper">
-    <form id="form-step-1" class="form" style="width: 100%; max-width: 395px;">
+    <form id="form-step-1" class="form d-none" style="width: 100%; max-width: 395px;">
       <div id="step-1" style="width: 100%;">
         <h2 class="bienvenido">Recordar Usuario</h2>
 
@@ -49,7 +49,7 @@
       </div>
     </form>
 
-    <div id="loading" class="loading">
+    <div id="loading" class="loading active">
       <div class="spinner"></div>
       <span>Cargando...</span>
     </div>
@@ -83,6 +83,12 @@
 
 <script>
   const form = document.getElementById("form-step-1");
+
+  window.onload = () => {
+    loading.classList.remove("active");
+    form.classList.remove("d-none");
+    document.getElementById("cedula").focus();
+  };
   const formBtn = document.getElementById("btnRecover");
   const bodyModalMessage = document.getElementById("body-recover");
   const btnModal = document.getElementById("btn-modal-recover");

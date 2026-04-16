@@ -1,7 +1,7 @@
 <!-- IZQUIERDA (contenido login) -->
 <div class="main-container">
   <div class="paper">
-    <form id="form-step-1" class="form" style="max-width: 395px;">
+    <form id="form-step-1" class="form d-none" style="max-width: 395px;">
       <div id="step-1">
         <div class="content-img">
           <img
@@ -109,7 +109,7 @@
       </div>
     </form>
 
-    <div id="loading" class="loading">
+    <div id="loading" class="loading active">
       <div class="spinner"></div>
       <span>Cargando...</span>
     </div>
@@ -204,7 +204,11 @@
   const inputPassword = document.getElementById('password');
   const btnToggle = document.getElementById('togglePassword');
 
-  window.onload = () => document.getElementById("usuario").focus();
+  window.onload = () => {
+    activeLoading(false);
+    form1.classList.remove("d-none");
+    document.getElementById("usuario").focus();
+  };
 
   window.addEventListener('click', (event) => {
     if (event.target === modal) {

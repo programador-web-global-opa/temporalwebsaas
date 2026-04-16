@@ -11,6 +11,7 @@ const inicioRouter = require('./routes/inicio')
 const actualizaciondatosRouter = require('./routes/actualizaciondatos')
 const productServicesRouter = require('./routes/productservices');
 const combosRouter = require('./routes/combos')
+const authMiddleware = require('./middlewares/authMiddleware');
 
 const app = express();
 
@@ -30,18 +31,19 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({
   secret: config.sessionSecret,
   saveUninitialized: false,
-  resave: false
+  resave: false,
+  cookie: { maxAge: config.sessionMaxAge },
 }));
 
 app.use(expressLayouts);
 app.set('layout', 'layouts/main');
 
 app.use('/auth', authRouter);
-app.use('/ahorro', AhorroRouter);
-app.use('/inicio', inicioRouter);
-app.use('/actualizaciondatos', actualizaciondatosRouter);
-app.use('/products-services', productServicesRouter);
-app.use('/combos', combosRouter);
+app.use('/ahorro', authMiddleware, AhorroRouter);
+app.use('/inicio', authMiddleware, inicioRouter);
+app.use('/actualizaciondatos', authMiddleware, actualizaciondatosRouter);
+app.use('/products-services', authMiddleware, productServicesRouter);
+app.use('/combos', authMiddleware, combosRouter);
 
 // catch 404 and forward to error handler
 app.use(function (_, _, next) {

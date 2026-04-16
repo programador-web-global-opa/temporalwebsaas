@@ -102,6 +102,7 @@ const login = async (req, res) => {
       tokenWeb: userService?.tokenWeb,
       nombreusuario: userService?.nombreusuario,
       ultimoingreso: userService?.ultimoingreso,
+      loginAt: Date.now(),
     };
 
     res.status(200).json({

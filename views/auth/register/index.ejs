@@ -2,7 +2,7 @@
 <!-- IZQUIERDA (contenido login) -->
 <div class="main-container">
   <div class="paper">
-    <form id="form-step-1" class="form" style="width: 100%; max-width: 395px;">
+    <form id="form-step-1" class="form d-none" style="width: 100%; max-width: 395px;">
       <div id="step-1" style="width: 100%;">
         <h2 class="bienvenido">Registrar Usuario</h2>
         <div class="contenedor-global">
@@ -85,7 +85,7 @@
         </div>
       </div>
 
-      <div id="loading" class="loading">
+      <div id="loading" class="loading active">
         <div class="spinner"></div>
         <span>Cargando...</span>
       </div>
@@ -156,6 +156,12 @@
 
 <script>
   const formStep = document.getElementById('form-step-1');
+
+  window.onload = () => {
+    loading.classList.remove("active");
+    formStep.classList.remove("d-none");
+    document.getElementById("document").focus();
+  };
   const btnSiguiente = document.getElementById('btnSiguiente');
   const loading = document.getElementById('loading');
   const step1 = document.getElementById('step-1');

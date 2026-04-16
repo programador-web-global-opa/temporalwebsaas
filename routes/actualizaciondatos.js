@@ -5,7 +5,6 @@ const Controller = require("../controllers/actualizaciondatos.controller");
 const uploadActualizacionDatos = require("../middlewares/actualizaciondatosupload");
 
 router.get("/", (req, res) => {
-    if (!req.session.user) res.redirect("/auth/login");
     res.render("actualizaciondatos/index", {
         title: "Actualización de Datos",
         session: req.session,
@@ -13,7 +12,6 @@ router.get("/", (req, res) => {
 });
 
 router.get("/tab/:tab", (req, res) => {
-    if (!req.session.user) res.redirect("/auth/login");
     const { tab } = req.params;
     res.render(`actualizaciondatos/partials/${tab}`, {
         title: "Actualizacion de Datos",
