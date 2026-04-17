@@ -1,3 +1,4 @@
+const path = require('path');
 const dotenv = require('dotenv');
 
 // Cargar variables de entorno
@@ -30,7 +31,12 @@ const config = {
   tokePruebas: process.env.TOKEN_PRUEBAS,
 
   // Cedula test
-  cedulaPruebas: process.env.CEDULA_PRUEBAS
+  cedulaPruebas: process.env.CEDULA_PRUEBAS,
+
+  // Adjuntos actualizacion de datos
+  actualizacionDatosAdjuntosDir:
+    process.env.ACTUALIZACION_DATOS_ADJUNTOS_DIR ||
+    path.join(process.cwd(), 'storage', 'actualizacion_datos')
 
 };
 

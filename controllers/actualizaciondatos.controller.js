@@ -1,7 +1,11 @@
 const config = require("../config/config");
 const actualizaciondatosService = require("../services/actualizaciondatosService");
+const actualizaciondatosGuardarHelper = require("../services/actualizaciondatosGuardarHelper");
+const fs = require("fs/promises");
+const path = require("path");
 
 const cedulaEjemplo = config.cedulaPruebas;
+const ADJUNTOS_DIR = config.actualizacionDatosAdjuntosDir;
 
 // FUNCION PARA LIMPIAR ESPACIOS Y EXTRAER DEL ARREGLO SI APLICA
 const parseVal = (val) => {
@@ -17,6 +21,30 @@ const parseDate = (dateStr) => {
     return String(dateStr).split("T")[0];
 };
 
+const parseGrupoProteccion = (valor) => {
+    if (Array.isArray(valor)) {
+        return valor.map(parseVal).filter(Boolean);
+    }
+
+    const texto = parseVal(valor);
+
+    if (!texto || texto === "[]") {
+        return [];
+    }
+
+    try {
+        const parsed = JSON.parse(texto);
+
+        if (Array.isArray(parsed)) {
+            return parsed.map(parseVal).filter(Boolean);
+        }
+    } catch (error) {
+        return [texto];
+    }
+
+    return [texto];
+};
+
 // FUNCION PARA SEPARAR LA DIRECCION
 const parseDir = (direccion) => {
     const str = parseVal(direccion);
@@ -27,6 +55,327 @@ const parseDir = (direccion) => {
         tipo: str.substring(0, index).trim(),
         complemento: str.substring(index).trim()
     };
+};
+
+const parseJsonField = (valor, fallback, nombreCampo) => {
+    try {
+        if (!valor) {
+            return fallback;
+        }
+
+        return JSON.parse(valor);
+    } catch (error) {
+        throw new Error(`El campo ${nombreCampo} no tiene un JSON valido`);
+    }
+};
+
+const detectarNavegador = (userAgent = "") => {
+    const agente = String(userAgent || "");
+
+    if (agente.includes("Edg")) return "Microsoft Edge";
+    if (agente.includes("OPR") || agente.includes("Opera")) return "Opera";
+    if (agente.includes("Firefox")) return "Mozilla Firefox";
+    if (agente.includes("Chrome")) return "Google Chrome";
+    if (agente.includes("Safari")) return "Safari";
+    if (agente.includes("MSIE") || agente.includes("Trident")) return "Internet Explorer";
+
+    return agente || "No identificado";
+};
+
+const obtenerIpCliente = (req) => {
+    const forwarded = req.headers["x-forwarded-for"];
+
+    if (Array.isArray(forwarded) && forwarded.length > 0) {
+        return String(forwarded[0]).trim();
+    }
+
+    if (typeof forwarded === "string" && forwarded.trim()) {
+        return forwarded.split(",")[0].trim();
+    }
+
+    return req.ip || req.socket?.remoteAddress || "";
+};
+
+const formatearFechaSistema = () => {
+    const ahora = new Date();
+    const pad = (valor) => String(valor).padStart(2, "0");
+
+    return [
+        ahora.getFullYear(),
+        pad(ahora.getMonth() + 1),
+        pad(ahora.getDate())
+    ].join("-") + " " + [
+        pad(ahora.getHours()),
+        pad(ahora.getMinutes()),
+        pad(ahora.getSeconds())
+    ].join(":");
+};
+
+const normalizarConfirmacionActualizacion = (confirmacion) => {
+    if (!confirmacion) {
+        return null;
+    }
+
+    if (typeof confirmacion === "object") {
+        return {
+            bandera: Number(confirmacion.bandera ?? 1) || 1,
+            mensaje: parseVal(confirmacion.mensaje)
+        };
+    }
+
+    const texto = parseVal(confirmacion);
+
+    if (!texto) {
+        return null;
+    }
+
+    const [bandera, ...mensajePartes] = texto.split("|");
+
+    return {
+        bandera: Number(bandera) || 1,
+        mensaje: mensajePartes.join("|").trim() || texto
+    };
+};
+
+const resolverEstadoIngresoActualizacion = async (req, { consumirConfirmacion = true } = {}) => {
+    const confirmacion = normalizarConfirmacionActualizacion(req.session?.confir_actu);
+
+    if (confirmacion?.mensaje) {
+        if (consumirConfirmacion) {
+            delete req.session.confir_actu;
+        }
+
+        return {
+            puedeIngresar: false,
+            tipoMensaje: confirmacion.bandera === 2 ? "alerta" : "exito",
+            mensaje: confirmacion.mensaje
+        };
+    }
+
+    const cedula = req.session?.user?.id;
+    const token = req.session?.user?.tokenWeb;
+
+    if (!cedula || !token) {
+        return {
+            puedeIngresar: false,
+            tipoMensaje: "alerta",
+            mensaje: "No fue posible validar el acceso al modulo de actualizacion de datos."
+        };
+    }
+
+    const tienePendiente = await actualizaciondatosService.obtenerActualizacionPendiente(cedula, token);
+
+    if (tienePendiente) {
+        return {
+            puedeIngresar: false,
+            tipoMensaje: "alerta",
+            mensaje: "Al momento se encuentra en tramite una actualizacion de datos para su validez, para actualizar los datos debera esperar que terminemos de validar los datos anteriormente digitados."
+        };
+    }
+
+    return {
+        puedeIngresar: true,
+        tipoMensaje: null,
+        mensaje: ""
+    };
+};
+
+const combinarRegistros = (registrosActuales = [], registrosEditados = []) => {
+    const actuales = Array.isArray(registrosActuales) ? registrosActuales : [];
+    const editados = Array.isArray(registrosEditados) ? registrosEditados : [];
+    const idsActuales = new Set(actuales.map(item => String(item?.id ?? "")));
+    const actualizadosPorId = new Map(
+        editados
+            .filter(item => item && item.originalId !== null && item.originalId !== undefined && String(item.originalId).trim() !== "")
+            .map(item => [String(item.originalId), item])
+    );
+
+    const resultado = actuales.map(item => {
+        const reemplazo = actualizadosPorId.get(String(item?.id ?? ""));
+        return reemplazo || item;
+    });
+
+    const edicionesSinBase = editados.filter(item =>
+        item &&
+        item.originalId !== null &&
+        item.originalId !== undefined &&
+        String(item.originalId).trim() !== "" &&
+        !idsActuales.has(String(item.originalId))
+    );
+
+    const nuevos = editados.filter(item =>
+        item &&
+        (item.originalId === null || item.originalId === undefined || String(item.originalId).trim() === "")
+    );
+
+    return [...resultado, ...edicionesSinBase, ...nuevos];
+};
+
+exports.renderActualizacionDatos = async (req, res) => {
+    try {
+        const estadoIngreso = await resolverEstadoIngresoActualizacion(req);
+
+        return res.render("actualizaciondatos/index", {
+            title: "Actualización de Datos",
+            session: req.session,
+            puedeIngresar: estadoIngreso.puedeIngresar,
+            tipoMensajeAcceso: estadoIngreso.tipoMensaje,
+            mensajeAcceso: estadoIngreso.mensaje
+        });
+    } catch (error) {
+        console.error("Error en renderActualizacionDatos:", error);
+
+        return res.render("actualizaciondatos/index", {
+            title: "Actualización de Datos",
+            session: req.session,
+            puedeIngresar: false,
+            tipoMensajeAcceso: "alerta",
+            mensajeAcceso: "No fue posible cargar el modulo de actualizacion de datos."
+        });
+    }
+};
+
+exports.renderTabActualizacion = async (req, res) => {
+    try {
+        const estadoIngreso = await resolverEstadoIngresoActualizacion(req, {
+            consumirConfirmacion: false
+        });
+
+        if (!estadoIngreso.puedeIngresar) {
+            return res.status(403).send("Acceso no disponible");
+        }
+
+        const { tab } = req.params;
+
+        return res.render(`actualizaciondatos/partials/${tab}`, {
+            title: "Actualizacion de Datos",
+            session: req.session,
+            layout: false
+        });
+    } catch (error) {
+        console.error("Error en renderTabActualizacion:", error);
+        return res.status(500).send("No fue posible cargar la pestaña");
+    }
+};
+
+const resolverResultadoGuardado = (resultado) => {
+    if (Array.isArray(resultado)) {
+        return {
+            ok: resultado.length === 0,
+            mensaje: resultado[0]?.msj || resultado[0]?.message || ""
+        };
+    }
+
+    if (resultado && typeof resultado === "object") {
+        if (resultado.estado === true) {
+            return {
+                ok: true,
+                mensaje: resultado.msj || resultado.message || ""
+            };
+        }
+
+        if (resultado.estado === false) {
+            return {
+                ok: false,
+                mensaje: resultado.msj || resultado.message || ""
+            };
+        }
+
+        if (Object.keys(resultado).length === 0) {
+            return {
+                ok: true,
+                mensaje: ""
+            };
+        }
+    }
+
+    return {
+        ok: false,
+        mensaje: "No fue posible interpretar la respuesta del servicio de guardado"
+    };
+};
+
+const formatearTimestampAdjunto = () => {
+    const ahora = new Date();
+    const pad = (valor) => String(valor).padStart(2, "0");
+
+    return [
+        ahora.getFullYear(),
+        pad(ahora.getMonth() + 1),
+        pad(ahora.getDate())
+    ].join("") + "_" + [
+        pad(ahora.getHours()),
+        pad(ahora.getMinutes()),
+        pad(ahora.getSeconds())
+    ].join("");
+};
+
+const obtenerExtensionAdjunto = (archivo = {}) => {
+    const extension = String(path.extname(archivo.originalname || "") || "")
+        .toLowerCase()
+        .trim();
+
+    return extension || ".pdf";
+};
+
+const asegurarNombreUnico = async (directorio, nombreBase, extension) => {
+    let nombre = `${nombreBase}${extension}`;
+    let ruta = path.join(directorio, nombre);
+    let consecutivo = 1;
+
+    while (true) {
+        try {
+            await fs.access(ruta);
+            nombre = `${nombreBase}_${consecutivo}${extension}`;
+            ruta = path.join(directorio, nombre);
+            consecutivo += 1;
+        } catch (error) {
+            return { nombre, ruta };
+        }
+    }
+};
+
+const guardarAdjuntosEnDisco = async ({
+    archivos = [],
+    adjuntosMeta = [],
+    cedula = ""
+}) => {
+    if (!Array.isArray(archivos) || archivos.length === 0) {
+        return [];
+    }
+
+    await fs.mkdir(ADJUNTOS_DIR, { recursive: true });
+
+    const guardados = [];
+
+    try {
+        for (let index = 0; index < archivos.length; index += 1) {
+            const archivo = archivos[index];
+            const meta = adjuntosMeta[index] || {};
+            const codigoAdjunto = parseVal(meta.codigo);
+            const nombreAdjunto = parseVal(meta.nombreAdjunto);
+            const extension = obtenerExtensionAdjunto(archivo);
+            const nombreBase = `${codigoAdjunto}_${cedula}_${formatearTimestampAdjunto()}`;
+            const { nombre, ruta } = await asegurarNombreUnico(ADJUNTOS_DIR, nombreBase, extension);
+
+            await fs.writeFile(ruta, archivo.buffer);
+
+            guardados.push({
+                cedula,
+                nombre,
+                idCodigoAdjunto: codigoAdjunto,
+                NombreCodAdjunto: nombreAdjunto,
+                ruta
+            });
+        }
+
+        return guardados;
+    } catch (error) {
+        await Promise.all(
+            guardados.map(item => fs.unlink(item.ruta).catch(() => null))
+        );
+        throw new Error(`No fue posible guardar los adjuntos: ${error.message}`);
+    }
 };
 
 // MAPEAR LA INFORMACION QUE DEVUELVE LA API CON LA ESTRUCTURA DEL FORMULARIO
@@ -93,7 +442,7 @@ const mapearInformacionAsociado = (jsonInfoAsociado) => {
             numeroPersonasHabitantes: parseVal(data.nropersonas),
             dependeEconomicamente: parseVal(data.dependeeconomicatercero),
             declarante: parseVal(data.declarante),
-            grupoProteccion: parseVal(data.grupoProteccion) === "[]" ? "" : parseVal(data.grupoProteccion),
+            grupoProteccion: parseGrupoProteccion(data.grupoProteccion),
             operacionesMonedaExtranjera: parseVal(data.operacionesmonedaextranjera),
             cualesOperacionesMonedaExtranjera: parseVal(data.CualesOperaciones),
             poseeCuentasMonedaExtranjera: parseVal(data.cuentasmonedaextranjera),
@@ -528,49 +877,118 @@ exports.getAdjuntos = async (req, res) => {
     }
 };
 
+exports.getGrupoProteccion = async (req, res) => {
+    try {
+        const grupoProteccion = await actualizaciondatosService.obtenerEsquemaGrupoProteccion();
+        res.status(200).json(Array.isArray(grupoProteccion) ? grupoProteccion : []);
+    } catch (error) {
+        console.error("Error en getGrupoProteccion:", error);
+        res.status(500).json({
+            error: error.message || "Error al obtener el esquema de grupo de proteccion"
+        });
+    }
+};
+
 exports.guardarActualizacionDatos = async (req, res) => {
     try {
-        const formState = JSON.parse(req.body.formState || "{}");
-        const references = JSON.parse(req.body.references || "[]");
-        const peopleInCharge = JSON.parse(req.body.peopleInCharge || "[]");
-        const familiarPeps = JSON.parse(req.body.familiarPeps || "[]");
-        const adjuntosMeta = JSON.parse(req.body.adjuntosMeta || "[]");
+        const formState = parseJsonField(req.body.formState, {}, "formState");
+        const references = parseJsonField(req.body.references, [], "references");
+        const peopleInCharge = parseJsonField(req.body.peopleInCharge, [], "peopleInCharge");
+        const familiarPeps = parseJsonField(req.body.familiarPeps, [], "familiarPeps");
+        const adjuntosMeta = parseJsonField(req.body.adjuntosMeta, [], "adjuntosMeta");
         const archivos = Array.isArray(req.files) ? req.files : [];
+        const cedula = parseVal(formState?.datosPersonales?.numeroDocumento);
+        const token = req.session?.user?.tokenWeb;
 
-        if (adjuntosMeta.length !== archivos.length) {
+        if (!cedula) {
             return res.status(400).json({
                 estado: false,
-                mensaje: "La cantidad de archivos no coincide con la metadata de adjuntos"
+                mensaje: "No se recibio la cedula del asociado"
             });
         }
 
-        console.log("=== GUARDAR ACTUALIZACION DATOS ===");
-        console.log("formState:", formState);
-        console.log("references:", references);
-        console.log("peopleInCharge:", peopleInCharge);
-        console.log("familiarPeps:", familiarPeps);
-        console.log("adjuntosMeta:", adjuntosMeta);
-        console.log(
-            "archivos:",
-            archivos.map(file => ({
-                fieldname: file.fieldname,
-                originalname: file.originalname,
-                mimetype: file.mimetype,
-                size: file.size
-            }))
+        if (!token) {
+            return res.status(401).json({
+                estado: false,
+                mensaje: "No se encontro el token de autenticacion para procesar el guardado"
+            });
+        }
+
+        const [
+            datosCrudosReferencias,
+            datosCrudosPersonasCargo,
+            datosCrudosFamiliaresPeps,
+            datosCrudosAutorizaciones
+        ] = await Promise.all([
+            actualizaciondatosService.obtenerReferencias(cedula, token),
+            actualizaciondatosService.obtenerPersonasCargo(cedula, token),
+            actualizaciondatosService.obtenerFamiliaresPeps(cedula, token),
+            actualizaciondatosService.obtenerAutorizaciones(token)
+        ]);
+
+        if (
+            datosCrudosReferencias === null ||
+            datosCrudosPersonasCargo === null ||
+            datosCrudosFamiliaresPeps === null
+        ) {
+            throw new Error("No fue posible consolidar la informacion actual del asociado antes del guardado");
+        }
+
+        const referenciasFinales = combinarRegistros(
+            mapearReferencias(datosCrudosReferencias),
+            references
         );
+        const personasCargoFinales = combinarRegistros(
+            mapearPersonasCargo(datosCrudosPersonasCargo),
+            peopleInCharge
+        );
+        const familiaresPepsFinales = combinarRegistros(
+            mapearFamiliaresPeps(datosCrudosFamiliaresPeps),
+            familiarPeps
+        );
+        const autorizacionesCatalogo = mapearAutorizaciones(datosCrudosAutorizaciones);
+        const adjuntosProcesados = await guardarAdjuntosEnDisco({
+            archivos,
+            adjuntosMeta,
+            cedula
+        });
+
+        const payload = actualizaciondatosGuardarHelper.construirPayloadActualizacion({
+            formState,
+            references: referenciasFinales,
+            peopleInCharge: personasCargoFinales,
+            familiarPeps: familiaresPepsFinales,
+            adjuntosMeta,
+            archivos,
+            adjuntosProcesados,
+            metadata: {
+                cedula,
+                ip: obtenerIpCliente(req),
+                navegador: detectarNavegador(req.headers["user-agent"]),
+                fechaSistema: formatearFechaSistema(),
+                autorizacionesCatalogo
+            }
+        });
+
+        const resultadoGuardado = await actualizaciondatosService.guardarActualizacion(payload, token);
+        const estadoGuardado = resolverResultadoGuardado(resultadoGuardado);
+
+        if (!estadoGuardado.ok) {
+            return res.status(400).json({
+                estado: false,
+                mensaje: estadoGuardado.mensaje || "No fue posible guardar la actualizacion de datos"
+            });
+        }
+
+        req.session.confir_actu = {
+            bandera: 1,
+            mensaje: estadoGuardado.mensaje || "La actualizacion de datos fue enviada correctamente"
+        };
 
         return res.status(200).json({
             estado: true,
-            mensaje: "Prueba de guardado recibida correctamente",
-            data: {
-                formStateRecibido: Boolean(formState && Object.keys(formState).length),
-                totalReferencias: references.length,
-                totalPersonasCargo: peopleInCharge.length,
-                totalFamiliaresPeps: familiarPeps.length,
-                totalAdjuntosMeta: adjuntosMeta.length,
-                totalArchivos: archivos.length
-            }
+            mensaje: estadoGuardado.mensaje || "La actualizacion de datos fue enviada correctamente",
+            redirectTo: "/ahorro/crear"
         });
     } catch (error) {
         console.error("Error en guardarActualizacionDatos:", error);

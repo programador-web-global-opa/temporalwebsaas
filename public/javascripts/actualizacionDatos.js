@@ -936,7 +936,7 @@
         }
     }
 
-
+    let infoModalOnClose = null;
     //FUNCION DE MODAL CON INFORMACION
     function infoModal(mensaje, tipo, onClose = null) {
         const configPorTipo = {
@@ -1007,8 +1007,14 @@
         modal.show();
 
         $modalElement.on("hidden.bs.modal", function () {
-            if (typeof onClose === "function") {
-                onClose();
+            const closeHandler = typeof onClose === "function"
+                ? onClose
+                : infoModalOnClose;
+
+            infoModalOnClose = null;
+
+            if (typeof closeHandler === "function") {
+                closeHandler();
             }
             $(this).remove();
         });
@@ -1394,42 +1400,223 @@
         });
     }
 
-    // OTROS DATOS, SE USA PARA EL MODAL DE GRUPO PROTECCION
+
+    //LOGICA DE OTROS DATOS - GRUPO PROTECCION
+    let grupoProteccionCatalogo = [];
+    function normalizarGrupoProteccionEstado(grupo) {
+        if (Array.isArray(grupo)) {
+            return grupo
+                .map(item => String(item ?? "").trim())
+                .filter(Boolean);
+        }
+
+        const texto = String(grupo ?? "").trim();
+
+        if (!texto || texto === "[]") {
+            return [];
+        }
+
+        try {
+            const parsed = JSON.parse(texto);
+            return Array.isArray(parsed)
+                ? parsed.map(item => String(item ?? "").trim()).filter(Boolean)
+                : [String(parsed ?? "").trim()].filter(Boolean);
+        } catch (error) {
+            return [texto];
+        }
+    }
+
+    async function cargarGrupoProteccionBackend() {
+        try {
+            const response = await fetch("/actualizaciondatos/grupoProteccion");
+
+            if (!response.ok) {
+                console.error("Error al obtener grupo de proteccion:", response.statusText);
+                return [];
+            }
+
+            const data = await response.json();
+
+            return (Array.isArray(data) ? data : [])
+                .map(item => ({
+                    codigo: String(item?.Code ?? item?.codigo ?? "").trim(),
+                    nombre: String(item?.Name ?? item?.nombre ?? "").trim()
+                }))
+                .filter(item => item.codigo && item.nombre);
+        } catch (error) {
+            console.error("Excepcion cargando grupo de proteccion:", error);
+            return [];
+        }
+    }
+
+    function sincronizarGrupoProteccionDesdeEstado() {
+        const seleccion = normalizarGrupoProteccionEstado(formState?.otrosDatos?.grupoProteccion);
+        const codigos = new Set(grupoProteccionCatalogo.map(item => item.codigo));
+        const $checks = $("#grupoProteccionLista .grupo-proteccion-checkbox");
+        const $checkOtro = $("#grupoProteccionOtroCheck");
+        const $inputOtro = $("#grupoProteccionOtroInput");
+        const $contenedorOtro = $("#grupoProteccionOtroContenedor");
+
+        $checks.prop("checked", false);
+        $inputOtro.val("");
+
+        seleccion.forEach(valor => {
+            const normalizado = String(valor ?? "").trim();
+
+            if (!normalizado) return;
+
+            const $checkbox = $checks.filter(`[data-codigo="${normalizado}"]`);
+
+            if ($checkbox.length) {
+                $checkbox.prop("checked", true);
+                return;
+            }
+
+            if ($checkOtro.length && !codigos.has(normalizado)) {
+                $checkOtro.prop("checked", true);
+                $inputOtro.val(normalizado);
+            }
+        });
+
+        $contenedorOtro.toggle($checkOtro.is(":checked"));
+    }
+
+    function renderGrupoProteccionCatalogo() {
+        const $lista = $("#grupoProteccionLista");
+        if (!$lista.length) return;
+
+        if (!grupoProteccionCatalogo.length) {
+            $lista.html('<div class="small text-muted">No hay grupos de proteccion parametrizados.</div>');
+            return;
+        }
+
+        let html = "";
+
+        grupoProteccionCatalogo.forEach(item => {
+            if (item.codigo !== "99") {
+                html += `
+                    <div class="form-check">
+                        <input class="form-check-input app-checkbox grupo-proteccion-checkbox"
+                            type="checkbox"
+                            id="grupoProteccion-${item.codigo}"
+                            data-codigo="${item.codigo}">
+                        <label class="form-check-label" for="grupoProteccion-${item.codigo}">
+                            ${item.nombre}
+                        </label>
+                    </div>
+                `;
+                return;
+            }
+
+            html += `
+                <div class="form-check">
+                    <input class="form-check-input app-checkbox grupo-proteccion-checkbox"
+                        type="checkbox"
+                        id="grupoProteccionOtroCheck"
+                        data-codigo="${item.codigo}">
+                    <label class="form-check-label" for="grupoProteccionOtroCheck">
+                        ${item.nombre}
+                    </label>
+                </div>
+                <div id="grupoProteccionOtroContenedor" style="display: none;" class="mt-2">
+                    <input type="text"
+                        class="form-control"
+                        placeholder="Especifique aqui..."
+                        id="grupoProteccionOtroInput">
+                </div>
+            `;
+        });
+
+        $lista.html(html);
+        sincronizarGrupoProteccionDesdeEstado();
+    }
+
+    async function asegurarGrupoProteccionCatalogo() {
+        if (!grupoProteccionCatalogo.length) {
+            grupoProteccionCatalogo = await cargarGrupoProteccionBackend();
+        }
+
+        renderGrupoProteccionCatalogo();
+    }
+
+    function obtenerGrupoProteccionSeleccionado() {
+        const seleccion = [];
+
+        $("#grupoProteccionLista .grupo-proteccion-checkbox:checked").each(function () {
+            const codigo = String($(this).data("codigo") ?? "").trim();
+
+            if (!codigo) return;
+
+            if (codigo === "99") {
+                const otro = String($("#grupoProteccionOtroInput").val() ?? "").trim();
+                if (otro) {
+                    seleccion.push(otro);
+                }
+                return;
+            }
+
+            seleccion.push(codigo);
+        });
+
+        return seleccion;
+    }
+
     function initOtrosDatos() {
         const $contenedorOtrosDatos = $("#otrosDatos");
         if (!$contenedorOtrosDatos.length) return;
 
-        const $checkOtro = $("#checkOtro");
-        const $inputExtra = $("#inputExtra");
-        const $textoOtro = $("#textoOtro");
+        asegurarGrupoProteccionCatalogo();
 
         $contenedorOtrosDatos
             .off("click.otrosDatos", "#btnGrupoProteccion")
-            .on("click.otrosDatos", "#btnGrupoProteccion", function () {
+            .on("click.otrosDatos", "#btnGrupoProteccion", async function () {
+                await asegurarGrupoProteccionCatalogo();
+                sincronizarGrupoProteccionDesdeEstado();
                 $("#modalGrupoProteccion").modal("show");
             });
 
         $contenedorOtrosDatos
-            .off("change.otrosDatos", "#checkOtro")
-            .on("change.otrosDatos", "#checkOtro", function () {
-                $inputExtra.toggle(this.checked);
-                if (!this.checked) $textoOtro.val("");
+            .off("change.otrosDatos", "#grupoProteccionOtroCheck")
+            .on("change.otrosDatos", "#grupoProteccionOtroCheck", function () {
+                const $contenedorOtro = $("#grupoProteccionOtroContenedor");
+                const $inputOtro = $("#grupoProteccionOtroInput");
+
+                $contenedorOtro.toggle(this.checked);
+
+                if (!this.checked) {
+                    $inputOtro.val("");
+                }
             });
 
         $contenedorOtrosDatos
             .off("click.otrosDatos", "#btnAceptarGrupoProteccion")
             .on("click.otrosDatos", "#btnAceptarGrupoProteccion", function () {
+                const $checkOtro = $("#grupoProteccionOtroCheck");
+                const $textoOtro = $("#grupoProteccionOtroInput");
+                const textoOtro = String($textoOtro.val() ?? "").trim();
 
-                if ($checkOtro.is(":checked") && !$textoOtro.val().trim()) {
-                    alert("Especifique el grupo de protección");
+                if ($checkOtro.is(":checked") && !textoOtro) {
+                    alert("Especifique el grupo de proteccion");
                     $textoOtro.focus();
                     return;
+                }
+
+                if (!$checkOtro.is(":checked") && textoOtro) {
+                    alert("Debe seleccionar la opcion Otro para guardar ese valor");
+                    $checkOtro.focus();
+                    return;
+                }
+
+                formState.otrosDatos.grupoProteccion = obtenerGrupoProteccionSeleccionado();
+                guardarSessionStorage();
+
+                if (!modificado) {
+                    modificado = true;
                 }
 
                 $("#modalGrupoProteccion").modal("hide");
             });
     }
-
 
 
     //PERSONAS A CARGO
@@ -2797,6 +2984,11 @@
     let enviado = false;
     //Prueba guardando en caso de reloads si no se ha enviado
     window.addEventListener("beforeunload", function (e) {
+
+        if (window.__cerrandoSesion) {
+            return;
+        }
+        
         if (modificado) {
             if (!enviado) {
                 guardarSessionStorage();
@@ -2827,7 +3019,8 @@
     const defaultIds = { id: "id", text: "opcion" };
     const idsEspeciales = {
         ciiu: { id: "codciiu", text: "nombre" },
-        tipocontrato: { id: "codigotipocontrato", text: "nombretipocontrato" }
+        tipocontrato: { id: "codigotipocontrato", text: "nombretipocontrato" },
+        ocupacionactualizacion: { id: "Code", text: "Name" }
     };
 
     async function obtenerDatos(url, tipo) {
@@ -2965,7 +3158,7 @@
         // // infoModal("La validacion fue exitosa", "exito");
         // // console.log("FormSate:", formState)
         await enviarSolicitudActualizacionDatos();
-        //  await limpiarSessionStorage();
+        // await limpiarSessionStorage();
         // enviado = true;
     });
 
@@ -3039,6 +3232,10 @@
             await limpiarSessionStorage();
             enviado = true;
             modificado = false;
+            const redirectTo = result.redirectTo || "/ahorro/crear";
+            infoModalOnClose = () => {
+                window.location.href = redirectTo;
+            };
 
             infoModal(result.mensaje || "La actualización de datos fue enviada correctamente", "exito");
         } catch (error) {

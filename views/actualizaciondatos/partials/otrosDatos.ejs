@@ -41,6 +41,14 @@
             </div>
             <div class="col-12 col-md-3">
                 <div class="app-field select">
+                    <select class="app-select" id="ocupacion" name="ocupacion" data-combo="ocupacionactualizacion" required>
+                        <option value="" selected></option>
+                    </select>
+                    <label for="ocupacion">Ocupacion</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="app-field select">
                     <select class="app-select" id="profesion" name="profesion" data-combo="profesiones" required>
                         <option value="" selected></option>
                     </select>
@@ -106,7 +114,7 @@
                     <label for="declarante">¿Es declarante?</label>
                 </div>
             </div>
-            <div class="col-12 col-md-6">
+             <div class="col-12 col-md-3">
                 <button type="button" class="app-button" id="btnGrupoProteccion">Grupo de protección</button>
             </div>
             <div class="modal fade app-modal" id="modalGrupoProteccion" tabindex="-1" aria-hidden="true"
@@ -129,81 +137,7 @@
                             </div>
                             <div class="row g-3">
                                 <div class="col-12 col-md-12">
-                                    <div class="form-check">
-                                        <input class="form-check-input app-checkbox" type="checkbox" value=""
-                                            id="checkNiños">
-                                        <label class="form-check-label" for="checkNiños">
-                                            Niños, niñas y adolescentes
-                                        </label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input app-checkbox" type="checkbox" value=""
-                                            id="checkMayores">
-                                        <label class="form-check-label" for="checkMayores">
-                                            Mayores de 60 años
-                                        </label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input app-checkbox" type="checkbox" value=""
-                                            id="checkDiscapacidad">
-                                        <label class="form-check-label" for="checkDiscapacidad">
-                                            Persona con discapacidad fisica, mental o sensorial
-                                        </label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input app-checkbox" type="checkbox" value=""
-                                            id="checkMujer">
-                                        <label class="form-check-label" for="checkMujer">
-                                            Mujer cabeza de familia
-                                        </label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input app-checkbox" type="checkbox" value=""
-                                            id="checkVictima">
-                                        <label class="form-check-label" for="checkVictima">
-                                            Victima del conflicto armado
-                                        </label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input app-checkbox" type="checkbox" value=""
-                                            id="checkPobreza">
-                                        <label class="form-check-label" for="checkPobreza">
-                                            Persona en condicion de pobreza extrema
-                                        </label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input app-checkbox" type="checkbox" value=""
-                                            id="checkNAAR">
-                                        <label class="form-check-label" for="checkNAAR">
-                                            NAAR/Pueblos indigenas
-                                        </label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input app-checkbox" type="checkbox" value=""
-                                            id="checkDiversa">
-                                        <label class="form-check-label" for="checkDiversa">
-                                            Poblacion diversa/LGBTIQ+
-                                        </label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input app-checkbox" type="checkbox" value=""
-                                            id="checkAfrodescendiente">
-                                        <label class="form-check-label" for="checkAfrodescendiente">
-                                            Poblacion afrodescendiente
-                                        </label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input app-checkbox" type="checkbox" value=""
-                                            id="checkOtro">
-                                        <label class="form-check-label" for="checkOtro">
-                                            ¿Otro? ¿Cuál?
-                                        </label>
-                                    </div>
-
-                                    <div id="inputExtra" style="display: none;" class="mt-2">
-                                        <input type="text" class="form-control" placeholder="Especifique aquí..."
-                                            id="textoOtro">
-                                    </div>
+                                    <div id="grupoProteccionLista" class="mb-3"></div>
                                 </div>
                             </div>
                         </div>

@@ -1,4 +1,5 @@
 const config = require("../config/config");
+const actualizaciondatosService = require("./actualizaciondatosService");
 const BASE_URL = config.apiUrlWeb;
 
 
@@ -24,7 +25,8 @@ const configCombos = {
     paisesmonedaextranjera: { tabla: "paismonedaextranjera" },
     ciudadesmonedaextranjera: { tabla: "ciudadmonedaextranjera", condicion: ["pais"] },
     tipopep: { tabla: "tipopeps" },
-    tiporeferencia: { tabla: "referencia" }
+    tiporeferencia: { tabla: "referencia" },
+    ocupacionactualizacion: { schema: "ocupacionesActualizacion" }
 };
 
 exports.obtenerCombo = async (params) => {
@@ -34,6 +36,11 @@ exports.obtenerCombo = async (params) => {
     const config = configCombos[tipo];
 
     if (!config) return [];
+
+    if (config.schema === "ocupacionesActualizacion") {
+        const ocupaciones = await actualizaciondatosService.obtenerEsquemaOcupaciones();
+        return [Array.isArray(ocupaciones) ? ocupaciones : []];
+    }
 
     const tabla = config.tabla ?? "";
     const condicion = config.condicion ? config.condicion.map(condicion => params[condicion]).join("|") : "";

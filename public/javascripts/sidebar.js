@@ -10,6 +10,8 @@ $(document).ready(function () {
   $('#logout-form').on('submit', async function (e) {
     e.preventDefault();
 
+    window.__cerrandoSesion = true;
+
     localStorage.clear();
     sessionStorage.clear();
 
