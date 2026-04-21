@@ -672,27 +672,62 @@ function normalizarDescripcionAutorizacion(valor) {
         .replace(/"/g, "'");
 }
 
+function obtenerCodigoAutorizacion(autorizacion = {}) {
+    return sanitizarTexto(
+        autorizacion.codigo ||
+        autorizacion.CodAutorizacion ||
+        autorizacion.codAutorizacion ||
+        autorizacion.id
+    );
+}
+
+function obtenerRespuestaAutorizacion(codigo, autorizaciones = {}, autorizacion = {}) {
+    if (Object.prototype.hasOwnProperty.call(autorizaciones, codigo)) {
+        return normalizarRespuestaSiNo(autorizaciones[codigo]);
+    }
+
+    if (tieneContenido(autorizacion.respuestaActual)) {
+        return normalizarRespuestaSiNo(autorizacion.respuestaActual);
+    }
+
+    if (autorizacion.requiereRespuesta === false || autorizacion.obligatorio === false) {
+        return "S";
+    }
+
+    return "N";
+}
+
 function mapearAutorizaciones(formState = {}, contexto = {}, autorizacionesCatalogo = []) {
     const autorizaciones = formState.autorizaciones || {};
     const catalogo = Array.isArray(autorizacionesCatalogo) ? autorizacionesCatalogo : [];
+    const autorizacionesParaEnviar = catalogo.length
+        ? catalogo
+        : Object.keys(autorizaciones).map(codigo => ({ codigo }));
 
-    return Object.keys(autorizaciones).map(codigo => ({
-        ...(() => {
-            const autorizacion = catalogo.find(item =>
-                sanitizarTexto(item.codigo) === sanitizarTexto(codigo)
-            ) || {};
+    return autorizacionesParaEnviar
+        .map(autorizacion => {
+            const codigo = obtenerCodigoAutorizacion(autorizacion);
+
+            if (!codigo) return null;
 
             return {
-                tituloDescripcion: sanitizarTexto(autorizacion.nombre),
-                descripcionAutorizacion: normalizarDescripcionAutorizacion(autorizacion.descripcion)
+                fechasistema: contexto.fechaSistema,
+                cedula: contexto.cedula,
+                CodAutorizacion: codigo,
+                tituloDescripcion: sanitizarTexto(
+                    autorizacion.nombre ||
+                    autorizacion.tituloDescripcion ||
+                    autorizacion.titulo
+                ),
+                descripcionAutorizacion: normalizarDescripcionAutorizacion(
+                    autorizacion.descripcion ||
+                    autorizacion.descripcionAutorizacion
+                ),
+                respuesta: obtenerRespuestaAutorizacion(codigo, autorizaciones, autorizacion),
+                Web: "ACTU"
             };
-        })(),
-        fechasistema: contexto.fechaSistema,
-        cedula: contexto.cedula,
-        CodAutorizacion: sanitizarTexto(codigo),
-        respuesta: normalizarRespuestaSiNo(autorizaciones[codigo]),
-        Web: "ACTU"
-    }));
+        })
+        .filter(Boolean);
 }
 
 

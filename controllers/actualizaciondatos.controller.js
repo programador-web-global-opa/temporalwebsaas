@@ -636,15 +636,51 @@ function mapearOtrosDatosAdicionales(response, tipoDocumento) {
 }
 
 
-const mapearAutorizaciones = (jsonInfoAutorizaciones) => {
+const extraerListaAutorizaciones = (data) => {
+    if (!Array.isArray(data)) return [];
+    if (Array.isArray(data[0])) return data[0];
+    return data;
+};
+
+const mapearUltimasRespuestasAutorizacion = (jsonUltimasRespuestas) => {
+    return extraerListaAutorizaciones(jsonUltimasRespuestas)
+        .map(item => ({
+            idAutorizacion: parseVal(item.idAutorizacion),
+            codigo: parseVal(item.CodAutorizacion),
+            respuesta: parseVal(item.respuesta),
+            fechaSistema: parseVal(item.fechasistema),
+            tituloDescripcion: parseVal(item.tituloDescripcion),
+            descripcionAutorizacion: parseVal(item.descripcionAutorizacion)
+        }))
+        .filter(item => item.codigo);
+};
+
+const mapearAutorizaciones = (jsonInfoAutorizaciones, jsonUltimasRespuestas = []) => {
     if (!jsonInfoAutorizaciones || !Array.isArray(jsonInfoAutorizaciones)) return [];
 
+    const ultimasRespuestas = mapearUltimasRespuestasAutorizacion(jsonUltimasRespuestas);
+    const respuestasPorCodigo = new Map(
+        ultimasRespuestas.map(item => [item.codigo, item])
+    );
+
     return jsonInfoAutorizaciones.map(item => ({
-        codigo: item.codigo,
-        nombre: (item.titulo || "").trim(),
-        descripcion: item.descripcion || "",
-        obligatorio: item.respuesta === "S",
-        activo: item.estado === "A"
+        ...(() => {
+            const codigo = parseVal(item.codigo);
+            const requiereRespuesta = parseVal(item.respuesta).toUpperCase() !== "N";
+            const ultimaRespuesta = respuestasPorCodigo.get(codigo) || {};
+
+            return {
+                codigo,
+                nombre: parseVal(item.titulo),
+                descripcion: parseVal(item.descripcion),
+                requiereRespuesta,
+                obligatorio: requiereRespuesta,
+                activo: parseVal(item.estado).toUpperCase() === "A",
+                respuestaActual: parseVal(ultimaRespuesta.respuesta) || (requiereRespuesta ? "N" : "S"),
+                idAutorizacion: parseVal(ultimaRespuesta.idAutorizacion),
+                fechaUltimaRespuesta: parseVal(ultimaRespuesta.fechaSistema)
+            };
+        })()
     }));
 };
 
@@ -796,8 +832,17 @@ exports.getInformacionAsociado = async (req, res) => {
 //INFORMACION DE LAS AUTORIZACIONES
 exports.getAutorizaciones = async (req, res) => {
     try {
-        const datosCrudosAutorizaciones = await actualizaciondatosService.obtenerAutorizaciones(req.session.user.tokenWeb);
-        const autorizacionesMapeadas = mapearAutorizaciones(datosCrudosAutorizaciones);
+        const Cedula = req.session.user.id;
+        const token = req.session.user.tokenWeb;
+        const [
+            datosCrudosAutorizaciones,
+            datosCrudosUltimasRespuestas
+        ] = await Promise.all([
+            actualizaciondatosService.obtenerAutorizaciones(token),
+            actualizaciondatosService.obtenerUltimasRespuestasAutorizacion(Cedula, token)
+        ]);
+
+        const autorizacionesMapeadas = mapearAutorizaciones(datosCrudosAutorizaciones, datosCrudosUltimasRespuestas);
         res.status(200).json(autorizacionesMapeadas);
     } catch (error) {
         console.error("Error en getAutorizaciones:", error);
@@ -918,18 +963,21 @@ exports.guardarActualizacionDatos = async (req, res) => {
             datosCrudosReferencias,
             datosCrudosPersonasCargo,
             datosCrudosFamiliaresPeps,
-            datosCrudosAutorizaciones
+            datosCrudosAutorizaciones,
+            datosCrudosUltimasRespuestasAutorizacion
         ] = await Promise.all([
             actualizaciondatosService.obtenerReferencias(cedula, token),
             actualizaciondatosService.obtenerPersonasCargo(cedula, token),
             actualizaciondatosService.obtenerFamiliaresPeps(cedula, token),
-            actualizaciondatosService.obtenerAutorizaciones(token)
+            actualizaciondatosService.obtenerAutorizaciones(token),
+            actualizaciondatosService.obtenerUltimasRespuestasAutorizacion(cedula, token)
         ]);
 
         if (
             datosCrudosReferencias === null ||
             datosCrudosPersonasCargo === null ||
-            datosCrudosFamiliaresPeps === null
+            datosCrudosFamiliaresPeps === null ||
+            datosCrudosAutorizaciones === null
         ) {
             throw new Error("No fue posible consolidar la informacion actual del asociado antes del guardado");
         }
@@ -946,7 +994,10 @@ exports.guardarActualizacionDatos = async (req, res) => {
             mapearFamiliaresPeps(datosCrudosFamiliaresPeps),
             familiarPeps
         );
-        const autorizacionesCatalogo = mapearAutorizaciones(datosCrudosAutorizaciones);
+        const autorizacionesCatalogo = mapearAutorizaciones(
+            datosCrudosAutorizaciones,
+            datosCrudosUltimasRespuestasAutorizacion
+        );
         const adjuntosProcesados = await guardarAdjuntosEnDisco({
             archivos,
             adjuntosMeta,

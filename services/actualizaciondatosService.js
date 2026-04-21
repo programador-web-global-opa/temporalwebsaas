@@ -13,6 +13,7 @@ const API_URL_ADJUNTOSRELACIONADOS = `${BASE_URL}/private/api/ActuDatos/Consulta
 const API_URL_ACTUALIZACION_PENDIENTE = `${BASE_URL}/private/api/ActuDatos/ActualizacionPendiente`;
 const API_URL_GUARDAR = `${BASE_URL}/private/api/ActuDatos/GuardarVersionTres`;
 const API_URL_ESQUEMA_ACTUALIZACION = `${BASE_URL}/public/api/Esquema/Actualizacion`;
+const API_URL_ULTIMAS_RESPUESTAS_AUTORIZACION = `${BASE_URL}/private/api/ActuDatos/ConsultaUltResAutorizacion`;
 
 const extraerEsquemaActualizacion = (responseData) => {
     if (!Array.isArray(responseData) || !responseData[0]?.Esquema) {
@@ -122,6 +123,38 @@ exports.obtenerAutorizaciones = async (token) => {
         return null;
     }
 }
+
+exports.obtenerUltimasRespuestasAutorizacion = async (Cedula, token) => {
+    try {
+        const params = new URLSearchParams();
+
+        if (Cedula) {
+            params.append("Cedula", Cedula);
+        }
+
+        params.append("Tipo", "");
+
+        const urlFetch = `${API_URL_ULTIMAS_RESPUESTAS_AUTORIZACION}?${params.toString()}`;
+        const response = await fetch(urlFetch, {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json"
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data;
+
+    } catch (error) {
+        console.error("Error obteniendo las ultimas respuestas de autorizacion:", error);
+        return [];
+    }
+};
 
 exports.obtenerReferencias = async (Cedula, token) => {
     try {

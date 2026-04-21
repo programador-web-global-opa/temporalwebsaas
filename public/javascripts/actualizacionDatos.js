@@ -1,4 +1,5 @@
 (function () {
+    let loaderCount = 0;
 
     //AVANCE BARRA
     function updateProgressBar($currentTab) {
@@ -10,59 +11,121 @@
             .attr("aria-valuenow", percent);
     }
 
+    function mostrarLoader(mensaje = "Cargando informacion...") {
+        loaderCount += 1;
+        const $loader = $("#actualizacion-loader");
 
+        if (!$loader.length) return;
+
+        $loader.find(".actu-loader__text").text(mensaje);
+        $loader
+            .addClass("is-active")
+            .attr("aria-hidden", "false");
+    }
+
+    function ocultarLoader() {
+        loaderCount = Math.max(0, loaderCount - 1);
+
+        if (loaderCount > 0) return;
+
+        $("#actualizacion-loader")
+            .removeClass("is-active")
+            .attr("aria-hidden", "true");
+    }
+
+    async function conLoader(mensaje, tarea) {
+        mostrarLoader(mensaje);
+
+        try {
+            return await tarea();
+        } finally {
+            ocultarLoader();
+        }
+    }
+
+    async function prepararTab(tab) {
+        const $contenido = $("#tab-content");
+
+        initRestriccionesCampos($contenido);
+        await inicializarCombos($contenido);
+        await initTabs();
+        hydrateTab(tab);
+        evaluarTabsDinamicas();
+        validarCamposDeshabilitados();
+
+        if (tab === 'referencias') {
+            await initReferencias();
+        }
+        if (tab === 'personasACargo') {
+            await initPersonasACargo();
+        }
+        if (tab === 'familiaresPeps') {
+            await initFamiliaresPeps();
+        }
+        if (tab === 'otrosDatosAdicionales') {
+            evaluarContenidoOtrosDatosAdicionales();
+        }
+    }
+
+    async function cargarTab(tab, $tab) {
+        await conLoader("Cargando seccion...", async function () {
+            const response = await fetch(`/actualizaciondatos/tab/${tab}`);
+
+            if (!response.ok) {
+                throw new Error("No fue posible cargar la seccion seleccionada");
+            }
+
+            const html = await response.text();
+
+            $(".app-tab").removeClass("active");
+            $tab.addClass("active");
+            updateProgressBar($tab);
+
+            $("#tab-content").html(html);
+            await prepararTab(tab);
+        });
+    }
 
     //SISTEMA DE TABS
-    $(document).on("click", ".app-tab", function (e) {
+    $(document).on("click", ".app-tab", async function (e) {
         e.preventDefault();
 
-        //guardarSessionStorage();
         const tab = $(this).data("tab");
-        $(".app-tab").removeClass("active");
-        $(this).addClass("active");
-        updateProgressBar($(this));
+        const $tab = $(this);
 
-        $("#tab-content").load(
-            `/actualizaciondatos/tab/${tab}`,
-            async function () {
-                await inicializarCombos($(this));
-                await initTabs();
-                hydrateTab(tab);
-                evaluarTabsDinamicas();
-                validarCamposDeshabilitados();
-                if (tab === 'referencias') {
-                    await initReferencias();
-                }
-                if (tab === 'personasACargo') {
-                    await initPersonasACargo();
-                }
-                if (tab === 'familiaresPeps') {
-                    await initFamiliaresPeps();
-                }
-                if (tab === 'otrosDatosAdicionales') {
-                    evaluarContenidoOtrosDatosAdicionales();
-                }
-            }
-        );
+        try {
+            await cargarTab(tab, $tab);
+        } catch (error) {
+            console.error("Error cargando pestaña:", error);
+            infoModal(error.message || "No fue posible cargar la seccion seleccionada", "alerta");
+        }
     });
 
 
     //CARGAR TAB DINAMICO CUANDO SE CARGA EL FORMULARIO POR PRIMERA VEZ
     $(document).ready(async function () {
-        await inicializarFormulario();
-        evaluarTabsDinamicas();
-        $('.app-tab[data-tab="autorizaciones"]').trigger('click');
+        try {
+            await conLoader("Preparando actualizacion de datos...", async function () {
+                await inicializarFormulario();
+                evaluarTabsDinamicas();
+                await cargarTab("autorizaciones", $('.app-tab[data-tab="autorizaciones"]'));
+            });
+        } catch (error) {
+            console.error("Error inicializando actualizacion de datos:", error);
+            infoModal(error.message || "No fue posible preparar el formulario", "alerta");
+        }
     });
 
     //INICIALIZAR TABS INDEPENDIENTES
     async function initTabs() {
-        initAutorizaciones();
+        await initAutorizaciones();
         await initAdjuntos();
         initOtrosDatos();
     }
 
     //  HELPERS SANITIZACION (pruebas temporal)-------------------------------
 
+    
     function sanitizarValor(value) {
         if (typeof value !== "string") return value;
         return value
@@ -82,7 +145,260 @@
     }
 
     function sanitizarFormState() {
+        normalizarNumerosFormState();
         sanitizarObjeto(formState);
+    }
+
+    // Restricciones migradas del legacy: el usuario ve formato, el estado guarda limpio.
+    const CAMPOS_MONEDA = {
+        honorarios: 13,
+        arriendos: 13,
+        comisiones: 13,
+        utilidadNegocio: 13,
+        bonificaciones: 13,
+        sueldo: 13,
+        pensiones: 13,
+        dividendos: 13,
+        interesInversiones: 13,
+        otrosIngresos: 13,
+        totalIngresos: 13,
+        alimentacion: 13,
+        educacion: 13,
+        serviciosPublicos: 13,
+        arriendo: 13,
+        transporte: 13,
+        cuotaDomestica: 13,
+        salud: 13,
+        otrosGastos: 13,
+        otrasDeudas: 13,
+        prestamoVivienda: 13,
+        otrosNegocios: 13,
+        prestamoVehiculo: 13,
+        tajetaCredito: 13,
+        otrosPrestamos: 13,
+        totalEgresos: 13,
+        totalActivos: 13,
+        totalPasivos: 13,
+        totalPatrimonio: 13,
+        saldoALaFecha: 13,
+        cooperativasSaldos: 13,
+        entidadesFinancierasCuotas: 13,
+        cooperativasCuotas: 13,
+        otrasObligacionesSaldos: 13,
+        otrasObligacionesCuotas: 13,
+        totalOtrasObligaciones: 13,
+        salario: 13,
+        salarioConyugue: 13,
+        totalActivosRepresentanteLegal: 13,
+        totalPasivosRepresentanteLegal: 13,
+        totalPatrimonioRepresentanteLegal: 13
+    };
+
+    const CAMPOS_SOLO_NUMEROS = {
+        numeroDocumento: 10,
+        nroHijos: 4,
+        numeroCuenta: 11,
+        numeroPersonasHabitantes: 4,
+        identificacionEmpleadoEntidad: 10,
+        identificacionFamiliarRecursosPublicos: 10,
+        identificacionFamiliarPublicamenteExpuesto: 10,
+        documentoConyugue: 10,
+        cedulaReferencia: 10,
+        numeroDocumentoPersonaACargo: 12,
+        numeroDocumentoFamiliarPeps: 10,
+        cedulaApoderado: 10,
+        cedulaRepresentanteLegal: 10,
+        indicativoRepresentanteLegal: 4,
+        numeroActaNombramientoRepresentanteLegal: 10,
+        numeroCamaraComercio: 20
+    };
+
+    const CAMPOS_TELEFONO = {
+        telefono: 10,
+        telefonoConyugue: 10,
+        telefonoEmpresaConyugue: 10,
+        telefonoReferencia: 10,
+        telefonoOficinaReferencia: 10,
+        telefonoApoderado: 10,
+        telefonoRepresentanteLegal: 10
+    };
+
+    const CAMPOS_CELULAR = {
+        celular: 10,
+        celularConyugue: 10,
+        celularReferencia: 10,
+        movilApoderado: 10,
+        movilRepresentanteLegal: 10
+    };
+
+    const LIMITES_TEXTO = {
+        primerNombre: 20,
+        segundoNombre: 20,
+        primerApellido: 15,
+        segundoApellido: 15,
+        complementoDireccionResidencia: 50,
+        email: 50,
+        primerNombreConyugue: 20,
+        segundoNombreConyugue: 20,
+        primerApellidoConyugue: 20,
+        segundoApellidoConyugue: 20,
+        emailConyugue: 50,
+        cedulaReferencia: 10,
+        nombresReferencia: 50,
+        direccionReferencia: 50,
+        nombresPersonaACargo: 30,
+        primerNombreFamiliarPeps: 60,
+        segundoNombreFamiliarPeps: 60,
+        primerApellidoFamiliarPeps: 60,
+        segundoApellidoFamiliarPeps: 60,
+        numeroCuentaMonedaExtranjera: 20,
+        cualesOperacionesMonedaExtranjera: 50,
+        monedaExtranjera: 50,
+        bancoMonedaExtranjera: 60,
+        nombreApoderado: 105,
+        direccionApoderado: 50,
+        detalleEmpresaRepresentanteLegal: 60,
+        nombreRepresentanteLegal: 105,
+        direccionRepresentanteLegal: 50
+    };
+
+    function limpiarNumero(value = "") {
+        return String(value ?? "").replace(/\D/g, "");
+    }
+
+    function longitudNumerica(value) {
+        return limpiarNumero(value).length;
+    }
+
+    function limitarDigitos(value, maxDigitos) {
+        const limpio = limpiarNumero(value);
+        const limite = Number(maxDigitos);
+        return limite > 0 ? limpio.slice(0, limite) : limpio;
+    }
+
+    function formatearMiles(value = "") {
+        const texto = String(value ?? "").trim();
+        const esNegativo = texto.startsWith("-");
+        const limpio = limpiarNumero(texto);
+
+        if (!limpio) return "";
+
+        const formateado = limpio.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        return esNegativo ? `-${formateado}` : formateado;
+    }
+
+    function maxCaracteresMoneda(maxDigitos) {
+        const limite = Number(maxDigitos) || 0;
+        return limite > 0 ? limite + Math.floor((limite - 1) / 3) : null;
+    }
+
+    function selectorCampo(campo) {
+        return `[name="${campo}"], #${campo}`;
+    }
+
+    function configurarInputNumerico($field, tipo, maxDigitos, minDigitos = null) {
+        if (!$field.length) return;
+
+        if ($field.is('input[type="number"]')) {
+            $field.attr("type", "text");
+        }
+
+        $field
+            .attr("inputmode", "numeric")
+            .attr("pattern", tipo === "moneda" ? "[0-9.]*" : "[0-9]*")
+            .attr("data-max-digitos", maxDigitos);
+
+        if (minDigitos) {
+            $field.attr("data-min-digitos", minDigitos);
+        }
+
+        if (tipo === "moneda") {
+            const maxVisual = maxCaracteresMoneda(maxDigitos);
+            $field.attr("data-moneda", "true");
+            if (maxVisual) $field.attr("maxlength", maxVisual);
+            return;
+        }
+
+        $field.attr(`data-${tipo}`, "true");
+        if (maxDigitos) {
+            $field.attr("maxlength", maxDigitos);
+        }
+    }
+
+    function initRestriccionesCampos($contenedor = $(document)) {
+        Object.entries(CAMPOS_MONEDA).forEach(([campo, maxDigitos]) => {
+            configurarInputNumerico($contenedor.find(selectorCampo(campo)), "moneda", maxDigitos);
+        });
+
+        Object.entries(CAMPOS_SOLO_NUMEROS).forEach(([campo, maxDigitos]) => {
+            configurarInputNumerico($contenedor.find(selectorCampo(campo)), "solo-numeros", maxDigitos);
+        });
+
+        Object.entries(CAMPOS_TELEFONO).forEach(([campo, maxDigitos]) => {
+            configurarInputNumerico($contenedor.find(selectorCampo(campo)), "telefono", maxDigitos, 7);
+        });
+
+        Object.entries(CAMPOS_CELULAR).forEach(([campo, maxDigitos]) => {
+            configurarInputNumerico($contenedor.find(selectorCampo(campo)), "celular", maxDigitos, 10);
+        });
+
+        Object.entries(LIMITES_TEXTO).forEach(([campo, maxLength]) => {
+            $contenedor.find(selectorCampo(campo)).attr("maxlength", maxLength);
+        });
+    }
+
+    function ponerCursorAlFinal($field) {
+        const field = $field[0];
+        if (!field || document.activeElement !== field || typeof field.setSelectionRange !== "function") return;
+
+        const posicion = field.value.length;
+        field.setSelectionRange(posicion, posicion);
+    }
+
+    function normalizarValorCampo($field) {
+        const maxDigitos = Number($field.attr("data-max-digitos")) || null;
+
+        if ($field.is("[data-moneda]")) {
+            const limpio = limitarDigitos($field.val(), maxDigitos);
+            $field.val(formatearMiles(limpio));
+            ponerCursorAlFinal($field);
+            return limpio;
+        }
+
+        if ($field.is("[data-solo-numeros], [data-telefono], [data-celular]")) {
+            const limpio = limitarDigitos($field.val(), maxDigitos);
+            $field.val(limpio);
+            ponerCursorAlFinal($field);
+            return limpio;
+        }
+
+        return $field.val();
+    }
+
+    function pintarCampoMoneda(selector, value) {
+        const $campo = $(selector);
+        if ($campo.length) {
+            $campo.val(formatearMiles(value));
+        }
+    }
+
+    function normalizarNumerosFormState() {
+        const camposNumericos = new Set([
+            ...Object.keys(CAMPOS_MONEDA),
+            ...Object.keys(CAMPOS_SOLO_NUMEROS),
+            ...Object.keys(CAMPOS_TELEFONO),
+            ...Object.keys(CAMPOS_CELULAR)
+        ]);
+
+        Object.values(formState || {}).forEach(seccion => {
+            if (!seccion || typeof seccion !== "object" || Array.isArray(seccion)) return;
+
+            camposNumericos.forEach(campo => {
+                if (Object.prototype.hasOwnProperty.call(seccion, campo)) {
+                    seccion[campo] = limpiarNumero(seccion[campo]);
+                }
+            });
+        });
     }
 
 
@@ -141,9 +457,7 @@
         const $tab = $(`.app-tab[data-tab="${tab}"]`);
         if (!$tab.length) return;
 
-        $tab.trigger("click");
-
-        await new Promise(resolve => setTimeout(resolve, 600));
+        await cargarTab(tab, $tab);
     }
 
 
@@ -179,9 +493,9 @@
         return true;
     }
 
-    function validarReglas({ tab, bloque, reglas }) {
+      function validarReglas({ tab, bloque, reglas }) {
         for (const regla of reglas) {
-            const { value, type, field, message, allowZero, min, max, notFuture, notPast } = regla;
+            const { value, type, field, message, allowZero, min, max, notFuture, notPast, minLength, maxLength } = regla;
 
             if (type === "text") {
                 if (isEmpty(value)) {
@@ -190,6 +504,18 @@
 
                 if (!allowZero && Number(value) === 0 && String(value).trim() === "0") {
                     return crearError(tab, field, message);
+                }
+
+                if ((minLength || maxLength) && !isEmpty(value)) {
+                    const longitud = limpiarNumero(value).length;
+
+                    if (minLength && longitud < minLength) {
+                        return crearError(tab, field, message);
+                    }
+
+                    if (maxLength && longitud > maxLength) {
+                        return crearError(tab, field, message);
+                    }
                 }
             }
 
@@ -219,19 +545,20 @@
         return { ok: true };
     }
 
+
     // VALIDADORES POR TAB --------------------------------------------------------------------------------------------------------------
 
     //AUTORIZACIONES
     function validarAutorizaciones() {
         const catalogo = Array.isArray(autorizaciones) ? autorizaciones : [];
-        const obligatorias = catalogo.filter(a => a.obligatorio);
+        const obligatorias = catalogo.filter(a => a.activo && (a.requiereRespuesta || a.obligatorio));
 
         for (const aut of obligatorias) {
             if (!formState.autorizaciones?.[aut.codigo]) {
                 return crearError(
                     "autorizaciones",
                     `#switch-${aut.codigo}`,
-                    "Debe aceptar las autorizaciones obligatorias"
+                    "Debe aceptar las autorizaciones requeridas"
                 );
             }
         }
@@ -865,15 +1192,13 @@
         "otrosPrestamos"
     ];
 
-    function toNumber(value) {
+     function toNumber(value) {
         if (value === null || value === undefined || value === "") return 0;
 
-        const limpio = String(value)
-            .trim()
-            .replace(/\s/g, "")
-            .replace(/,/g, "");
-
-        const numero = Number(limpio);
+        const texto = String(value).trim();
+        const signo = texto.startsWith("-") ? -1 : 1;
+        const limpio = limpiarNumero(texto);
+        const numero = Number(limpio) * signo;
         return Number.isFinite(numero) ? numero : 0;
     }
 
@@ -885,11 +1210,7 @@
         }, 0);
 
         i.totalIngresos = String(total);
-
-        const $campo = $("#totalIngresos");
-        if ($campo.length) {
-            $campo.val(i.totalIngresos);
-        }
+        pintarCampoMoneda("#totalIngresos", i.totalIngresos);
     }
 
     function recalcularTotalEgresos() {
@@ -900,22 +1221,14 @@
         }, 0);
 
         i.totalEgresos = String(total);
-
-        const $campo = $("#totalEgresos");
-        if ($campo.length) {
-            $campo.val(i.totalEgresos);
-        }
+        pintarCampoMoneda("#totalEgresos", i.totalEgresos);
     }
 
     function sincronizarSueldoDesdeSalario() {
         const salario = formState?.datosLaborales?.salario ?? "";
 
         formState.ingresosEgresos.sueldo = salario;
-
-        const $sueldo = $("#sueldo");
-        if ($sueldo.length) {
-            $sueldo.val(salario);
-        }
+        pintarCampoMoneda("#sueldo", salario);
 
         recalcularTotalIngresos();
     }
@@ -1043,6 +1356,48 @@
 
 
     let autorizaciones = [];
+    function normalizarRespuestaAutorizacion(valor) {
+        return valor === true ||
+            valor === "true" ||
+            valor === "S" ||
+            valor === "s" ||
+            valor === "on" ||
+            valor === 1 ||
+            valor === "1";
+    }
+
+    function requiereRespuestaAutorizacion(autorizacion) {
+        if (typeof autorizacion?.requiereRespuesta === "boolean") {
+            return autorizacion.requiereRespuesta;
+        }
+
+        return Boolean(autorizacion?.obligatorio);
+    }
+
+    function inicializarEstadoAutorizacion(autorizacion) {
+        const codigo = String(autorizacion?.codigo ?? "").trim();
+        if (!codigo) return false;
+
+        if (!formState.autorizaciones || typeof formState.autorizaciones !== "object") {
+            formState.autorizaciones = {};
+        }
+
+        const requiereRespuesta = requiereRespuestaAutorizacion(autorizacion);
+
+        if (!requiereRespuesta) {
+            formState.autorizaciones[codigo] = true;
+            return true;
+        }
+
+        if (Object.prototype.hasOwnProperty.call(formState.autorizaciones, codigo)) {
+            formState.autorizaciones[codigo] = normalizarRespuestaAutorizacion(formState.autorizaciones[codigo]);
+            return formState.autorizaciones[codigo];
+        }
+
+        formState.autorizaciones[codigo] = normalizarRespuestaAutorizacion(autorizacion.respuestaActual);
+        return formState.autorizaciones[codigo];
+    }
+
     async function initAutorizaciones() {
         const $contenedorAutorizaciones = $("#autorizaciones-content");
         if (!$contenedorAutorizaciones.length) return;
@@ -1052,14 +1407,32 @@
         autorizaciones.forEach(aut => {
             if (!aut.activo) return;
 
-            const autorizada = Boolean(formState.autorizaciones?.[aut.codigo]);
-            const marcaObligatorio = aut.obligatorio
+            const codigo = String(aut.codigo ?? "").trim();
+            const requiereRespuesta = requiereRespuestaAutorizacion(aut);
+            const autorizada = inicializarEstadoAutorizacion(aut);
+            const marcaObligatorio = requiereRespuesta
                 ? '<span class="text-danger">*</span>'
                 : '';
+            const controlRespuesta = requiereRespuesta
+                ? `
+                <div class="form-check form-switch">
+                    <input class="form-check-input autorizacion-switch"
+                        type="checkbox"
+                        id="switch-${codigo}"
+                        data-codigo="${codigo}"
+                        ${autorizada ? 'checked' : ''}
+                        required>
+                    <label class="form-check-label"
+                        for="switch-${codigo}">
+                    Autorizo
+                    </label>
+                </div>
+                `
+                : '<span class="badge bg-secondary">No requiere respuesta</span>';
 
             const html = `
             <div class="col-12 mb-4 autorizacion-item"
-                data-codigo="${aut.codigo}">
+                data-codigo="${codigo}">
             <div class="app-paper elevation-2 h-100 d-flex flex-column p-3">
                 <h6 class="table-headers">
                 ${aut.nombre} ${marcaObligatorio}
@@ -1068,18 +1441,7 @@
                 ${aut.descripcion}
                 </p>
                 <div class="mt-auto">
-                <div class="form-check form-switch">
-                    <input class="form-check-input autorizacion-switch"
-                        type="checkbox"
-                        id="switch-${aut.codigo}"
-                        data-codigo="${aut.codigo}"
-                        ${autorizada ? 'checked' : ''}
-                        ${aut.obligatorio ? 'required' : ''}>
-                    <label class="form-check-label"
-                        for="switch-${aut.codigo}">
-                    Autorizo
-                    </label>
-                </div>
+                ${controlRespuesta}
                 </div>
             </div>
             </div>
@@ -2125,6 +2487,24 @@
             alert('Debe completar los campos obligatorios');
             return;
         }
+        if (nuevaReferencia.telefono && (longitudNumerica(nuevaReferencia.telefono) < 7 || longitudNumerica(nuevaReferencia.telefono) > 10)) {
+            alert('El telefono de la referencia debe tener entre 7 y 10 digitos');
+            $('#telefonoReferencia').focus();
+            return;
+        }
+
+        if (nuevaReferencia.telefonoOficina && (longitudNumerica(nuevaReferencia.telefonoOficina) < 7 || longitudNumerica(nuevaReferencia.telefonoOficina) > 10)) {
+            alert('El telefono de oficina de la referencia debe tener entre 7 y 10 digitos');
+            $('#telefonoOficinaReferencia').focus();
+            return;
+        }
+
+        if (nuevaReferencia.celular && longitudNumerica(nuevaReferencia.celular) !== 10) {
+            alert('El celular de la referencia debe tener 10 digitos');
+            $('#celularReferencia').focus();
+            return;
+        }
+
         if (modo === 'editar') {
             let index = -1;
             if (source === 'new') {
@@ -2772,6 +3152,10 @@
     }
 
     let modificado = false;
+    $(document).on("input", "[data-moneda], [data-solo-numeros], [data-telefono], [data-celular]", function () {
+        normalizarValorCampo($(this));
+    });
+
     //GUARDAR CAMBIOS DE INPUTS EN EL ESTADO GLOBAL
     $(document).on("input change", "input, select, textarea", function (e) {
 
@@ -2781,7 +3165,7 @@
         if (!tab || !name) return;
         if (!formState[tab]) return;
 
-        formState[tab][name] = $(this).val();
+        formState[tab][name] = normalizarValorCampo($(this));
         if (!modificado) {
             modificado = true;
         }
@@ -2819,6 +3203,16 @@
                 if ($field.is("select[data-combo]")) {
                     return;
                 }
+                if ($field.is("[data-moneda]")) {
+                    $field.val(formatearMiles(state[key]));
+                    return;
+                }
+
+                if ($field.is("[data-solo-numeros], [data-telefono], [data-celular]")) {
+                    $field.val(limitarDigitos(state[key], $field.attr("data-max-digitos")));
+                    return;
+                }
+
                 //ACA SE HIDRATAN LOS COMBOS QUE NO TIENEN DATA-COMBO (OSEA QUE SUS OPCIONES NO VIENEN DE UN BACKEND)
                 $field.val(state[key]);
                 if ($field.val() == state[key] || !$field.is("select")) {
@@ -2836,6 +3230,7 @@
     // GUARDA LOS DATOS DEL FORMSTATE EN SESSION STORAGE
     function guardarSessionStorage() {
         try {
+            normalizarNumerosFormState();
             sessionStorage.setItem(STORAGE_KEY, JSON.stringify(formState));
             sessionStorage.setItem("peopleInCharge", JSON.stringify(peopleInChargeNew));
             sessionStorage.setItem("references", JSON.stringify(referencesNew));
@@ -2988,7 +3383,7 @@
         if (window.__cerrandoSesion) {
             return;
         }
-        
+
         if (modificado) {
             if (!enviado) {
                 guardarSessionStorage();
@@ -3036,6 +3431,36 @@
 
     }
 
+    function limpiarCampoCombo(select) {
+        const tab = $(".app-tab.active").data("tab");
+        const name = select.attr("name");
+
+        select.val("");
+
+        if (tab && name && formState[tab]) {
+            formState[tab][name] = "";
+        }
+    }
+
+    function limpiarCombosDependientes(parentSelect) {
+        const parentId = parentSelect.attr("id");
+
+        if (!parentId) return;
+
+        $(`select[data-depende]`).each(function () {
+            const child = $(this);
+            const depende = String(child.data("depende") || "")
+                .split(",")
+                .map(x => x.trim());
+
+            if (depende.includes(parentId)) {
+                child.html(`<option value=""></option>`);
+                limpiarCampoCombo(child);
+                limpiarCombosDependientes(child);
+            }
+        });
+    }
+
     //RECORRE LA DATA Y LLENA EL COMBO
     function llenarCombo(select, data) {
         let html = `<option value=""></option>`;
@@ -3043,22 +3468,58 @@
         $.each(data, function (_, item) {
             html += `<option value="${item.id}">${item.nombre}</option>`;
         });
+
         select.html(html);
-        // AUTO-HIDRATACION PARA COMBOS: Se llenan los combos con los datos y se activa el evento change para ir hidratando en cascada y que se carguen los combos dependientes
+         // AUTO-HIDRATACION PARA COMBOS: Se llenan los combos con los datos y se activa el evento change para ir hidratando en cascada y que se carguen los combos dependientes
         //Se toman los valores directamente del formState ya que cuando se hidrata con hydrateTab los datos en los combos no alcanzan a llenarse
+        
+        //SI EL VALOR VIENE PERO NO HAY MATCH CON ALGUN ID EN EL COMBO NO HAY CONSISTENCIA EN LA INFORMACION, SE VACIA 
+        //EL VALOR EN EL COMBO PARA QUE EL USUARIO DEBA LLENAR CON LA INFORMACION ACTUAL SI QUIERE MANDAR LA ACTU
         const tab = $(".app-tab.active").data("tab");
         const name = select.attr("name");
-        if (tab && name && formState[tab]) {
-            const valueToSet = formState[tab][name];
-            if (valueToSet !== null && valueToSet !== undefined && valueToSet !== "") {
-                const exists = data.some(item => item.id == valueToSet);
-                if (exists) {
-                    select.val(valueToSet);
-                    select.trigger("change"); // SE ACTIVA EL CHANGE PARA EL EFECTO CASCADA
-                }
-            }
+
+        if (!tab || !name || !formState[tab]) {
+            return;
         }
+
+        const valueToSet = formState[tab][name];
+
+        if (valueToSet === null || valueToSet === undefined || valueToSet === "") {
+            return;
+        }
+
+        const match = Array.isArray(data)
+            ? data.find(item => String(item.id) == String(valueToSet))
+            : null;
+
+        if (match) {
+            select.val(match.id);
+            formState[tab][name] = match.id;
+            select.trigger("change");
+            return;
+        }
+
+        if (Array.isArray(data) && data.length > 0) {
+            select.val("");
+            formState[tab][name] = "";
+            limpiarCombosDependientes(select);
+        }
+
+        //  FUNCION VIEJA QUE NO CAMBIA EL VALOR EN FORMSTATE
+        // const tab = $(".app-tab.active").data("tab");
+        // const name = select.attr("name");
+        // if (tab && name && formState[tab]) {
+        //     const valueToSet = formState[tab][name];
+        //     if (valueToSet !== null && valueToSet !== undefined && valueToSet !== "") {
+        //         const exists = data.some(item => item.id == valueToSet);
+        //         if (exists) {
+        //             select.val(valueToSet);
+        //             select.trigger("change"); // SE ACTIVA EL CHANGE PARA EL EFECTO CASCADA
+        //         }
+        //     }
+        // }
     }
+    
 
     //CARGA EL COMBO INDEPENDIENTE
     async function cargarCombo(select) {
@@ -3163,7 +3624,7 @@
     });
 
 
-    async function enviarSolicitudActualizacionDatos() {
+   async function enviarSolicitudActualizacionDatos() {
         const confirmar = window.confirm("¿Desea enviar la solicitud de actualización de datos?");
         if (!confirmar) {
             return;
@@ -3173,6 +3634,7 @@
         const textoOriginal = $btn.html();
 
         try {
+            mostrarLoader("Enviando solicitud...");
             $btn.prop("disabled", true).text("Enviando...");
 
             // Asegura que sessionStorage e IndexedDB estén sincronizados
@@ -3242,6 +3704,7 @@
             console.error("Error enviando actualización de datos:", error);
             infoModal(error.message || "Ocurrió un error al enviar la información", "alerta");
         } finally {
+            ocultarLoader();
             $btn.prop("disabled", false).html(textoOriginal);
         }
     }

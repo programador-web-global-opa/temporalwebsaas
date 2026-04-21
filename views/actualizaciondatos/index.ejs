@@ -46,6 +46,13 @@
         });
     </script>
     <% } else { %>
+    <div id="actualizacion-loader" class="actu-loader" aria-live="polite" aria-hidden="true">
+        <div class="actu-loader__panel">
+            <div class="actu-loader__spinner" aria-hidden="true"></div>
+            <p class="actu-loader__text mb-0">Cargando informaci&oacute;n...</p>
+        </div>
+    </div>
+
     <section class="app-tabs">
         <a href="#" class="app-tab" id="tab-autorizaciones" data-tab="autorizaciones">Autorizaciones</a>
         <a href="#" class="app-tab" id="tab-datosPersonales" data-tab="datosPersonales">Datos Personales</a>
