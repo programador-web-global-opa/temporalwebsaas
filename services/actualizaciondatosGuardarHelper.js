@@ -457,7 +457,7 @@ function mapearConyugue(formState = {}, contexto = {}) {
         fechaexpcedulaConyuge: sanitizarFecha(conyugue.fechaExpedicionConyugue),
         celularConyuge: sanitizarTexto(conyugue.celularConyugue),
         SalarioConyuge: sanitizarNumero(conyugue.salarioConyugue),
-        CiiuConyuge: sanitizarTexto(conyugue.ciuuEmpresaConyugue),
+        CiiuConyuge: sanitizarNumero(conyugue.ciuuEmpresaConyugue),
         FechaIngresEmpresaConyuge: sanitizarFecha(conyugue.fechaIngresoEmpresaConyugue),
         fechanacimiento: sanitizarFecha(conyugue.fechaNacimientoConyugue),
         contrato: sanitizarTexto(conyugue.tipoContratoConyugue)
