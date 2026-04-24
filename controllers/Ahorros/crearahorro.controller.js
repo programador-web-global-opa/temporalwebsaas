@@ -1,4 +1,4 @@
-const crearAhorroService = require("../../services/ahorrosService.js/crearAhorroService");
+const crearAhorroService = require("../../services/ahorrosService/crearAhorroService");
 
 const obtenerUsuarioSession = (req) => req.session?.user || {};
 
