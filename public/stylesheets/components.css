@@ -664,6 +664,14 @@
   max-width: 920px;
 }
 
+.app-modal--informative .modal-dialog {
+  max-width: 650px;
+}
+
+.app-modal--informative .app-modal__close {
+  display: none;
+}
+
 .app-modal__content {
   border-radius: calc(var(--radius-md) + 2px);
   background-color: var(--grey-0);
@@ -681,6 +689,11 @@
   padding: 18px 20px;
   /* border-bottom: 1px solid var(--grey-200); */
   background: linear-gradient(to bottom, rgba(0,0,0,0.01), transparent);
+}
+
+.app-modal__header--informative {
+  justify-content: center;
+  padding-bottom: 0;
 }
 
 .app-modal__title {
@@ -723,6 +736,12 @@
   line-height: 1.5; 
 }
 
+.app-modal__body--informative {
+  padding-top: 12px;
+  text-align: center;
+  font-size: 25px;
+}
+
 .app-modal__section {
   display: flex;
   flex-direction: column;
@@ -745,6 +764,26 @@
   padding: 16px 20px;
   /* border-top: 1px solid var(--grey-200); */
   background-color: rgba(0, 0, 0, 0.01);
+}
+
+.app-modal__footer--informative {
+  justify-content: center;
+  padding-top: 0;
+  background-color: transparent;
+}
+
+.app-modal__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border: 3px solid #3beaf6;
+  border-radius: 50%;
+  color: #3beaf6;
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1;
 }
 
 .devolucion-modal__loading {
