@@ -515,6 +515,23 @@
   color: var(--bg-paper);
 }
 
+.btn-cambiar,
+.btn-bloqueado {
+  height: 32px;
+  padding: 4px 12px;
+  font-size: 13px;
+  max-width: 180px;
+}
+
+@media (max-width: 1300px) {
+  .btn-cambiar,
+  .btn-bloqueado {
+    height: 32px;
+    padding: 4px 10px;
+    font-size: 12px;
+  }
+}
+
 
 /* =========================================================
    INPUTS + FLOATING LABEL
@@ -730,6 +747,42 @@
   background-color: rgba(0, 0, 0, 0.01);
 }
 
+.devolucion-modal__loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 220px;
+  text-align: center;
+  color: var(--grey-700);
+}
+
+.devolucion-modal__spinner {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 4px solid rgba(0, 95, 184, 0.16);
+  border-top-color: var(--primary-main);
+  animation: devolucion-modal-spin 0.85s linear infinite;
+}
+
+.devolucion-modal__text {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.devolucion-modal__meta {
+  font-size: 14px;
+  color: var(--grey-600);
+}
+
+@keyframes devolucion-modal-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* ========================================
     LOADER ACTUALIZACION DATOS
 ========================================*/
@@ -782,57 +835,6 @@
     transform: rotate(360deg);
   }
 }
-
-/* .actu-loader {
-  position: fixed;
-  inset: 0;
-  z-index: 2100;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  background:
-    radial-gradient(circle at 35% 30%, rgba(64, 181, 149, 0.18), transparent 34%),
-    rgba(15, 23, 42, 0.48);
-  backdrop-filter: blur(4px);
-}
-
-.actu-loader.is-active {
-  display: flex;
-}
-
-.actu-loader__panel {
-  min-width: min(320px, 90vw);
-  padding: 26px 30px;
-  border-radius: calc(var(--radius-md) + 8px);
-  background-color: var(--grey-0);
-  box-shadow:
-    0 22px 60px rgba(15, 23, 42, 0.22),
-    0 4px 16px rgba(15, 23, 42, 0.12);
-  text-align: center;
-}
-
-.actu-loader__spinner {
-  width: 54px;
-  height: 54px;
-  margin: 0 auto 16px;
-  border-radius: 50%;
-  border: 5px solid rgba(64, 181, 149, 0.18);
-  border-top-color: var(--primary-main);
-  animation: actu-loader-spin 0.85s linear infinite;
-}
-
-.actu-loader__text {
-  color: var(--text-primary);
-  font-size: 16px;
-  font-weight: 600;
-}
-
-@keyframes actu-loader-spin {
-  to {
-    transform: rotate(360deg);
-  }
-} */
 
 
 /* =========================

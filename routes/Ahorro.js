@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const crearAhorroController = require("../controllers/Ahorros/crearahorro.controller");
 const cambioCuotaController = require("../controllers/Ahorros/cambioCuota.controller");
+const devolucionAhorroController = require("../controllers/Ahorros/devolucionAhorro.controller");
 
 router.get("/crear", crearAhorroController.renderCrearAhorro);
 router.get("/crear/lineas", crearAhorroController.obtenerLineasAhorro);
@@ -11,11 +12,9 @@ router.get("/cambioCuota", cambioCuotaController.renderCambioCuota);
 router.get("/cambioCuota/productos", cambioCuotaController.obtenerProductosCambioCuota);
 router.post("/cambioCuota", cambioCuotaController.cambiarCuota);
 
-router.get("/devolucion", (req, res) => {
-  res.render("devolucionAhorro", {
-    title: "Devolucion Ahorro",
-    session: req.session,
-  });
-});
+router.get("/devolucion", devolucionAhorroController.renderDevolucion);
+router.get("/devolucion/productos", devolucionAhorroController.obtenerProductosDevolucion);
+router.get("/devolucion/disponible", devolucionAhorroController.obtenerValorDisponible);
+router.post("/devolucion", devolucionAhorroController.solicitarDevolucion);
 
 module.exports = router;
