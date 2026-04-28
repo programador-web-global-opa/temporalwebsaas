@@ -164,7 +164,7 @@ $(document).ready(function () {
             </div>
 
             <div class="app-modal__footer justify-content-center border-0 pt-0 pb-4 gap-2">
-              <button type="button" class="app-button secondary" data-bs-dismiss="modal">
+              <button type="button" class="app-button" data-bs-dismiss="modal">
                 Cancelar
               </button>
               <button type="button" class="app-button" id="btnConfirmarInfoModal">

@@ -36,7 +36,11 @@ const config = {
   // Adjuntos actualizacion de datos
   actualizacionDatosAdjuntosDir:
     process.env.ACTUALIZACION_DATOS_ADJUNTOS_DIR ||
-    path.join(process.cwd(), 'storage', 'actualizacion_datos')
+    path.join(process.cwd(), 'storage', 'actualizacion_datos'),
+
+  productosServiciosAdjuntosDir:
+    process.env.PRODUCTOS_SERVICIOS_ADJUNTOS_DIR ||
+    path.join(process.cwd(), 'storage', 'productos_servicios')
 
 };
 

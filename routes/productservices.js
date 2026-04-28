@@ -1,34 +1,43 @@
 const express = require("express");
 const router = express.Router();
 
-router.get('/', (req, res) => {
-    res.render('productservices/index', {
-        title: 'Productos y Servicios',
-        session: req.session,
-    });
-});
+const {
+  renderProductosServicios,
+  renderTabProductosServicios,
+  listarProductos,
+  listarAdjuntos,
+  listarCamposDinamicos,
+  listarEstadoSolicitudes,
+  listarSeguimiento,
+  validarNumeroSolicitudes,
+  guardarSolicitud,
+} = require("../controllers/productosServicios/productosServicios.controller");
+const {
+  productosServiciosUpload,
+  validarContenidoAdjuntos,
+} = require("../middlewares/productosServiciosUpload");
 
-router.get('/tab/:tab', (req, res) => {
-    const { tab } = req.params;
-    res.render(`productservices/partials/${tab}`, {
-        title: 'Productos y Servicios',
-        session: req.session,
-        layout: false
-    });
-});
+router.get("/", renderProductosServicios);
 
-router.get('/details', (req, res) => {
-    res.render('productservices/partials/details', {
-        title: 'Productos y Servicios',
-        session: req.session,
-    });
-});
+router.get("/tab/:tab", renderTabProductosServicios);
 
-router.get('/generate', (req, res) => {
-    res.render('productservices/partials/generate', {
-        title: 'Productos y Servicios',
-        session: req.session,
-    });
-});
+router.get("/listar", listarProductos);
+
+router.get("/adjuntos", listarAdjuntos);
+
+router.get("/campos", listarCamposDinamicos);
+
+router.get("/estado", listarEstadoSolicitudes);
+
+router.get("/seguimiento", listarSeguimiento);
+
+router.get("/validar-solicitudes", validarNumeroSolicitudes);
+
+router.post(
+  "/guardar",
+  productosServiciosUpload.any(),
+  validarContenidoAdjuntos,
+  guardarSolicitud,
+);
 
 module.exports = router;
