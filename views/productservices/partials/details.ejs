@@ -30,32 +30,32 @@
 </div>
 
 <%# Modal seguimiento %>
-<div class="modal fade" id="modalSeguimiento" tabindex="-1" aria-labelledby="tituloModalSeguimiento" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
+<div class="modal fade app-modal" id="modalSeguimiento" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-lg modal-dialog-centered">
+    <div class="modal-content app-modal__content">
 
-      <div class="modal-header">
-        <h5 class="modal-title" id="tituloModalSeguimiento">Ver estado solicitud</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      <div class="app-modal__header">
+        <h5 class="app-modal__title">Ver estado solicitud</h5>
+        <button type="button" class="app-modal__close" data-bs-dismiss="modal" aria-label="Cerrar">x</button>
       </div>
 
-      <div class="modal-body">
+      <div class="app-modal__body">
         <div class="row mb-2">
           <label class="col-sm-4 col-form-label fw-semibold">Fecha solicitud</label>
           <div class="col-sm-8">
-            <input type="text" class="form-control" id="modal-fecha" readonly>
+            <input type="text" class="app-input" id="modal-fecha" placeholder=" " readonly>
           </div>
         </div>
         <div class="row mb-2">
           <label class="col-sm-4 col-form-label fw-semibold">N. Solicitud</label>
           <div class="col-sm-8">
-            <input type="text" class="form-control" id="modal-numero" readonly>
+            <input type="text" class="app-input" id="modal-numero" placeholder=" " readonly>
           </div>
         </div>
         <div class="row mb-3">
           <label class="col-sm-4 col-form-label fw-semibold">Producto / Servicio</label>
           <div class="col-sm-8">
-            <input type="text" class="form-control" id="modal-producto" readonly>
+            <input type="text" class="app-input" id="modal-producto" placeholder=" " readonly>
           </div>
         </div>
 
@@ -72,8 +72,8 @@
         </table>
       </div>
 
-      <div class="modal-footer">
-        <button type="button" class="app-button primary" data-bs-dismiss="modal">Cerrar</button>
+      <div class="app-modal__footer justify-content-center">
+        <button type="button" class="app-button" data-bs-dismiss="modal">Cerrar</button>
       </div>
 
     </div>
