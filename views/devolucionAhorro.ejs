@@ -78,16 +78,17 @@
   </div>
 </div>
 
-<div class="modal fade app-modal" id="modalInformativo" tabindex="-1" aria-hidden="true">
+<div class="modal fade app-modal app-modal--informative" id="modalInformativo" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content app-modal__content">
 
-      <div class="app-modal__header">
-        <button type="button" class="app-modal__close" data-bs-dismiss="modal" aria-label="Cerrar">×</button>
+      <div class="app-modal__header app-modal__header--informative">
+        <div id="modalInformativoIcono" class="app-modal__icon">i</div>
+        <button type="button" class="app-modal__close" data-bs-dismiss="modal" aria-label="Cerrar">x</button>
       </div>
-      <div class="app-modal__body" id="mensajeModalInformativo"></div>
-      <div class="app-modal__footer">
-        <button type="button" class="app-button btn-confirmar" id="btnAceptar">
+      <div class="app-modal__body app-modal__body--informative" id="mensajeModalInformativo"></div>
+      <div class="app-modal__footer app-modal__footer--informative">
+        <button type="button" class="app-button" id="btnAceptar">
           Aceptar
         </button>
       </div>

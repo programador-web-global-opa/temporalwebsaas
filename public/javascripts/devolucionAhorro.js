@@ -4,6 +4,7 @@ $(document).ready(function () {
   const $modalInfo = $("#modalInfo");
   const $btnSolicitar = $("#btnSolicitar");
   const $mensajeModal = $("#mensajeModalInformativo");
+  const $iconoModal = $("#modalInformativoIcono");
   const $modalInformativo = $("#modalInformativo");
   const $btnAceptar = $("#btnAceptar");
   const $headerTabla = $("#headerSection");
@@ -68,8 +69,30 @@ $(document).ready(function () {
     return limpio || "---";
   }
 
-  function mostrarMensaje(mensaje) {
+  function mostrarMensaje(mensaje, tipo = "informacion", onClose = null) {
+    const configPorTipo = {
+      informacion: { color: "#3beaf6", icono: "i" },
+      alerta: { color: "#f0ad4e", icono: "!" },
+      exito: { color: "#22c55e", icono: "&#10003;" },
+      falla: { color: "#dc3545", icono: "x" }
+    };
+
+    const config = configPorTipo[tipo] || configPorTipo.informacion;
+
+    $iconoModal.css({
+      borderColor: config.color,
+      color: config.color
+    }).html(config.icono);
+
     $mensajeModal.html(`<div>${escapeHTML(mensaje)}</div>`);
+
+    $modalInformativo.off("hidden.bs.modal.mensaje");
+    if (typeof onClose === "function") {
+      $modalInformativo.on("hidden.bs.modal.mensaje", function () {
+        onClose();
+      });
+    }
+
     $modalInformativo.modal("show");
   }
 
@@ -277,11 +300,11 @@ $(document).ready(function () {
       });
 
       $modalConfirmacion.modal("hide");
-      mostrarMensaje(response.msj || "Solicitud guardada correctamente");
+      mostrarMensaje(response.msj || "Solicitud guardada correctamente", "exito");
       await cargarAhorros();
     } catch (error) {
       console.error("Error enviando solicitud de devolucion:", error);
-      mostrarMensaje(error.message || "No fue posible guardar la solicitud");
+      mostrarMensaje(error.message || "No fue posible guardar la solicitud", "falla");
     } finally {
       enviando = false;
       setCargandoSolicitud(disponibleSeleccionado <= 0);
@@ -309,7 +332,7 @@ $(document).ready(function () {
 
     if (!ahorroObjetivo) {
       consultandoDetalle = false;
-      mostrarMensaje("No fue posible seleccionar el ahorro");
+      mostrarMensaje("No fue posible seleccionar el ahorro", "falla");
       return;
     }
 
@@ -335,7 +358,7 @@ $(document).ready(function () {
 
       if (disponibleSeleccionado <= 0) {
         setCargandoSolicitud(true);
-        mostrarMensaje("No puede realizar la devolucion de este ahorro porque el disponible para retirar tiene valor $0.");
+        mostrarMensaje("No puede realizar la devolucion de este ahorro porque el disponible para retirar tiene valor $0.", "alerta");
       } else {
         setCargandoSolicitud(false);
       }
@@ -346,7 +369,7 @@ $(document).ready(function () {
 
       console.error("Error consultando disponible de devolucion:", error);
       $modalConfirmacion.modal("hide");
-      mostrarMensaje(error.message || "No fue posible consultar el valor disponible");
+      mostrarMensaje(error.message || "No fue posible consultar el valor disponible", "falla");
     } finally {
       if (consultaId === consultaDetalleId) {
         consultandoDetalle = false;
@@ -366,8 +389,9 @@ $(document).ready(function () {
     const valorRetirar = numeroDesdeInput($("#valorRetirar").val());
 
     if (!valorRetirar || valorRetirar <= 0) {
-      mostrarMensaje("Ingresa el valor a retirar");
-      $("#valorRetirar").trigger("focus");
+      mostrarMensaje("Ingresa el valor a retirar", "alerta", function () {
+        $("#valorRetirar").trigger("focus");
+      });
       return;
     }
 
