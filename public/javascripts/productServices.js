@@ -251,11 +251,20 @@
     const formData = new FormData(this);
     formData.append('idtipo', productoActual.id);
 
-    const xmlCampos = camposActuales.map(function (campo) {
-      const val = $(`#lista-campos .campo-dinamico[data-campo-id="${campo.idCamForDim}"]`).val() || '';
-      return `<Campo><idCampo>${campo.idCamForDim}</idCampo><Contenido>${val}</Contenido></Campo>`;
-    }).join('');
-    formData.append('ContenidoCampos', xmlCampos);
+    const contenidoCampos = {};
+    const tiposCampos = {};
+    let controlDeJsonVacio = 0;
+    camposActuales.forEach(function (campo) {
+      const el = $(`#lista-campos .campo-dinamico[data-campo-id="${campo.idCamForDim}"]`)[0];
+      const nombre = (campo.nombre || '').trim();
+      const val = el ? (el.value || '').trim().replaceAll(',', '-') : '';
+      if (val) controlDeJsonVacio = 1;
+      contenidoCampos[nombre] = val;
+      tiposCampos[nombre] = el ? el.type : campo.tipoCampo;
+    });
+    formData.append('ControlDeJsonVacio', controlDeJsonVacio);
+    formData.append('ContenidoCampos', JSON.stringify(contenidoCampos));
+    formData.append('TiposCampos', JSON.stringify(tiposCampos));
 
     const $btn = $('#btn-submit-solicitud').prop('disabled', true).text('Enviando...');
 

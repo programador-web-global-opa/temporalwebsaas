@@ -1,13 +1,24 @@
 const config = require('../config/config');
 
 const authMiddleware = (req, res, next) => {
-  if (!req.session?.user) {
-    return res.redirect('/auth/login');
+  const user = req.session?.user;
+
+  if (!user) return res.redirect('/auth/login');
+
+  const elapsed = Date.now() - (user.loginAt ?? 0);
+  if (elapsed > config.sessionMaxAge) {
+    req.session.destroy(() => {
+      res.clearCookie("connect.sid");
+      res.redirect('/auth/login');
+    });
+    return;
   }
 
-  const elapsed = Date.now() - (req.session.user.loginAt ?? 0);
-  if (elapsed > config.sessionMaxAge) {
-    req.session.destroy(() => res.redirect('/auth/login'));
+  if (!user.tokenWeb) {
+    req.session.destroy(() => {
+      res.clearCookie("connect.sid");
+      res.redirect('/auth/login')
+    });
     return;
   }
 

@@ -1,5 +1,9 @@
 const express = require("express");
 const {
+  loginRender,
+  registerRender,
+  recoverUserRender,
+  recoverPasswordRender,
   validateUser,
   login,
   createUser,
@@ -8,39 +12,17 @@ const {
   recoverPassword,
   recoverPasswordQuestions,
   changePassword,
-  logout
+  logout,
 } = require("../controllers/auth/auth.controller");
 const router = express.Router();
 
-const TITLE_APP = "FONDOOPA | Servicios en Linea";
+router.get("/login", loginRender);
 
-router.get("/login", (_, res) => {
-  res.render("auth/login/index", {
-    title: TITLE_APP,
-    layout: "layouts/auth",
-  });
-});
+router.get("/register", registerRender);
 
-router.get("/register", (_, res) => {
-  res.render("auth/register/index", {
-    title: TITLE_APP,
-    layout: "layouts/auth",
-  });
-});
+router.get("/recover-user", recoverUserRender);
 
-router.get("/recover-user", (_, res) => {
-  res.render("auth/recover-user/index", {
-    title: TITLE_APP,
-    layout: "layouts/auth",
-  });
-});
-
-router.get("/recover-password", (_, res) => {
-  res.render("auth/recover-password/index", {
-    title: TITLE_APP,
-    layout: "layouts/auth",
-  });
-});
+router.get("/recover-password", recoverPasswordRender);
 
 router.post("/validateUser", validateUser);
 

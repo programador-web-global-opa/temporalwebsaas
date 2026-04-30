@@ -116,8 +116,32 @@ const validarNumeroSolicitudes = async (req, res) => {
   }
 };
 
+const validarCamposDinamicos = (contenidoCampos, tiposCampos) => {
+  for (const [nombre, valor] of Object.entries(contenidoCampos)) {
+    const tipo = tiposCampos[nombre];
+    switch (tipo) {
+      case 'text':
+        if (!valor || !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(valor))
+          return `El campo '${nombre}' debe ser un texto válido`;
+        break;
+      case 'number':
+        if (!valor || isNaN(Number(valor)))
+          return `El campo '${nombre}' debe ser un número válido`;
+        break;
+      case 'email':
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(valor))
+          return `El campo '${nombre}' debe ser un correo electrónico válido`;
+        break;
+      case 'select-one':
+        if (!valor)
+          return `El campo '${nombre}' debe tener una opción seleccionada`;
+        break;
+    }
+  }
+  return null;
+};
+
 const guardarSolicitud = async (req, res) => {
-  console.log(req.body);
   const archivosGuardados = [];
   try {
     const cedula = obtenerCedulaSesion(req);
@@ -128,7 +152,17 @@ const guardarSolicitud = async (req, res) => {
     if (!token)
       return res.status(401).json({ estado: false, msj: 'No se encontró el token de autenticación' });
 
-    const { idtipo: idProducto, observacion, ContenidoCampos, contAdjuntos = 0 } = req.body;
+    const { idtipo: idProducto, observacion, ContenidoCampos, TiposCampos, ControlDeJsonVacio, contAdjuntos = 0 } = req.body;
+
+    if (Number(ControlDeJsonVacio) === 1 && !ContenidoCampos)
+      return res.status(400).json({ estado: false, msj: 'Error procesando tu solicitud' });
+
+    if (ContenidoCampos && TiposCampos) {
+      const contenido = JSON.parse(ContenidoCampos);
+      const tipos = JSON.parse(TiposCampos);
+      const errorCampo = validarCamposDinamicos(contenido, tipos);
+      if (errorCampo) return res.status(400).json({ estado: false, msj: errorCampo });
+    }
     const cont = Number(contAdjuntos);
     const codigoProd = String(idProducto ?? '');
 

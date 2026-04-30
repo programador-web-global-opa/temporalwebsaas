@@ -1,4 +1,5 @@
 const config = require("../../config/config");
+const { requestApi, extraerMensajeError, construirUrlConParams } = require("../../helpers/apiFetch");
 
 const BASE_URL = config.apiUrlWeb;
 
@@ -17,57 +18,6 @@ const normalizarTabla = (data) => {
   if (!Array.isArray(data)) return [];
   if (Array.isArray(data[0])) return data[0];
   return data;
-};
-
-const headersJson = (token) => {
-  const headers = { "Content-Type": "application/json" };
-  if (token) headers.Authorization = `Bearer ${token}`;
-  return headers;
-};
-
-const leerRespuesta = async (response) => {
-  const text = await response.text();
-  if (!text) return null;
-  try {
-    return JSON.parse(text);
-  } catch {
-    return text;
-  }
-};
-
-const extraerMensajeError = (data, fallback) => {
-  if (!data) return fallback;
-  if (typeof data === "string") return data;
-  return data.message || data.msj || data.error || fallback;
-};
-
-const requestApi = async (url, { method = "GET", token, body } = {}) => {
-  const response = await fetch(url, {
-    method,
-    headers: headersJson(token),
-    body: body ? JSON.stringify(body) : undefined,
-  });
-  const data = await leerRespuesta(response);
-  if (!response.ok) {
-    const error = new Error(
-      extraerMensajeError(data, `Error HTTP: ${response.status}`),
-    );
-    error.status = response.status;
-    error.responseData = data;
-    throw error;
-  }
-  return data;
-};
-
-const construirUrl = (url, params = {}) => {
-  const searchParams = new URLSearchParams();
-  Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined && value !== null) {
-      searchParams.append(key, String(value));
-    }
-  });
-  const query = searchParams.toString();
-  return query ? `${url}?${query}` : url;
 };
 
 // ─── Normalización de texto ───────────────────────────────────────────────────
@@ -167,7 +117,7 @@ exports.obtenerProductosServicios = async (token) => {
 
 exports.obtenerAdjuntos = async (idProductoServicio, token) => {
   try {
-    const url = construirUrl(API_ADJUNTOS, { idProductoServicio });
+    const url = construirUrlConParams(API_ADJUNTOS, { idProductoServicio });
     const data = await requestApi(url, { token });
     return normalizarTabla(data).map((item) => ({
       ...item,
@@ -182,7 +132,7 @@ exports.obtenerAdjuntos = async (idProductoServicio, token) => {
 
 exports.obtenerCamposDinamicos = async (idProductoServicio, token) => {
   try {
-    const url = construirUrl(API_CAMPOS_DINAMICOS, { idProductoServicio });
+    const url = construirUrlConParams(API_CAMPOS_DINAMICOS, { idProductoServicio });
     const data = await requestApi(url, { token });
     const campos = normalizarTabla(data).filter(
       (c) => c.existe !== null && c.estadolista !== "I",
@@ -199,7 +149,7 @@ exports.obtenerCamposDinamicos = async (idProductoServicio, token) => {
         };
 
         if (tipo === "select") {
-          const urlLista = construirUrl(API_LISTAS_CAMPOS, {
+          const urlLista = construirUrlConParams(API_LISTAS_CAMPOS, {
             CodigoLista: campo.codigolista,
           });
           const listaData = await requestApi(urlLista);
@@ -217,7 +167,7 @@ exports.obtenerCamposDinamicos = async (idProductoServicio, token) => {
 
 exports.obtenerEstadoSolicitudes = async (cedula, token) => {
   try {
-    const url = construirUrl(API_CONSULTAR_SOL, {
+    const url = construirUrlConParams(API_CONSULTAR_SOL, {
       idProductoServicio: "",
       cedula,
     });
@@ -234,7 +184,7 @@ exports.obtenerEstadoSolicitudes = async (cedula, token) => {
 
 exports.obtenerSeguimientoSolicitud = async (idSolicitud, token) => {
   try {
-    const url = construirUrl(API_SEGUIMIENTO, { idSolicitud });
+    const url = construirUrlConParams(API_SEGUIMIENTO, { idSolicitud });
     const data = await requestApi(url, { token });
     const registros = normalizarTabla(data);
 
@@ -278,7 +228,7 @@ exports.controlarNumeroSolicitudes = async (idProducto, cedula, token) => {
     const [productosData, solicitudesData] = await Promise.all([
       requestApi(API_PARAMETROS, { token }),
       requestApi(
-        construirUrl(API_CONSULTAR_SOL, {
+        construirUrlConParams(API_CONSULTAR_SOL, {
           idProductoServicio: idProducto,
           cedula,
         }),

@@ -1,4 +1,5 @@
 const config = require("../../config/config");
+const { requestApi, extraerMensajeError, construirUrlConParams } = require("../../helpers/apiFetch");
 
 const BASE_URL = config.apiUrlWeb;
 const API_URL_PRODUCTOS_AHORROS = `${BASE_URL}/public/api/Productos/Ahorros`;
@@ -27,75 +28,6 @@ const normalizarLineaAhorro = (linea = {}) => ({
     porcretencion: Number(linea.porcretencion ?? 0),
     plazominimo: Number(linea.plazominimo ?? 0)
 });
-
-const headersJson = (token) => {
-    const headers = {
-        "Content-Type": "application/json"
-    };
-
-    if (token) {
-        headers.Authorization = `Bearer ${token}`;
-    }
-
-    return headers;
-};
-
-const leerRespuesta = async (response) => {
-    const responseText = await response.text();
-
-    if (!responseText) {
-        return null;
-    }
-
-    try {
-        return JSON.parse(responseText);
-    } catch (error) {
-        return responseText;
-    }
-};
-
-const extraerMensajeError = (data, fallback) => {
-    if (!data) return fallback;
-
-    if (typeof data === "string") return data;
-    if (data.message) return data.message;
-    if (data.msj) return data.msj;
-    if (data.error) return data.error;
-
-    return fallback;
-};
-
-const requestApi = async (url, { method = "GET", token, body } = {}) => {
-    const response = await fetch(url, {
-        method,
-        headers: headersJson(token),
-        body: body ? JSON.stringify(body) : undefined
-    });
-
-    const data = await leerRespuesta(response);
-
-    if (!response.ok) {
-        const error = new Error(extraerMensajeError(data, `Error HTTP: ${response.status}`));
-        error.status = response.status;
-        error.responseData = data;
-        throw error;
-    }
-
-    return data;
-};
-
-const construirUrlConParams = (url, params = {}) => {
-    const searchParams = new URLSearchParams();
-
-    Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-            searchParams.append(key, value);
-        }
-    });
-
-    const query = searchParams.toString();
-    return query ? `${url}?${query}` : url;
-};
 
 const limpiarNumero = (value) => {
     const limpio = String(value ?? "").replace(/\D/g, "");

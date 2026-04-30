@@ -1,15 +1,46 @@
 const config = require("../../config/config");
+const { requestApi } = require("../../helpers/apiFetch");
+
+const TITLE_APP = "FONDOOPA | Servicios en Linea";
+
+const loginRender = (req, res) => {
+  if (req.session?.user) return res.redirect("/ahorro/crear");
+  res.render("auth/login/index", {
+    title: TITLE_APP,
+    layout: "layouts/auth",
+  });
+}
+
+const registerRender = (req, res) => {
+  if (req.session?.user) return res.redirect("/ahorro/crear");
+  res.render("auth/register/index", {
+    title: TITLE_APP,
+    layout: "layouts/auth",
+  });
+}
+
+const recoverUserRender = (req, res) => {
+  if (req.session?.user) return res.redirect("/ahorro/crear");
+  res.render("auth/recover-user/index", {
+    title: TITLE_APP,
+    layout: "layouts/auth",
+  });
+}
+
+const recoverPasswordRender = (req, res) => {
+  if (req.session?.user) return res.redirect("/ahorro/crear");
+  res.render("auth/recover-password/index", {
+    title: TITLE_APP,
+    layout: "layouts/auth",
+  });
+}
 
 const getIdentification = async (document) => {
   try {
-    const result = await fetch(`${config.apiBaseUrlApp}/ValidarUsuario`, {
+    const data = await requestApi(`${config.apiBaseUrlApp}/ValidarUsuario`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ esoperador: "N", operador: document }),
+      body: { esoperador: "N", operador: document },
     });
-    const data = await result.json();
     return data[0][0] ?? { error: true };
   } catch (error) {
     return { error: true };
@@ -20,13 +51,10 @@ const validateUser = async (req, res) => {
   const { user } = req.body;
 
   try {
-    const result = await fetch(`${config.apiBaseUrlApp}/consultacedulausuario`, {
-      method: "post",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nuevousuario: user }),
+    const data = await requestApi(`${config.apiBaseUrlApp}/consultacedulausuario`, {
+      method: "POST",
+      body: { nuevousuario: user },
     });
-
-    const data = await result.json();
     const parcialInfo = await getIdentification(data[0][0]?.cedula);
 
     if (parcialInfo?.Mensaje == "Usuario incorrecto") {
@@ -61,20 +89,16 @@ const login = async (req, res) => {
   const { user, password, codigo } = req.body;
 
   try {
-    const result = await fetch(`${config.apiBaseUrlApp}/Login`, {
+    const data = await requestApi(`${config.apiBaseUrlApp}/Login`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+      body: {
         operador: user,
         PassWord: password,
         codigo: codigo ?? "",
         esoperador: "N",
         isSaas: config.isWebSaas,
-      }),
+      },
     });
-    const data = await result.json();
 
     if (data?.campo && data?.mensaje) {
       return res.status(400).json({
@@ -128,21 +152,10 @@ const login = async (req, res) => {
 const createUser = async (req, res) => {
   const { nuevousuario, cedula, contrasena, celular, codigo = "" } = req.body;
   try {
-    const result = await fetch(`${config.apiBaseUrlApp}/nuevousuario`, {
+    const data = await requestApi(`${config.apiBaseUrlApp}/nuevousuario`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        nuevousuario: nuevousuario,
-        cedula: cedula,
-        contrasena: contrasena,
-        celular: celular,
-        codigo: codigo,
-      }),
+      body: { nuevousuario, cedula, contrasena, celular, codigo },
     });
-
-    const data = await result.json();
 
     const information = data[0][0] ?? {};
 
@@ -207,17 +220,10 @@ const createUser = async (req, res) => {
 const recoverUser = async (req, res) => {
   const { cedula, celular } = req.body;
   try {
-    const result = await fetch(`${config.apiBaseUrlApp}/recordarusuario`, {
+    const data = await requestApi(`${config.apiBaseUrlApp}/recordarusuario`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        cedula: cedula,
-        celular: celular,
-      }),
+      body: { cedula, celular },
     });
-    const data = await result.json();
 
     if (data?.campo && data?.mensaje) {
       return res.status(400).json({
@@ -228,6 +234,7 @@ const recoverUser = async (req, res) => {
       });
     }
 
+    const recoverService = data[0][0] ?? {};
     res.status(200).json({
       message: recoverService?.Mensaje,
       status: 200,
@@ -253,21 +260,11 @@ const recoverPasswordCode = async (req, res) => {
   } = req.body;
 
   try {
-    const result = await fetch(`${config.apiBaseUrlApp}/validacionesrecuperacion`, {
+    const data = await requestApi(`${config.apiBaseUrlApp}/validacionesrecuperacion`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        Tipo: tipo,
-        Operador: Operador,
-        CedulaAsociado: Operador,
-        codigo: codigo ?? "",
-        esoperador: esoperador,
-      }),
+      body: { Tipo: tipo, Operador, CedulaAsociado: Operador, codigo: codigo ?? "", esoperador },
     });
-    const data = await result.json();
-    
+
     if (data?.campo && data?.mensaje) {
       return res.status(400).json({
         message: "Error al realizar la peticion",
@@ -276,7 +273,7 @@ const recoverPasswordCode = async (req, res) => {
         result: null,
       });
     }
-    
+
     const recoverService = data[0][0] ?? {};
 
     res.json({
@@ -289,7 +286,7 @@ const recoverPasswordCode = async (req, res) => {
         preguntasclaveprincipal: recoverService?.preguntasclaveprincipal
       },
     });
-    
+
   } catch (error) {
     res.status(500).json({
       message: "Hubo un error al realizar el proceso",
@@ -309,21 +306,11 @@ const recoverPassword = async (req, res) => {
   } = req.body;
 
   try {
-    const result = await fetch(`${config.apiBaseUrlApp}/validacionesrecuperacion`, {
+    const data = await requestApi(`${config.apiBaseUrlApp}/validacionesrecuperacion`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        Tipo: tipo,
-        Operador: Operador,
-        CedulaAsociado: Operador,
-        codigo: codigo ?? "",
-        esoperador: esoperador,
-      }),
+      body: { Tipo: tipo, Operador, CedulaAsociado: Operador, codigo: codigo ?? "", esoperador },
     });
-    const data = await result.json();
-    
+
     if (data?.campo && data?.mensaje) {
       return res.status(400).json({
         message: "Error al realizar la peticion",
@@ -332,7 +319,7 @@ const recoverPassword = async (req, res) => {
         result: null,
       });
     }
-    
+
     const recoverService = data[0][0] ?? {};
 
     res.json({
@@ -359,12 +346,10 @@ const recoverPassword = async (req, res) => {
 const recoverPasswordQuestions = async (req, res) => {
   const { operador, esoperador = "N", xml } = req.body;
   try {
-    const result = await fetch(`${config.apiBaseUrlApp}/preguntasseguridad`, {
+    const data = await requestApi(`${config.apiBaseUrlApp}/preguntasseguridad`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ operador, esoperador, xml }),
+      body: { operador, esoperador, xml },
     });
-    const data = await result.json();
 
     if (data?.campo && data?.mensaje) {
       return res.status(400).json({
@@ -405,12 +390,10 @@ const recoverPasswordQuestions = async (req, res) => {
 const changePassword = async (req, res) => {
   const { usuario, clave } = req.body;
   try {
-    const result = await fetch(`${config.apiBaseUrlApp}/Recuperaclave`, {
+    const data = await requestApi(`${config.apiBaseUrlApp}/Recuperaclave`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ USUARIO: usuario, CLAVE: clave }),
+      body: { USUARIO: usuario, CLAVE: clave },
     });
-    const data = await result.json();
 
     if (data?.campo && data?.mensaje) {
       return res.status(400).json({
@@ -440,11 +423,16 @@ const changePassword = async (req, res) => {
 
 const logout = async (req, res) => {
   req.session.destroy(() => {
+    res.clearCookie("connect.sid");
     res.redirect("/auth/login");
   });
 }
 
 module.exports = {
+  loginRender,
+  registerRender,
+  recoverUserRender,
+  recoverPasswordRender,
   validateUser,
   getIdentification,
   login,

@@ -1,3 +1,18 @@
+<style>
+  #contenedor-step-1,
+  #contenedor-step-2,
+  #contenedor-step-3 {
+    flex-direction: column !important;
+    width: 100%;
+    align-items: stretch;
+  }
+  #contenedor-step-1 .contenedor-boton,
+  #contenedor-step-2 .contenedor-boton,
+  #contenedor-step-3 .contenedor-boton {
+    justify-content: center;
+  }
+</style>
+
 <!-- IZQUIERDA (contenido login) -->
 <div class="main-container">
   <div class="paper">
@@ -43,7 +58,6 @@
             <div
               class="mui-textfield"
               id="recover-password-group"
-              style="margin-top: 16px"
             >
               <span class="material-icons mui-icon">lock</span>
               <input
@@ -65,7 +79,6 @@
             <div
               class="mui-textfield"
               id="recover-password-confirm-group"
-              style="margin-top: 16px"
             >
               <span class="material-icons mui-icon">lock</span>
               <input

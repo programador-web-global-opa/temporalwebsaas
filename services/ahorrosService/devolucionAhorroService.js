@@ -1,4 +1,5 @@
 const config = require("../../config/config");
+const { requestApi, extraerMensajeError, construirUrlConParams } = require("../../helpers/apiFetch");
 
 const BASE_URL = config.apiUrlWeb;
 const API_URL_PRODUCTOS_APORTES_AHORROS = `${BASE_URL}/private/api/saldos/aportesAhorros`;
@@ -12,74 +13,6 @@ const API_URL_PENDIENTES_RETIRO = `${BASE_URL}/private/api/Ahorro/ValidarDisponA
 const API_URL_TIEMPO_NUEVA_SOLICITUD = `${BASE_URL}/private/api/Ahorro/ValidarTiempoNuevaSolicitud`;
 const API_URL_SOLICITUD_RETIRO_ID = `${BASE_URL}/private/api/Ahorro/SolicitudRetiroID`;
 const API_URL_SOLICITUD_RETIRO = `${BASE_URL}/private/api/Ahorro/SolicitudRetiro`;
-
-const headersJson = (token) => {
-    const headers = {
-        "Content-Type": "application/json"
-    };
-
-    if (token) {
-        headers.Authorization = `Bearer ${token}`;
-    }
-
-    return headers;
-};
-
-const leerRespuesta = async (response) => {
-    const responseText = await response.text();
-
-    if (!responseText) {
-        return null;
-    }
-
-    try {
-        return JSON.parse(responseText);
-    } catch (_) {
-        return responseText;
-    }
-};
-
-const extraerMensajeError = (data, fallback) => {
-    if (!data) return fallback;
-    if (typeof data === "string") return data;
-    if (data.msj) return data.msj;
-    if (data.message) return data.message;
-    if (data.error) return data.error;
-
-    return fallback;
-};
-
-const construirUrlConParams = (url, params = {}) => {
-    const searchParams = new URLSearchParams();
-
-    Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined && value !== null && value !== "") {
-            searchParams.append(key, value);
-        }
-    });
-
-    const query = searchParams.toString();
-    return query ? `${url}?${query}` : url;
-};
-
-const requestApi = async (url, { method = "GET", token, body } = {}) => {
-    const response = await fetch(url, {
-        method,
-        headers: headersJson(token),
-        body: body ? JSON.stringify(body) : undefined
-    });
-
-    const data = await leerRespuesta(response);
-
-    if (!response.ok) {
-        const error = new Error(extraerMensajeError(data, `Error HTTP: ${response.status}`));
-        error.status = response.status;
-        error.responseData = data;
-        throw error;
-    }
-
-    return data;
-};
 
 const normalizarTabla = (data) => {
     if (!Array.isArray(data)) return [];

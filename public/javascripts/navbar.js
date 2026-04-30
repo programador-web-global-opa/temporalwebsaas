@@ -67,7 +67,7 @@ $(document).ready(function () {
     }
     $.each(notificaciones, function (_, notificacion) {
       $dropdown.append(`
-      <div class="dropdown-item app-navbar__notification">
+      <div class="dropdown-item app-navbar__notification mb-3">
         <div class="fw-semibold">
           ${notificacion.titulo}
         </div>

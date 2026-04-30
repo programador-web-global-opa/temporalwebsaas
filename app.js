@@ -1,16 +1,21 @@
-const createError = require('http-errors');
 const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const session = require('express-session');
 
+// importar rutas publicas
 const authRouter = require('./routes/auth');
-const AhorroRouter = require('./routes/Ahorro')
-const inicioRouter = require('./routes/inicio')
-const actualizaciondatosRouter = require('./routes/actualizaciondatos')
+const combosRouter = require('./routes/combos');
+const afiliacionRouter = require('./routes/afiliacion');
+
+// importar rutas privadas
+const AhorroRouter = require('./routes/Ahorro');
+const inicioRouter = require('./routes/inicio');
+const actualizaciondatosRouter = require('./routes/actualizaciondatos');
 const productServicesRouter = require('./routes/productservices');
-const combosRouter = require('./routes/combos')
+
+// importar middlewares
 const authMiddleware = require('./middlewares/authMiddleware');
 
 const app = express();
@@ -38,16 +43,25 @@ app.use(session({
 app.use(expressLayouts);
 app.set('layout', 'layouts/main');
 
+app.get('/', (req, res) => {
+  if (req.session?.user) return res.redirect('/ahorro/crear');
+  res.clearCookie("connect.sid");
+  res.redirect('/auth/login');
+});
+
 app.use('/auth', authRouter);
+app.use('/combos', combosRouter);
+app.use('/afiliacion', afiliacionRouter);
+
 app.use('/ahorro', authMiddleware, AhorroRouter);
 app.use('/inicio', authMiddleware, inicioRouter);
 app.use('/actualizaciondatos', authMiddleware, actualizaciondatosRouter);
 app.use('/products-services', authMiddleware, productServicesRouter);
-app.use('/combos', authMiddleware, combosRouter);
 
-// catch 404 and forward to error handler
-app.use(function (_, _, next) {
-  next(createError(404));
+app.use((req, res) => {
+  if (req.session?.user) return res.redirect('/ahorro/crear');
+  res.clearCookie("connect.sid");
+  res.redirect('/auth/login');
 });
 
 app.locals.formatFechaHoy = formatFechaHoy;

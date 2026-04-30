@@ -230,6 +230,16 @@
   background-color: rgba(0, 0, 0, 0.04);
 }
 
+.app-navbar__dropdown .dropdown-item {
+  border-radius: 8px;
+  margin: 0 8px;
+  width: calc(100% - 16px);
+}
+
+.app-navbar__dropdown .dropdown-item:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
 
 
 

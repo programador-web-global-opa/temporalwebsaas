@@ -1,5 +1,6 @@
 const config = require("../config/config");
 const actualizaciondatosService = require("./actualizaciondatosService");
+const { requestApi } = require("../helpers/apiFetch");
 const BASE_URL = config.apiUrlWeb;
 
 
@@ -49,16 +50,6 @@ exports.obtenerCombo = async (params) => {
     form.append("tabla", tabla);
     form.append("condicion", condicion);
 
-    console.log("Body enviado", form);
-    const response = await fetch(`${BASE_URL}/public/api/General/CargarCombos`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded"
-        },
-        body: form
-    });
-
-    const data = await response.json();
-    return data;
+    return await requestApi(`${BASE_URL}/public/api/General/CargarCombos`, { method: "POST", formBody: form });
 };
 
