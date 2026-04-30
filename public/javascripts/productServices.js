@@ -358,9 +358,9 @@
         res.data.forEach(function (seg) {
           $tbody.append(`
             <tr>
-              <td class="text-center">${escapeHTML(seg.FechaEstado ?? seg.FechEstado ?? '')}</td>
+              <td class="text-center">${escapeHTML(formatDate(seg.fechaSeguimiento ?? seg.fechaSeguimiento ?? ''))}</td>
               <td class="text-center">${escapeHTML(seg.EstadoNuevo ?? '')}</td>
-              <td>${escapeHTML(seg.Observaciones ?? '')}</td>
+              <td>${escapeHTML(seg.NotaEntidad ?? '')}</td>
             </tr>`);
         });
       })
