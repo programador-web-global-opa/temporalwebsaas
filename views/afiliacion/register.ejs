@@ -1,0 +1,237 @@
+<!-- IZQUIERDA (contenido login) -->
+<div class="main-container">
+  <div class="paper">
+    <form
+      id="form-step-1"
+      class="form d-none"
+      style="width: 100%; max-width: 395px"
+    >
+      <div id="step-1" style="width: 100%">
+        <h2 class="bienvenido">Afiliacion</h2>
+
+        <div class="contenedor-global">
+          <div class="contenedor-formulario">
+            <div
+              class="mui-textfield mui-textfield--select"
+              id="type-document-group"
+              style="margin-top: 16px"
+            >
+              <span class="material-icons mui-icon">badge</span>
+              <select
+                id="type-document"
+                name="type-document"
+                required
+                autocomplete="off"
+              >
+                <option value="" selected>Tipo de documento</option>
+                <option value="CC">Cédula de Ciudadanía</option>
+                <option value="TI">Tarjeta de Identidad</option>
+                <option value="CE">Cédula de Extranjería</option>
+              </select>
+            </div>
+            <small class="error" id="error-type-document"></small>
+
+            <div class="mui-textfield" id="cedula-recover-group">
+              <span class="material-icons mui-icon">document_scanner</span>
+              <input
+                type="text"
+                inputmode="numeric"
+                id="cedula"
+                placeholder="Cedula"
+                required
+                autofocus
+                autocomplete="off"
+              />
+            </div>
+            <small class="error" id="error-cedula"></small>
+
+            <div class="contenedor-boton">
+              <button type="button" class="boton-nuevo" id="btnRecover">
+                Enviar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="urls-basicas-contenedor">
+        <a href="/auth/login" class="urls-basicas">¿Ya tienes una cuenta?</a>
+      </div>
+    </form>
+
+    <div id="loading" class="loading active">
+      <div class="spinner"></div>
+      <span>Cargando...</span>
+    </div>
+  </div>
+
+  <p class="app-copy mt-4" style="text-align: center">
+    Copyright ©
+    <a class="app-copy-link" href="https://opa.com.co/"> OPA S.A.S </a>
+    <%= new Date().getFullYear() %>
+  </p>
+</div>
+
+<!-- Modal mensajes de errores -->
+<div
+  class="modal fade app-modal"
+  id="modalrecover"
+  style="z-index: 2000"
+  tabindex="-1"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content app-modal__content">
+      <div class="app-modal__body">
+        <div>
+          <div
+            class="py-2 px-3"
+            style="text-align: center"
+            id="body-recover"
+          ></div>
+          <div class="contenedor-boton">
+            <button type="button" class="boton-nuevo" id="btn-modal-recover">
+              Ok
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const form = document.getElementById("form-step-1");
+  const formBtn = document.getElementById("btnRecover");
+  const bodyModalMessage = document.getElementById("body-recover");
+  const btnModal = document.getElementById("btn-modal-recover");
+  const loading = document.getElementById("loading");
+  let registerSuccess = false;
+
+  window.onload = () => {
+    loading.classList.remove("active");
+    form.classList.remove("d-none");
+    document.getElementById("cedula").focus();
+  };
+
+  formBtn.addEventListener("click", sendRegister);
+
+  document.getElementById("cedula").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") sendRegister(e);
+  });
+
+  btnModal.addEventListener("click", () => {
+    closeModal("modalrecover");
+    if (registerSuccess) {
+      window.location.href = "/afiliacion/generate";
+    }
+  });
+
+  function openModal(modalId, isStatic = false) {
+    const modalElement = document.getElementById(modalId);
+    if (!modalElement) return;
+    let modal = bootstrap.Modal.getInstance(modalElement);
+    if (!modal) {
+      modal = new bootstrap.Modal(modalElement, {
+        backdrop: isStatic ? "static" : true,
+        keyboard: !isStatic,
+      });
+    }
+    modal.show();
+  }
+
+  function closeModal(modalId) {
+    const modalElement = document.getElementById(modalId);
+    if (!modalElement) return;
+    const modal = bootstrap.Modal.getInstance(modalElement);
+    modal?.hide();
+  }
+
+  function validateInputs() {
+    const typeDocumentInput = document.getElementById("type-document");
+    const cedulaInput = document.getElementById("cedula");
+    const typeDocumentGroup = document.getElementById("type-document-group");
+    const cedulaGroup = document.getElementById("cedula-recover-group");
+    const errorTypeDocument = document.getElementById("error-type-document");
+    const errorCedula = document.getElementById("error-cedula");
+
+    let isValid = true;
+
+    if (typeDocumentInput.value === "") {
+      typeDocumentGroup.classList.add("error");
+      errorTypeDocument.innerText = "Tipo de documento es requerido";
+      isValid = false;
+    } else {
+      typeDocumentGroup.classList.remove("error");
+      errorTypeDocument.innerText = "";
+    }
+
+    if (cedulaInput.value === "") {
+      cedulaGroup.classList.add("error");
+      errorCedula.innerText = "Cédula es requerida";
+      isValid = false;
+    } else if (!/^\d+$/.test(cedulaInput.value)) {
+      cedulaGroup.classList.add("error");
+      errorCedula.innerText = "Cédula solo debe contener números";
+      isValid = false;
+    } else {
+      cedulaGroup.classList.remove("error");
+      errorCedula.innerText = "";
+    }
+
+    return isValid;
+  }
+
+  function headers() {
+    const myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+    return myHeaders;
+  }
+
+  async function sendRegister(e) {
+    e.preventDefault();
+    const typeDocumentInput = document.getElementById("type-document");
+    const cedulaInput = document.getElementById("cedula");
+
+    if (!validateInputs()) return;
+
+    form.classList.add("d-none");
+    loading.classList.add("active");
+
+    try {
+      const params = {
+        tipoDocumento: typeDocumentInput.value,
+        cedula: cedulaInput.value,
+      };
+      const response = await fetchData("/afiliacion/register", params);
+      registerSuccess = !response?.error;
+      bodyModalMessage.innerText =
+        response?.message ?? "Ha ocurrido un error inesperado";
+      openModal("modalrecover");
+    } catch (error) {
+      registerSuccess = false;
+      bodyModalMessage.innerText = "Ha ocurrido un error inesperado";
+      openModal("modalrecover");
+    } finally {
+      loading.classList.remove("active");
+      form.classList.remove("d-none");
+    }
+  }
+
+  async function fetchData(url = "", params = {}) {
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: headers(),
+        body: JSON.stringify(params),
+      });
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      return {
+        error: true,
+        message: "Ha ocurrido un error al realizar la petición",
+      };
+    }
+  }
+</script>
