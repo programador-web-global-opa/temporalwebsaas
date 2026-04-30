@@ -225,8 +225,14 @@
         }
 
         .root {
+          height: auto;
+          min-height: 100vh;
           overflow-x: hidden;
           overflow-y: auto;
+          align-items: center;
+          justify-content: center;
+          padding: 24px 16px;
+          box-sizing: border-box;
         }
       }
 
@@ -406,7 +412,7 @@
           min-height: 100vh;
           overflow-x: hidden;
           overflow-y: auto;
-          align-items: flex-start;
+          align-items: center;
           justify-content: center;
           padding: 28px 12px;
           box-sizing: border-box;
@@ -463,6 +469,8 @@
       @media (max-width: 480px) {
         .root {
           padding: 16px 8px;
+          align-items: center;
+          justify-content: center;
         }
 
         .app-card {
@@ -505,6 +513,8 @@
       @media (max-width: 360px) {
         .root {
           padding: 12px 4px;
+          align-items: center;
+          justify-content: center;
         }
 
         .main-container {

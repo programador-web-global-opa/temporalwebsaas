@@ -10,97 +10,106 @@
     <!-- NAV -->
     <nav class="app-sidebar__nav">
 
-      <a href="#" class="app-sidebar__link">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-          <path fill="currentColor"
-            d="M14.5 10.33h6.67A.83.83 0 0 0 22 9.5A7.5 7.5 0 0 0 14.5 2a.83.83 0 0 0-.83.83V9.5a.83.83 0 0 0 .83.83m.83-6.6a5.83 5.83 0 0 1 4.94 4.94h-4.94Z" />
-          <path fill="currentColor"
-            d="M21.08 12h-8.15a.91.91 0 0 1-.91-.91V2.92A.92.92 0 0 0 11 2a10 10 0 1 0 11 11a.92.92 0 0 0-.92-1" />
-        </svg>
-        <span class="app-sidebar__text">Estado De Cuentas</span>
-      </a>
+      <% if (session && session.user.isAfiliacion) { %>
+        <a href="/afiliacion/generate" class="app-sidebar__link">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M4 22q-.825 0-1.412-.587T2 20V8q0-.825.588-1.412T4 6h4V4q0-.825.588-1.412T10 2h4q.825 0 1.413.588T16 4v2h4q.825 0 1.413.588T22 8v12q0 .825-.587 1.413T20 22zm6-16h4V4h-4zm1 9v2q0 .425.288.713T12 18t.713-.288T13 17v-2h2q.425 0 .713-.288T16 14t-.288-.712T15 13h-2v-2q0-.425-.288-.712T12 10t-.712.288T11 11v2H9q-.425 0-.712.288T8 14t.288.713T9 15z"/>
+          </svg>
+          <span class="app-sidebar__text">Afiliación</span>
+        </a> 
+      <% } else { %>
+        <a href="#" class="app-sidebar__link">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <path fill="currentColor"
+              d="M14.5 10.33h6.67A.83.83 0 0 0 22 9.5A7.5 7.5 0 0 0 14.5 2a.83.83 0 0 0-.83.83V9.5a.83.83 0 0 0 .83.83m.83-6.6a5.83 5.83 0 0 1 4.94 4.94h-4.94Z" />
+            <path fill="currentColor"
+              d="M21.08 12h-8.15a.91.91 0 0 1-.91-.91V2.92A.92.92 0 0 0 11 2a10 10 0 1 0 11 11a.92.92 0 0 0-.92-1" />
+          </svg>
+          <span class="app-sidebar__text">Estado De Cuentas</span>
+        </a>
 
-      <a href="#" class="app-sidebar__link">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 576 512" fill="currentColor">
-          <path
-            d="M560 224h-29.5c-8.8-20-21.6-37.7-37.4-52.5L512 96h-32c-29.4 0-55.4 13.5-73 34.3c-7.6-1.1-15.1-2.3-23-2.3H256c-77.4 0-141.9 55-156.8 128H56c-14.8 0-26.5-13.5-23.5-28.8C34.7 215.8 45.4 208 57 208h1c3.3 0 6-2.7 6-6v-20c0-3.3-2.7-6-6-6c-28.5 0-53.9 20.4-57.5 48.6C-3.9 258.8 22.7 288 56 288h40c0 52.2 25.4 98.1 64 127.3V496c0 8.8 7.2 16 16 16h64c8.8 0 16-7.2 16-16v-48h128v48c0 8.8 7.2 16 16 16h64c8.8 0 16-7.2 16-16v-80.7c11.8-8.9 22.3-19.4 31.3-31.3H560c8.8 0 16-7.2 16-16V240c0-8.8-7.2-16-16-16m-128 64c-8.8 0-16-7.2-16-16s7.2-16 16-16s16 7.2 16 16s-7.2 16-16 16M256 96h128c5.4 0 10.7.4 15.9.8c0-.3.1-.5.1-.8c0-53-43-96-96-96s-96 43-96 96c0 2.1.5 4.1.6 6.2c15.2-3.9 31-6.2 47.4-6.2" />
-        </svg>
-        <span class="app-sidebar__text">Simulador De CDAT</span>
-      </a>
+        <a href="#" class="app-sidebar__link">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 576 512" fill="currentColor">
+            <path
+              d="M560 224h-29.5c-8.8-20-21.6-37.7-37.4-52.5L512 96h-32c-29.4 0-55.4 13.5-73 34.3c-7.6-1.1-15.1-2.3-23-2.3H256c-77.4 0-141.9 55-156.8 128H56c-14.8 0-26.5-13.5-23.5-28.8C34.7 215.8 45.4 208 57 208h1c3.3 0 6-2.7 6-6v-20c0-3.3-2.7-6-6-6c-28.5 0-53.9 20.4-57.5 48.6C-3.9 258.8 22.7 288 56 288h40c0 52.2 25.4 98.1 64 127.3V496c0 8.8 7.2 16 16 16h64c8.8 0 16-7.2 16-16v-48h128v48c0 8.8 7.2 16 16 16h64c8.8 0 16-7.2 16-16v-80.7c11.8-8.9 22.3-19.4 31.3-31.3H560c8.8 0 16-7.2 16-16V240c0-8.8-7.2-16-16-16m-128 64c-8.8 0-16-7.2-16-16s7.2-16 16-16s16 7.2 16 16s-7.2 16-16 16M256 96h128c5.4 0 10.7.4 15.9.8c0-.3.1-.5.1-.8c0-53-43-96-96-96s-96 43-96 96c0 2.1.5 4.1.6 6.2c15.2-3.9 31-6.2 47.4-6.2" />
+          </svg>
+          <span class="app-sidebar__text">Simulador De CDAT</span>
+        </a>
 
-      <a href="#" class="app-sidebar__link">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-          <path fill="currentColor"
-            d="M2 5.75C2 4.784 2.784 4 3.75 4h13.5c.966 0 1.75.784 1.75 1.75V11h-3a2 2 0 0 0-2 2v3H3.75A1.75 1.75 0 0 1 2 14.25zm3 .5a.75.75 0 0 1-.75.75h-1v1.5h1A2.25 2.25 0 0 0 6.5 6.25v-1H5zm5.5 6.25a2.25 2.25 0 1 0 0-4.5a2.25 2.25 0 0 0 0 4.5m-6.25.5a.75.75 0 0 1 .75.75v1h1.5v-1a2.25 2.25 0 0 0-2.25-2.25h-1V13zm12.5-6a.75.75 0 0 1-.75-.75v-1h-1.5v1a2.25 2.25 0 0 0 2.25 2.25h1V7zM4.401 17.5H14V19H7a3 3 0 0 1-2.599-1.5M22 9v2h-1.5V6.401A3 3 0 0 1 22 9m-5.5 3a1.5 1.5 0 0 0-1.5 1.5v8a1.5 1.5 0 0 0 1.5 1.5h5a1.5 1.5 0 0 0 1.5-1.5v-8a1.5 1.5 0 0 0-1.5-1.5zm.5 4.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1 0-1m3 0h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1 0-1m-3 2h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1 0-1m3 0h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1 0-1m-3 2h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1 0-1m3 0h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1 0-1M16.5 14a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-4a.5.5 0 0 1-.5-.5z" />
-        </svg>
-        <span class="app-sidebar__text">Simulador De Créditos</span>
-      </a>
+        <a href="#" class="app-sidebar__link">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <path fill="currentColor"
+              d="M2 5.75C2 4.784 2.784 4 3.75 4h13.5c.966 0 1.75.784 1.75 1.75V11h-3a2 2 0 0 0-2 2v3H3.75A1.75 1.75 0 0 1 2 14.25zm3 .5a.75.75 0 0 1-.75.75h-1v1.5h1A2.25 2.25 0 0 0 6.5 6.25v-1H5zm5.5 6.25a2.25 2.25 0 1 0 0-4.5a2.25 2.25 0 0 0 0 4.5m-6.25.5a.75.75 0 0 1 .75.75v1h1.5v-1a2.25 2.25 0 0 0-2.25-2.25h-1V13zm12.5-6a.75.75 0 0 1-.75-.75v-1h-1.5v1a2.25 2.25 0 0 0 2.25 2.25h1V7zM4.401 17.5H14V19H7a3 3 0 0 1-2.599-1.5M22 9v2h-1.5V6.401A3 3 0 0 1 22 9m-5.5 3a1.5 1.5 0 0 0-1.5 1.5v8a1.5 1.5 0 0 0 1.5 1.5h5a1.5 1.5 0 0 0 1.5-1.5v-8a1.5 1.5 0 0 0-1.5-1.5zm.5 4.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1 0-1m3 0h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1 0-1m-3 2h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1 0-1m3 0h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1 0-1m-3 2h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1 0-1m3 0h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1 0-1M16.5 14a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-4a.5.5 0 0 1-.5-.5z" />
+          </svg>
+          <span class="app-sidebar__text">Simulador De Créditos</span>
+        </a>
 
-      <a href="#" class="app-sidebar__link">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-          <circle cx="12" cy="15" r="1" fill="#637381" />
-          <path
-            d="M17 8h-1V6.11a4 4 0 1 0-8 0V8H7a3 3 0 0 0-3 3v8a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-8a3 3 0 0 0-3-3m-7-1.89A2.06 2.06 0 0 1 12 4a2.06 2.06 0 0 1 2 2.11V8h-4ZM12 18a3 3 0 1 1 3-3a3 3 0 0 1-3 3" />
-        </svg>
-        <span class="app-sidebar__text">Descuentos Nómina</span>
-      </a>
+        <a href="#" class="app-sidebar__link">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="12" cy="15" r="1" fill="#637381" />
+            <path
+              d="M17 8h-1V6.11a4 4 0 1 0-8 0V8H7a3 3 0 0 0-3 3v8a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-8a3 3 0 0 0-3-3m-7-1.89A2.06 2.06 0 0 1 12 4a2.06 2.06 0 0 1 2 2.11V8h-4ZM12 18a3 3 0 1 1 3-3a3 3 0 0 1-3 3" />
+          </svg>
+          <span class="app-sidebar__text">Descuentos Nómina</span>
+        </a>
 
-      <a href="#" class="app-sidebar__link">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-          <path
-            d="m20.12 6.71l-2.83-2.83A3 3 0 0 0 15.17 3H8.83a3 3 0 0 0-2.12.88L3.88 6.71A3 3 0 0 0 3 8.83V18a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3V8.83a3 3 0 0 0-.88-2.12M12 16a4 4 0 0 1-4-4a1 1 0 0 1 2 0a2 2 0 0 0 4 0a1 1 0 0 1 2 0a4 4 0 0 1-4 4M6.41 7l1.71-1.71A1.05 1.05 0 0 1 8.83 5h6.34a1.05 1.05 0 0 1 .71.29L17.59 7Z" />
-        </svg>
-        <span class="app-sidebar__text">Certificados </span>
-      </a>
+        <a href="#" class="app-sidebar__link">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="m20.12 6.71l-2.83-2.83A3 3 0 0 0 15.17 3H8.83a3 3 0 0 0-2.12.88L3.88 6.71A3 3 0 0 0 3 8.83V18a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3V8.83a3 3 0 0 0-.88-2.12M12 16a4 4 0 0 1-4-4a1 1 0 0 1 2 0a2 2 0 0 0 4 0a1 1 0 0 1 2 0a4 4 0 0 1-4 4M6.41 7l1.71-1.71A1.05 1.05 0 0 1 8.83 5h6.34a1.05 1.05 0 0 1 .71.29L17.59 7Z" />
+          </svg>
+          <span class="app-sidebar__text">Certificados </span>
+        </a>
 
-      <a href="/ahorro/crear" class="app-sidebar__link">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 36 36" fill="currentColor">
-          <path
-            d="M35 18.87a5.8 5.8 0 0 1-2-1.26a21.6 21.6 0 0 1-3.29-4.84l3.39-5.29a.9.9 0 0 0-.54-1.38a9.67 9.67 0 0 0-5.13.72a12 12 0 0 0-3.13 2a17.4 17.4 0 0 0-5.7-1.67C11.8 6.52 5.27 10.9 4.54 17l-.14-.07a2.76 2.76 0 0 1-1.5-1.64a2 2 0 0 1 .15-1.55a1.3 1.3 0 0 1 .47-.48a1.08 1.08 0 1 0-1.12-1.85a3.45 3.45 0 0 0-1.23 1.25a4.16 4.16 0 0 0-.33 3.24a5 5 0 0 0 2.57 3l1 .54a18.6 18.6 0 0 0 2 7.3a23 23 0 0 0 3 4.79a1 1 0 0 0 .8.38h3.61a.52.52 0 0 0 .4-.75l-.22-.78a11 11 0 0 1-.33-1.18c.91.16 2.08.31 2.87.38a20 20 0 0 0 3.12 0c.39.7.79 1.33 1.15 1.85a.93.93 0 0 0 .77.41h3.11a.65.65 0 0 0 .61-.85c-.23-.74-.53-1.75-.71-2.37a16 16 0 0 0 3.75-1.76c.16-.11.32-.26.48-.39a14 14 0 0 1-2.42-1a.8.8 0 0 1 .74-1.42a11.6 11.6 0 0 0 3.18 1.1a13.3 13.3 0 0 0 2.68.12a1 1 0 0 0 .9-.66l1.73-4.44a1 1 0 0 0-.63-1.3m-21.21-7.28a.9.9 0 0 1-.3.05a.85.85 0 0 1-.3-1.64a12.4 12.4 0 0 1 6.69-.55a.85.85 0 1 1-.3 1.67a10.75 10.75 0 0 0-5.79.47m12.52 6.12a1.44 1.44 0 1 1 1.44-1.44a1.44 1.44 0 0 1-1.43 1.45Z"
-            class="clr-i-solid clr-i-solid-path-1" />
-          <path fill="none" d="M0 0h36v36H0z" />
-        </svg>
-        <span class="app-sidebar__text">Ahorros: creación</span>
-      </a>
+        <a href="/ahorro/crear" class="app-sidebar__link">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 36 36" fill="currentColor">
+            <path
+              d="M35 18.87a5.8 5.8 0 0 1-2-1.26a21.6 21.6 0 0 1-3.29-4.84l3.39-5.29a.9.9 0 0 0-.54-1.38a9.67 9.67 0 0 0-5.13.72a12 12 0 0 0-3.13 2a17.4 17.4 0 0 0-5.7-1.67C11.8 6.52 5.27 10.9 4.54 17l-.14-.07a2.76 2.76 0 0 1-1.5-1.64a2 2 0 0 1 .15-1.55a1.3 1.3 0 0 1 .47-.48a1.08 1.08 0 1 0-1.12-1.85a3.45 3.45 0 0 0-1.23 1.25a4.16 4.16 0 0 0-.33 3.24a5 5 0 0 0 2.57 3l1 .54a18.6 18.6 0 0 0 2 7.3a23 23 0 0 0 3 4.79a1 1 0 0 0 .8.38h3.61a.52.52 0 0 0 .4-.75l-.22-.78a11 11 0 0 1-.33-1.18c.91.16 2.08.31 2.87.38a20 20 0 0 0 3.12 0c.39.7.79 1.33 1.15 1.85a.93.93 0 0 0 .77.41h3.11a.65.65 0 0 0 .61-.85c-.23-.74-.53-1.75-.71-2.37a16 16 0 0 0 3.75-1.76c.16-.11.32-.26.48-.39a14 14 0 0 1-2.42-1a.8.8 0 0 1 .74-1.42a11.6 11.6 0 0 0 3.18 1.1a13.3 13.3 0 0 0 2.68.12a1 1 0 0 0 .9-.66l1.73-4.44a1 1 0 0 0-.63-1.3m-21.21-7.28a.9.9 0 0 1-.3.05a.85.85 0 0 1-.3-1.64a12.4 12.4 0 0 1 6.69-.55a.85.85 0 1 1-.3 1.67a10.75 10.75 0 0 0-5.79.47m12.52 6.12a1.44 1.44 0 1 1 1.44-1.44a1.44 1.44 0 0 1-1.43 1.45Z"
+              class="clr-i-solid clr-i-solid-path-1" />
+            <path fill="none" d="M0 0h36v36H0z" />
+          </svg>
+          <span class="app-sidebar__text">Ahorros: creación</span>
+        </a>
 
-      <a href="/ahorro/cambioCuota" class="app-sidebar__link">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-          <path
-            d="M9 8h6a1 1 0 0 0 0-2H9a1 1 0 0 0 0 2m.47-3.5a.5.5 0 0 0 .5.44H14a.51.51 0 0 0 .5-.44a9.2 9.2 0 0 1 1.2-3a.47.47 0 0 0-.07-.57a.5.5 0 0 0-.53-.18l-1.86.8a.23.23 0 0 1-.2 0a.25.25 0 0 1-.14-.13L12.46.31a.5.5 0 0 0-.92 0l-.44 1.11a.25.25 0 0 1-.14.13a.23.23 0 0 1-.2 0L8.9.75a.5.5 0 0 0-.56.13a.47.47 0 0 0-.07.57a9.2 9.2 0 0 1 1.2 3.05m5.97 4.62a.58.58 0 0 0-.36-.12H8.92a.58.58 0 0 0-.36.12c-2.55 2-5.4 5.4-5.4 8.4C3.16 21.75 5.52 24 12 24s8.84-2.25 8.84-6.48c0-3-2.84-6.45-5.4-8.4M13 20.13a.26.26 0 0 0-.21.25v.37a.75.75 0 0 1-1.5 0v-.32a.25.25 0 0 0-.25-.25h-.59a.75.75 0 0 1 0-1.5h2.15a.67.67 0 0 0 .25-1.3l-2.18-.87a2.16 2.16 0 0 1 .33-4.14a.26.26 0 0 0 .21-.25v-.37a.75.75 0 0 1 1.5 0v.32a.25.25 0 0 0 .25.25h.59a.75.75 0 0 1 0 1.5h-2.11a.67.67 0 0 0-.25 1.3l2.18.87a2.16 2.16 0 0 1-.37 4.14" />
-        </svg>
-        <span class="app-sidebar__text">Ahorros: cambio cuota</span>
-      </a>
+        <a href="/ahorro/cambioCuota" class="app-sidebar__link">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M9 8h6a1 1 0 0 0 0-2H9a1 1 0 0 0 0 2m.47-3.5a.5.5 0 0 0 .5.44H14a.51.51 0 0 0 .5-.44a9.2 9.2 0 0 1 1.2-3a.47.47 0 0 0-.07-.57a.5.5 0 0 0-.53-.18l-1.86.8a.23.23 0 0 1-.2 0a.25.25 0 0 1-.14-.13L12.46.31a.5.5 0 0 0-.92 0l-.44 1.11a.25.25 0 0 1-.14.13a.23.23 0 0 1-.2 0L8.9.75a.5.5 0 0 0-.56.13a.47.47 0 0 0-.07.57a9.2 9.2 0 0 1 1.2 3.05m5.97 4.62a.58.58 0 0 0-.36-.12H8.92a.58.58 0 0 0-.36.12c-2.55 2-5.4 5.4-5.4 8.4C3.16 21.75 5.52 24 12 24s8.84-2.25 8.84-6.48c0-3-2.84-6.45-5.4-8.4M13 20.13a.26.26 0 0 0-.21.25v.37a.75.75 0 0 1-1.5 0v-.32a.25.25 0 0 0-.25-.25h-.59a.75.75 0 0 1 0-1.5h2.15a.67.67 0 0 0 .25-1.3l-2.18-.87a2.16 2.16 0 0 1 .33-4.14a.26.26 0 0 0 .21-.25v-.37a.75.75 0 0 1 1.5 0v.32a.25.25 0 0 0 .25.25h.59a.75.75 0 0 1 0 1.5h-2.11a.67.67 0 0 0-.25 1.3l2.18.87a2.16 2.16 0 0 1-.37 4.14" />
+          </svg>
+          <span class="app-sidebar__text">Ahorros: cambio cuota</span>
+        </a>
 
-      <a href="/ahorro/devolucion" class="app-sidebar__link">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-          <path
-            d="M12.3 8.93L9.88 6.5h5.62V10H17V5H9.88l2.42-2.43l-1.06-1.07L7 5.75L11.24 10zM12 14a3 3 0 1 0 3 3a3 3 0 0 0-3-3m-9-3v12h18V11m-2 8a2 2 0 0 0-2 2H7a2 2 0 0 0-2-2v-4a2 2 0 0 0 2-2h10a2 2 0 0 0 2 2Z" />
-        </svg>
-        <span class="app-sidebar__text">Devolución Ahorro</span>
-      </a>
+        <a href="/ahorro/devolucion" class="app-sidebar__link">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M12.3 8.93L9.88 6.5h5.62V10H17V5H9.88l2.42-2.43l-1.06-1.07L7 5.75L11.24 10zM12 14a3 3 0 1 0 3 3a3 3 0 0 0-3-3m-9-3v12h18V11m-2 8a2 2 0 0 0-2 2H7a2 2 0 0 0-2-2v-4a2 2 0 0 0 2-2h10a2 2 0 0 0 2 2Z" />
+          </svg>
+          <span class="app-sidebar__text">Devolución Ahorro</span>
+        </a>
 
-      <!-- <a href="/actualizaciondatos/" class="app-sidebar__link">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 32 32" fill="currentColor"><path d="M24 24v2h2.46A5.94 5.94 0 0 1 22 28a6.007 6.007 0 0 1-6-6h-2a7.984 7.984 0 0 0 14 5.265V30h2v-6Zm-2-10a8.04 8.04 0 0 0-6 2.735V14h-2v6h6v-2h-2.46A5.94 5.94 0 0 1 22 16a6.007 6.007 0 0 1 6 6h2a8.01 8.01 0 0 0-8-8"/><path fill="#637381" d="M12 28H6v-4h2v-2H6v-5h2v-2H6v-5h2V8H6V4h18v8h2V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v4H2v2h2v5H2v2h2v5H2v2h2v4a2 2 0 0 0 2 2h6Z"/></svg>
-        <span class="app-sidebar__text">Actualización de datos</span>
-      </a>
-       -->
+        <!-- <a href="/actualizaciondatos/" class="app-sidebar__link">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 32 32" fill="currentColor"><path d="M24 24v2h2.46A5.94 5.94 0 0 1 22 28a6.007 6.007 0 0 1-6-6h-2a7.984 7.984 0 0 0 14 5.265V30h2v-6Zm-2-10a8.04 8.04 0 0 0-6 2.735V14h-2v6h6v-2h-2.46A5.94 5.94 0 0 1 22 16a6.007 6.007 0 0 1 6 6h2a8.01 8.01 0 0 0-8-8"/><path fill="#637381" d="M12 28H6v-4h2v-2H6v-5h2v-2H6v-5h2V8H6V4h18v8h2V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v4H2v2h2v5H2v2h2v5H2v2h2v4a2 2 0 0 0 2 2h6Z"/></svg>
+          <span class="app-sidebar__text">Actualización de datos</span>
+        </a>
+        -->
 
-      <a href="/actualizaciondatos/" class="app-sidebar__link">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-          <path
-            d="M21 10V9l-6-6H5c-1.11 0-2 .89-2 2v14a2 2 0 0 0 2 2h6v-1.87l8.39-8.39c.44-.44 1-.68 1.61-.74m-7-5.5l5.5 5.5H14zm8.85 9.69l-.98.98l-2.04-2.04l.98-.98c.19-.2.52-.2.72 0l1.32 1.32c.2.2.2.53 0 .72m-3.72-.36l2.04 2.04L15.04 22H13v-2.04z" />
-        </svg>
-        <span class="app-sidebar__text">Actualización de datos</span>
-      </a>
+        <a href="/actualizaciondatos/" class="app-sidebar__link">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M21 10V9l-6-6H5c-1.11 0-2 .89-2 2v14a2 2 0 0 0 2 2h6v-1.87l8.39-8.39c.44-.44 1-.68 1.61-.74m-7-5.5l5.5 5.5H14zm8.85 9.69l-.98.98l-2.04-2.04l.98-.98c.19-.2.52-.2.72 0l1.32 1.32c.2.2.2.53 0 .72m-3.72-.36l2.04 2.04L15.04 22H13v-2.04z" />
+          </svg>
+          <span class="app-sidebar__text">Actualización de datos</span>
+        </a>
 
-      <a href="/products-services/" class="app-sidebar__link">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M4 22q-.825 0-1.412-.587T2 20V8q0-.825.588-1.412T4 6h4V4q0-.825.588-1.412T10 2h4q.825 0 1.413.588T16 4v2h4q.825 0 1.413.588T22 8v12q0 .825-.587 1.413T20 22zm6-16h4V4h-4zm1 9v2q0 .425.288.713T12 18t.713-.288T13 17v-2h2q.425 0 .713-.288T16 14t-.288-.712T15 13h-2v-2q0-.425-.288-.712T12 10t-.712.288T11 11v2H9q-.425 0-.712.288T8 14t.288.713T9 15z"/>
-        </svg>
-        <span class="app-sidebar__text">Productos y Servicios</span>
-      </a>
+        <a href="/products-services/" class="app-sidebar__link">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M4 22q-.825 0-1.412-.587T2 20V8q0-.825.588-1.412T4 6h4V4q0-.825.588-1.412T10 2h4q.825 0 1.413.588T16 4v2h4q.825 0 1.413.588T22 8v12q0 .825-.587 1.413T20 22zm6-16h4V4h-4zm1 9v2q0 .425.288.713T12 18t.713-.288T13 17v-2h2q.425 0 .713-.288T16 14t-.288-.712T15 13h-2v-2q0-.425-.288-.712T12 10t-.712.288T11 11v2H9q-.425 0-.712.288T8 14t.288.713T9 15z"/>
+          </svg>
+          <span class="app-sidebar__text">Productos y Servicios</span>
+        </a>
+      <% } %>
 
-      <form id="logout-form" action="/auth/logout" method="POST" style="margin:0;padding:0;">
+      <form id="logout-form" class="app-sidebar__link" action="/auth/logout" method="POST" style="margin:0;padding:0;">
         <button type="submit" class="app-sidebar__link" style="width:100%;background:none;border:none;cursor:pointer;text-align:left;">
           <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
             <path
