@@ -192,17 +192,17 @@ $(document).ready(function () {
             ${formatearFecha(ahorro.fechavence)}
           </div>
 
-          <div class="col-6 col-lg-1 text-lg-end">
+          <div class="col-6 col-lg-1 ">
             <span class="d-lg-none fw-bold">Cuota:</span>
             ${formatearNumero(ahorro.valorcuota)}
           </div>
 
-          <div class="col-6 col-lg-1 text-lg-end">
+          <div class="col-6 col-lg-1 ">
             <span class="d-lg-none fw-bold">Saldo:</span>
             ${formatearNumero(ahorro.saldoTotal)}
           </div>
 
-          <div class="col-6 col-lg-1 text-lg-end">
+          <div class="col-6 col-lg-1 ">
             <span class="d-lg-none fw-bold">Interes:</span>
             ${formatearNumero(ahorro.interes)}
           </div>

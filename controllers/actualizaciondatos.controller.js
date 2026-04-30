@@ -1,6 +1,8 @@
 const config = require("../config/config");
 const actualizaciondatosService = require("../services/actualizaciondatosService");
 const actualizaciondatosGuardarHelper = require("../services/actualizaciondatosGuardarHelper");
+const actualizaciondatosInformeService = require("../services/actualizaciondatosInformeService");
+const notificationService = require("../services/notificationService");
 const fs = require("fs/promises");
 const path = require("path");
 
@@ -1023,12 +1025,66 @@ exports.guardarActualizacionDatos = async (req, res) => {
 
         const resultadoGuardado = await actualizaciondatosService.guardarActualizacion(payload, token);
         const estadoGuardado = resolverResultadoGuardado(resultadoGuardado);
+        let informeSolidarioPreparado = false;
+        let notificacionPreparada = false;
+        let notificacionEnviada = false;
+        let resumenNotificacion = null;
 
         if (!estadoGuardado.ok) {
             return res.status(400).json({
                 estado: false,
                 mensaje: estadoGuardado.mensaje || "No fue posible guardar la actualizacion de datos"
             });
+        }
+
+        try {
+            const modeloInforme = await actualizaciondatosInformeService.construirModeloInforme({
+                formState,
+                references: referenciasFinales,
+                peopleInCharge: personasCargoFinales,
+                familiarPeps: familiaresPepsFinales,
+                metadata: {
+                    ...payload,
+                    cedula,
+                    fechaSistema: formatearFechaSistema(),
+                    codigoAgencia: 1,
+                    autorizacionesCatalogo
+                },
+                token
+            });
+            const htmlInforme = await actualizaciondatosInformeService.renderizarHtmlSolidario(modeloInforme);
+            const pdfInforme = await actualizaciondatosInformeService.generarPdfSolidario(modeloInforme, htmlInforme);
+            const payloadNotificacion = actualizaciondatosInformeService.construirPayloadNotificacion({
+                modeloInforme,
+                pdf: pdfInforme
+            });
+            const notificacion = notificationService.prepareActualizacionDatosEmail(payloadNotificacion);
+
+            informeSolidarioPreparado = Boolean(
+                payloadNotificacion.to &&
+                Array.isArray(payloadNotificacion.attachments) &&
+                payloadNotificacion.attachments.length > 0 &&
+                payloadNotificacion.attachments[0]?.document
+            );
+            notificacionPreparada = Boolean(notificacion?.prepared);
+            resumenNotificacion = notificacion?.summary || null;
+
+            if (notificacionPreparada) {
+                const resultadoNotificacion = await notificationService.sendNotification(notificacion.payload);
+                notificacionEnviada = Boolean(resultadoNotificacion?.ok);
+                resumenNotificacion = {
+                    ...(resumenNotificacion || {}),
+                    provider: resultadoNotificacion?.provider || "",
+                    enviada: notificacionEnviada
+                };
+            }
+        } catch (error) {
+            console.error("Error preparando el informe solidario:", error);
+            resumenNotificacion = {
+                ...(resumenNotificacion || {}),
+                enviada: false,
+                error: error.message || "No fue posible enviar la notificacion"
+            };
         }
 
         req.session.confir_actu = {
@@ -1039,7 +1095,11 @@ exports.guardarActualizacionDatos = async (req, res) => {
         return res.status(200).json({
             estado: true,
             mensaje: estadoGuardado.mensaje || "La actualizacion de datos fue enviada correctamente",
-            redirectTo: "/ahorro/crear"
+            redirectTo: "/ahorro/crear",
+            informeSolidarioPreparado,
+            notificacionPreparada,
+            notificacionEnviada,
+            resumenNotificacion
         });
     } catch (error) {
         console.error("Error en guardarActualizacionDatos:", error);

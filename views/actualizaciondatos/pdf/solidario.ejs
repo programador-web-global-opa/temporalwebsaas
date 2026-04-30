@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Formulario Actualizacion Datos</title>
+    <style>
+        @page {
+            size: A3;
+            margin: 10mm 20mm 10mm 10mm;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            color: #111;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            margin-bottom: 12px;
+            page-break-inside: auto;
+            break-inside: auto;
+        }
+
+        td, th {
+            border: 1px solid #000;
+            padding: 6px;
+            vertical-align: top;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        .center {
+            text-align: center;
+        }
+
+        .bold {
+            font-weight: 700;
+        }
+
+        .header-title {
+            font-size: 22px;
+            line-height: 1.25;
+            vertical-align: middle;
+        }
+
+        .header-title-text {
+            display: inline-block;
+            width: 100%;
+            text-align: center;
+            padding: 10px 0;
+        }
+
+        .noborder {
+            border: none;
+        }
+
+        .spacer {
+            height: 18px;
+        }
+
+        .inner-table {
+            width: 100%;
+            margin: 0;
+        }
+
+        .keep-together {
+            page-break-inside: avoid;
+            break-inside: avoid-page;
+        }
+
+        .signature-box {
+            height: 180px;
+        }
+
+        .signature-panel {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        .finger-box {
+            width: 42%;
+            margin: 0 auto 8px;
+            height: 115px;
+        }
+
+        .muted {
+            color: #444;
+        }
+
+        p {
+            margin: 0 0 12px;
+        }
+    </style>
+</head>
+<body>
+    <table>
+        <tr>
+            <td width="15%" class="center">
+                <% if (model.entidad.logoDataUrl) { %>
+                    <img src="<%= model.entidad.logoDataUrl %>" width="120" alt="Logo">
+                <% } %>
+            </td>
+            <td width="70%" class="bold center header-title">
+                <div class="header-title-text">
+                    FORMULARIO DE VINCULACION DEL ASOCIADO ANEXO
+                    <br>
+                    No. 5
+                </div>
+            </td>
+            <td width="15%"></td>
+        </tr>
+    </table>
+
+    <table>
+        <tr>
+            <td width="40%" class="bold">Razon social de la Organizacion Solidaria</td>
+            <td width="60%" colspan="3"><%= model.entidad.nombre %></td>
+        </tr>
+        <tr>
+            <td width="20%" class="bold">Nit</td>
+            <td width="40%"><%= model.entidad.nit %></td>
+            <td width="10%" class="bold">Sigla</td>
+            <td width="30%"><%= model.entidad.codigo %></td>
+        </tr>
+        <tr>
+            <td width="30%" class="bold">Oficina</td>
+            <td width="70%" colspan="3"><%= model.agencia.nombre %></td>
+        </tr>
+    </table>
+
+    <table>
+        <tr>
+            <td colspan="4" class="bold center">A. PERSONAS NATURALES</td>
+        </tr>
+        <tr>
+            <td width="25%" class="bold">Nombres</td>
+            <td width="75%" colspan="3"><%= model.personaNatural.activa ? model.personaNatural.nombres : "" %></td>
+        </tr>
+        <tr>
+            <td class="bold">Apellidos</td>
+            <td colspan="3"><%= model.personaNatural.activa ? model.personaNatural.apellidos : "" %></td>
+        </tr>
+        <tr>
+            <td class="bold">Numero de identificacion</td>
+            <td><%= model.personaNatural.activa ? model.personaNatural.identificacion : "" %></td>
+            <td class="bold">Tipo documento</td>
+            <td><%= model.personaNatural.activa ? model.personaNatural.tipoDocumento : "" %></td>
+        </tr>
+        <tr>
+            <td class="bold">Nacionalidad</td>
+            <td><%= model.personaNatural.activa ? model.personaNatural.nacionalidad : "" %></td>
+            <td class="bold">Pais Residencia</td>
+            <td><%= model.personaNatural.activa ? model.personaNatural.paisResidencia : "" %></td>
+        </tr>
+        <tr>
+            <td class="bold">Fecha nacimiento</td>
+            <td><%= model.personaNatural.activa ? model.personaNatural.fechaNacimiento : "" %></td>
+            <td class="bold">Fecha expedicion</td>
+            <td><%= model.personaNatural.activa ? model.personaNatural.fechaExpedicion : "" %></td>
+        </tr>
+        <tr>
+            <td class="bold">Nivel de educacion</td>
+            <td colspan="3"><%= model.personaNatural.activa ? model.personaNatural.nivelEducativo : "" %></td>
+        </tr>
+        <tr>
+            <td colspan="2" class="bold">Pertenece a algun grupo de proteccion especial constitucional</td>
+            <td colspan="2"><%= model.personaNatural.grupoProteccion.tieneSeleccion ? "SI" : "NO" %></td>
+        </tr>
+        <tr>
+            <td colspan="4"><%= model.personaNatural.grupoProteccion.descripcion %></td>
+        </tr>
+        <tr>
+            <td class="bold">Correo electronico</td>
+            <td colspan="3"><%= model.personaNatural.activa ? model.personaNatural.correo : "" %></td>
+        </tr>
+        <tr>
+            <td class="bold">Direccion domicilio</td>
+            <td colspan="3"><%= model.personaNatural.activa ? model.personaNatural.direccion : "" %></td>
+        </tr>
+        <tr>
+            <td class="bold">Departamento</td>
+            <td><%= model.personaNatural.activa ? model.personaNatural.departamento : "" %></td>
+            <td class="bold">Municipio</td>
+            <td><%= model.personaNatural.activa ? model.personaNatural.municipio : "" %></td>
+        </tr>
+        <tr>
+            <td class="bold">Zona</td>
+            <td><%= model.personaNatural.activa ? model.personaNatural.zona : "" %></td>
+            <td class="bold">Celular</td>
+            <td><%= model.personaNatural.activa ? model.personaNatural.celular : "" %></td>
+        </tr>
+        <tr>
+            <td class="bold">Nombre de la empresa donde labora</td>
+            <td><%= model.personaNatural.activa ? model.personaNatural.empresaTrabajo : "" %></td>
+            <td class="bold">Ocupacion</td>
+            <td><%= model.personaNatural.activa ? model.personaNatural.ocupacion : "" %></td>
+        </tr>
+        <tr>
+            <td class="bold">Descripcion actividad economica</td>
+            <td><%= model.personaNatural.activa ? model.personaNatural.actividadEconomica : "" %></td>
+            <td class="bold">CIIU</td>
+            <td><%= model.personaNatural.activa ? model.personaNatural.ciiu : "" %></td>
+        </tr>
+        <tr>
+            <td class="bold">Canales de comunicacion</td>
+            <td colspan="3"><%= model.personaNatural.activa ? model.personaNatural.canalesComunicacion : "" %></td>
+        </tr>
+        <tr>
+            <td class="bold">Nombre del representante legal o apoderado del asociado (si aplica) *menores de edad</td>
+            <td colspan="3"><%= model.personaNatural.activa ? model.personaNatural.nombreApoderado : "" %></td>
+        </tr>
+        <tr>
+            <td class="bold">N identificacion del apoderado del asociado (si aplica) *menores de edad</td>
+            <td colspan="3"><%= model.personaNatural.activa ? model.personaNatural.cedulaApoderado : "" %></td>
+        </tr>
+        <tr>
+            <td colspan="2" class="bold center">Administra recursos publicos?</td>
+            <td>SI (<%= model.personaNatural.administraRecursosPublicos === "SI" ? "X" : " " %>)</td>
+            <td>NO (<%= model.personaNatural.administraRecursosPublicos === "NO" ? "X" : " " %>)</td>
+        </tr>
+        <tr>
+            <td colspan="2" class="bold center">Es una persona politicamente expuesta - PEPS?</td>
+            <td>SI (<%= model.personaNatural.esPep === "SI" ? "X" : " " %>)</td>
+            <td>NO (<%= model.personaNatural.esPep === "NO" ? "X" : " " %>)</td>
+        </tr>
+    </table>
+
+    <table class="keep-together">
+        <tr>
+            <td colspan="4" class="bold center">DECLARACION DE INGRESOS (PERSONA NATURAL)</td>
+        </tr>
+        <tr>
+            <td colspan="4">
+                <table class="inner-table">
+                    <tr>
+                        <td width="68%" class="bold center">Fuente principal de ingresos</td>
+                        <td width="2%" class="noborder"></td>
+                        <td width="28%"><%= model.ingresosPersonaNatural.fuentePrincipal %></td>
+                    </tr>
+                    <tr>
+                        <td class="bold">Otros ingresos (especificar)</td>
+                        <td class="noborder"></td>
+                        <td><%= model.personaNatural.activa ? model.ingresosPersonaNatural.otrosIngresos : "" %></td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+
+    <table class="keep-together">
+        <tr>
+            <td colspan="4" class="bold center">B. PERSONAS JURIDICA</td>
+        </tr>
+        <tr>
+            <td class="bold">Razon social</td>
+            <td colspan="3"><%= model.personaJuridica.razonSocial %></td>
+        </tr>
+        <tr>
+            <td width="25%" class="bold">NIT</td>
+            <td width="25%"><%= model.personaJuridica.nit %></td>
+            <td width="25%" class="bold">Pais de constitucion de la persona juridica</td>
+            <td width="25%"><%= model.personaJuridica.paisConstitucion %></td>
+        </tr>
+        <tr>
+            <td class="bold">Direccion domicilio</td>
+            <td colspan="3"><%= model.personaJuridica.direccion %></td>
+        </tr>
+        <tr>
+            <td class="bold">Correo electronico</td>
+            <td colspan="3"><%= model.personaJuridica.correo %></td>
+        </tr>
+        <tr>
+            <td class="bold">Departamento</td>
+            <td><%= model.personaJuridica.departamento %></td>
+            <td class="bold">Municipio</td>
+            <td><%= model.personaJuridica.municipio %></td>
+        </tr>
+        <tr>
+            <td class="bold">Actividad economica</td>
+            <td colspan="3"><%= model.personaJuridica.actividadEconomica %></td>
+        </tr>
+        <tr>
+            <td class="bold">CIIU</td>
+            <td><%= model.personaJuridica.ciiu %></td>
+            <td class="bold">Telefonos</td>
+            <td><%= model.personaJuridica.telefonos %></td>
+        </tr>
+        <tr>
+            <td colspan="2" class="bold">Realiza operaciones en moneda extranjera?</td>
+            <td>SI (<%= model.personaJuridica.realizaOperacionesMonedaExtranjera === "SI" ? "X" : " " %>)</td>
+            <td>NO (<%= model.personaJuridica.realizaOperacionesMonedaExtranjera === "NO" ? "X" : " " %>)</td>
+        </tr>
+        <tr>
+            <td class="bold">Cuales?</td>
+            <td colspan="3"><%= model.personaJuridica.cualesOperaciones %></td>
+        </tr>
+        <tr>
+            <td class="bold">Nombre completo del Representante legal</td>
+            <td colspan="3"><%= model.personaJuridica.nombreRepresentanteLegal %></td>
+        </tr>
+        <tr>
+            <td class="bold">N Identificacion del representante legal</td>
+            <td><%= model.personaJuridica.cedulaRepresentanteLegal %></td>
+            <td class="bold">Tipo</td>
+            <td><%= model.personaJuridica.tipoIdentificacionRepresentanteLegal %></td>
+        </tr>
+        <tr>
+            <td class="bold">Tipo de empresa</td>
+            <td colspan="3"><%= model.personaJuridica.tipoEmpresa %></td>
+        </tr>
+    </table>
+
+    <table class="keep-together">
+        <tr>
+            <td class="bold center">INFORMACION FINANCIERA ($)</td>
+        </tr>
+        <tr>
+            <td>
+                <table class="inner-table">
+                    <tr>
+                        <td width="68%">Ingresos mensuales derivados de su actividad principal</td>
+                        <td width="2%" class="noborder"></td>
+                        <td width="28%"><%= model.informacionFinanciera.ingresosActividadPrincipal %></td>
+                    </tr>
+                    <tr>
+                        <td>Detalle de otros ingresos no operacionales o derivados de otra actividad</td>
+                        <td class="noborder"></td>
+                        <td><%= model.informacionFinanciera.otrosIngresosDetalle %></td>
+                    </tr>
+                </table>
+
+                <div class="spacer"></div>
+
+                <table class="inner-table">
+                    <tr>
+                        <td width="70%">Total activo</td>
+                        <td width="2%" class="noborder"></td>
+                        <td width="28%"><%= model.informacionFinanciera.totalActivos %></td>
+                    </tr>
+                    <tr>
+                        <td>Total pasivo</td>
+                        <td class="noborder"></td>
+                        <td><%= model.informacionFinanciera.totalPasivos %></td>
+                    </tr>
+                    <tr>
+                        <td>Total patrimonio</td>
+                        <td class="noborder"></td>
+                        <td><%= model.informacionFinanciera.totalPatrimonio %></td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+
+    <% if (model.autorizaciones.length) { %>
+        <% model.autorizaciones.forEach(function (autorizacion) { %>
+            <table class="keep-together">
+                <tr>
+                    <td class="bold center"><%= autorizacion.titulo %></td>
+                </tr>
+                <tr>
+                    <td>
+                        <%= autorizacion.descripcion %>
+                        <% if (autorizacion.requiereRespuesta) { %>
+                            - SI (<%= autorizacion.respuesta === "S" ? "X" : " " %>)
+                            NO (<%= autorizacion.respuesta === "N" ? "X" : " " %>)
+                        <% } %>
+                    </td>
+                </tr>
+            </table>
+        <% }); %>
+    <% } %>
+
+    <table class="keep-together">
+        <tr>
+            <td colspan="2" class="bold center">C. DECLARACIONES Y AUTORIZACIONES</td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <p>[ ] CERTIFICO QUE LA INFORMACION SUMINISTRADA ES VERIDICA Y AUTORIZO A LA COOPERATIVA PARA QUE LA VERIFIQUE.</p>
+                <p>[ ] LA ORGANIZACION PODRA USAR LOS MECANISMOS ELECTRONICOS ALTERNATIVOS QUE GARANTICEN LA VERIFICACION Y AUTENTICACION DE LA IDENTIDAD DE ACUERDO A LO SENALADO EN LA LEY 527 DE 1999.</p>
+                <p>[ ] ESTOY INFORMADO DE MI OBLIGACION DE ACTUALIZAR ANUALMENTE LA INFORMACION QUE SOLICITE LA ENTIDAD POR CADA PRODUCTO O SERVICIO QUE UTILICE.</p>
+                <p>[ ] AUTORIZO A LA COOPERATIVA PARA QUE CONSULTE Y REPORTE INFORMACION A LAS CENTRALES DE RIESGO.</p>
+                <p>[ ] DECLARO QUE MIS INGRESOS Y BIENES PROVIENEN DEL DESARROLLO DE MI ACTIVIDAD ECONOMICA PRINCIPAL. DECLARO QUE EL ORIGEN DE LOS RECURSOS Y DEMAS ACTIVOS PROCEDEN DEL GIRO ORDINARIO DE ACTIVIDADES LICITAS.</p>
+            </td>
+        </tr>
+        <tr>
+            <td width="50%" class="center signature-box" style="border-right: none;">
+                <div class="signature-panel">
+                    <div>_____________________________________________________</div>
+                    <strong>FIRMA*</strong>
+                </div>
+            </td>
+            <td width="50%" class="center signature-box" style="border-left: none;">
+                <div class="signature-panel">
+                    <table class="finger-box">
+                        <tr>
+                            <td></td>
+                        </tr>
+                    </table>
+                    <strong>HUELLA*</strong>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <table class="keep-together">
+        <tr>
+            <td width="25%" class="bold">FECHA DILIGENCIAMIENTO</td>
+            <td width="25%" class="center"><%= model.fechaDiligenciamientoPartes.dd %></td>
+            <td width="25%" class="center"><%= model.fechaDiligenciamientoPartes.mm %></td>
+            <td width="25%" class="center"><%= model.fechaDiligenciamientoPartes.yyyy %></td>
+        </tr>
+        <tr>
+            <td colspan="4" class="muted">
+                *La empresa solidaria podra usar los mecanismos electronicos alternativos que garanticen la verificacion y autenticacion de la identidad de acuerdo a lo senalado en la Ley 527 de 1999.
+            </td>
+        </tr>
+    </table>
+
+    <table class="keep-together">
+        <tr>
+            <td colspan="4" class="bold center">D. ESPACIO PARA USO DE LA ORGANIZACION SOLIDARIA</td>
+        </tr>
+        <tr>
+            <td width="25%" class="bold">Nombre y firma del responsable de verificacion</td>
+            <td width="75%" colspan="3"></td>
+        </tr>
+        <tr>
+            <td width="25%" class="bold">Fecha verificacion informacion</td>
+            <td width="25%" class="center">DD</td>
+            <td width="25%" class="center">MM</td>
+            <td width="25%" class="center">ANO</td>
+        </tr>
+    </table>
+
+    <table class="keep-together">
+        <tr>
+            <td width="75%" class="bold center">DOCUMENTOS ANEXOS</td>
+            <td width="10%" class="bold center">PN</td>
+            <td width="10%" class="bold center">PJ</td>
+        </tr>
+        <tr>
+            <td>Fotocopia del documento de identificacion</td>
+            <td class="center">X</td>
+            <td class="center"></td>
+        </tr>
+        <tr>
+            <td>Certificado de existencia y representacion legal con vigencia no superior a 3 meses</td>
+            <td class="center"></td>
+            <td class="center">X</td>
+        </tr>
+        <tr>
+            <td>Fotocopia del Numero de Identificacion Tributaria NIT</td>
+            <td class="center"></td>
+            <td class="center">X</td>
+        </tr>
+        <tr>
+            <td>Fotocopia del documento de identificacion del Representante legal</td>
+            <td class="center"></td>
+            <td class="center">X</td>
+        </tr>
+    </table>
+</body>
+</html>
