@@ -9,6 +9,20 @@
 
   // ── Helpers ────────────────────────────────────────────────────────────────
 
+  const ESTADO_BADGE = {
+    'EN ESTUDIO': { bg: '#3b82f6', label: 'EN ESTUDIO' },
+    'EN TRÁMITE': { bg: '#f59e0b', label: 'EN TRÁMITE' },
+    'APROBADA':   { bg: '#22c55e', label: 'APROBADA'   },
+    'NEGADA':     { bg: '#ef4444', label: 'NEGADA'     },
+    'ANULADA':    { bg: '#6b7280', label: 'ANULADA'    },
+  };
+
+  function estadoBadge(estado) {
+    const cfg = ESTADO_BADGE[String(estado ?? '').toUpperCase().trim()];
+    if (!cfg) return escapeHTML(estado);
+    return `<span style="display:inline-block;padding:3px 12px;border-radius:20px;background:${cfg.bg};color:#fff;font-size:12px;font-weight:600;white-space:nowrap;">${cfg.label}</span>`;
+  }
+
   function escapeHTML(v) {
     return String(v ?? '')
       .replace(/&/g, '&amp;')
@@ -315,7 +329,7 @@
               <td class="text-center">${escapeHTML(sol.numeroSolicitud ?? '')}</td>
               <td class="text-center">${escapeHTML(sol.nombre ?? '')}</td>
               <td class="text-center">${escapeHTML(formatDate(sol.fechaSolicitud ?? ''))}</td>
-              <td class="text-center">${escapeHTML(sol.EstadoActual ?? '')}</td>
+              <td class="text-center">${estadoBadge(sol.EstadoActual ?? '')}</td>
               <td class="text-center">
                 <button type="button" class="app-button primary btn-ver-mas"
                   data-id="${escapeHTML(String(sol.idTabla ?? ''))}"
@@ -359,7 +373,7 @@
           $tbody.append(`
             <tr>
               <td class="text-center">${escapeHTML(formatDate(seg.fechaSeguimiento ?? seg.fechaSeguimiento ?? ''))}</td>
-              <td class="text-center">${escapeHTML(seg.EstadoNuevo ?? '')}</td>
+              <td class="text-center">${estadoBadge(seg.EstadoNuevo ?? '')}</td>
               <td>${escapeHTML(seg.NotaEntidad ?? '')}</td>
             </tr>`);
         });
