@@ -135,7 +135,7 @@ const transformarPayloadExterno = (payload = {}) => ({
     attachments: payload.attachments
 });
 
-exports.prepareActualizacionDatosEmail = (payload = {}) => {
+const prepararNotificacion = (payload = {}) => {
     const validado = validarPayload(payload);
 
     return {
@@ -151,6 +151,10 @@ exports.prepareActualizacionDatosEmail = (payload = {}) => {
         }
     };
 };
+
+exports.prepareActualizacionDatosEmail = (payload = {}) => prepararNotificacion(payload);
+
+exports.prepareDevolucionAhorroEmail = (payload = {}) => prepararNotificacion(payload);
 
 exports.getNotificationProvider = async () => {
     const data = await requestNotificationApi(URL_PROVIDER, {

@@ -1,5 +1,6 @@
 const config = require("../../config/config");
 const { requestApi, extraerMensajeError, construirUrlConParams } = require("../../helpers/apiFetch");
+const notificationService = require("../notificationservice");
 
 const BASE_URL = config.apiUrlWeb;
 const API_URL_PRODUCTOS_APORTES_AHORROS = `${BASE_URL}/private/api/saldos/aportesAhorros`;
@@ -250,6 +251,111 @@ const construirMensajeEspera = (minutos) => {
     return `Debera esperar ${Math.round(minutos)} minuto(s) para realizar tu nueva solicitud de retiro`;
 };
 
+const formatearNumeroCorreo = (valor) => numero(valor).toLocaleString("es-CO");
+
+const construirHtmlCorreoDevolucion = ({
+    cedula,
+    linea,
+    cuenta,
+    fechaApertura,
+    fechaSolicitud,
+    cuota,
+    disponible,
+    interes,
+    valorRetirar,
+    asociado = {}
+} = {}) => `
+    <table align="center" width="500" cellspacing="0" cellpadding="5" border="0" bgcolor="#F6F6F6">
+        <tbody align="center">
+            <tr>
+                <td>&nbsp;</td>
+            </tr>
+            <tr>
+                <td>
+                    <h1>Solicitud de Devolucion de Ahorro</h1>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <table style="font-family:Arial, sans-serif;font-size:12px;" cellpadding="2" cellspacing="0" border="0">
+                        <tr>
+                            <td><strong>Cedula del asociado:</strong></td>
+                            <td>${texto(cedula)}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Nombre Completo:</strong></td>
+                            <td>${texto(asociado.nombreintegrado)}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Correo electronico del asociado:</strong></td>
+                            <td>${texto(asociado.email)}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Linea:</strong></td>
+                            <td>${texto(linea)}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Cuenta:</strong></td>
+                            <td>${texto(cuenta)}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Fecha Apertura:</strong></td>
+                            <td>${texto(fechaApertura)}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Fecha Solicitud:</strong></td>
+                            <td>${texto(fechaSolicitud)}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Cuota:</strong></td>
+                            <td>${formatearNumeroCorreo(cuota)}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Disponible:</strong></td>
+                            <td><strong>${formatearNumeroCorreo(disponible)}</strong></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Interes:</strong></td>
+                            <td>${formatearNumeroCorreo(interes)}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Valor a retirar:</strong></td>
+                            <td><strong>${formatearNumeroCorreo(valorRetirar)}</strong></td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td>&nbsp;</td>
+            </tr>
+            <tr>
+                <td style="color:#111;background-color:#f6f6f6;">
+                    Por politicas de seguridad nunca solicitaremos informacion personal o de tus cuentas a traves de correo electronico.
+                </td>
+            </tr>
+        </tbody>
+    </table>
+`;
+
+const construirPayloadNotificacionDevolucion = ({ contexto, valorRetirar }) => ({
+    to: texto(contexto?.asociado?.email),
+    subject: "Solicitud de Devolucion de Ahorro",
+    html: construirHtmlCorreoDevolucion({
+        cedula: contexto?.cedula,
+        linea: contexto?.ahorro?.codlinea,
+        cuenta: contexto?.ahorro?.numerocuenta,
+        fechaApertura: contexto?.ahorro?.fechainicio,
+        fechaSolicitud: contexto?.fechaSolicitud,
+        cuota: contexto?.ahorro?.valorcuota,
+        disponible: contexto?.valorDevolucion,
+        interes: contexto?.ahorro?.interes,
+        valorRetirar,
+        asociado: contexto?.asociado
+    }),
+    channel: 0,
+    attachments: []
+});
+
 const buscarAhorro = (productos, codlinea, numerocuenta) => productos.find((producto) =>
     producto.codlinea === texto(codlinea) &&
     producto.numerocuenta === texto(numerocuenta)
@@ -319,6 +425,7 @@ const construirContextoDevolucion = async ({
     });
 
     return {
+        cedula: texto(cedula),
         ahorro,
         asociado: infoAsociado,
         parametros,
@@ -466,6 +573,7 @@ exports.obtenerValorDisponible = async ({ cedula, codlinea, numerocuenta } = {},
         cedula,
         codlinea,
         numerocuenta,
+        incluirParametros: true,
         incluirInfoAsociado: true
     }, token);
 
@@ -502,7 +610,8 @@ exports.solicitarDevolucion = async ({
         cedula,
         codlinea: codigoLinea,
         numerocuenta: numeroCuenta,
-        incluirParametros: true
+        incluirParametros: true,
+        incluirInfoAsociado: true
     }, token);
 
     const tiempoRestante = await exports.validarTiempoNuevaSolicitud(cedula, contexto.parametros.horas, token);
@@ -557,6 +666,39 @@ exports.solicitarDevolucion = async ({
         EGgrabamen: Number(grabamen.toFixed(2))
     }, token);
 
+    let notificacionPreparada = false;
+    let notificacionEnviada = false;
+    let resumenNotificacion = null;
+
+    try {
+        const payloadNotificacion = construirPayloadNotificacionDevolucion({
+            contexto,
+            valorRetirar
+        });
+        const notificacion = notificationService.prepareDevolucionAhorroEmail(payloadNotificacion);
+
+        notificacionPreparada = Boolean(notificacion?.prepared);
+        resumenNotificacion = notificacion?.summary || null;
+
+        if (notificacionPreparada) {
+            const resultadoNotificacion = await notificationService.sendNotification(notificacion.payload);
+            notificacionEnviada = Boolean(resultadoNotificacion?.ok);
+            resumenNotificacion = {
+                ...(resumenNotificacion || {}),
+                provider: resultadoNotificacion?.provider || "",
+                enviada: notificacionEnviada
+            };
+        }
+    } catch (error) {
+        console.error("Error enviando notificacion de devolucion de ahorro:", error);
+        resumenNotificacion = {
+            ...(resumenNotificacion || {}),
+            enviada: false,
+            error: error.message || "No fue posible enviar la notificacion"
+        };
+    }
+
+
     return {
         estado: true,
         msj: "Solicitud guardada correctamente, la entidad se comunicara en los proximos dias para el desembolso del valor solicitado.",
@@ -566,6 +708,9 @@ exports.solicitarDevolucion = async ({
             numerocuenta: numeroCuenta,
             valorSolicitado: valorRetirar,
             valorDisponible: contexto.valorDevolucion
-        }
+        },
+        notificacionPreparada,
+        notificacionEnviada,
+        resumenNotificacion
     };
 };
