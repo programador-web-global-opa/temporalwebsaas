@@ -142,7 +142,7 @@ const formatearFechaActualizacion = (fecha = new Date()) => {
 
 const obtenerPeriodoDeduccion = async (cedula, token) => {
     const urlFetch = construirUrlConParams(API_URL_INFO_ASOCIADO, { cedula });
-    const data = await requestApi(urlFetch, { token });
+    const data = await requestApi(urlFetch, { tokenWeb: token });
     const registro = normalizarTabla(data)[0] || {};
 
     return texto(registro.periododeduce || registro.periodoDeduccion || registro.DL_txtperiododeduce);
@@ -150,21 +150,21 @@ const obtenerPeriodoDeduccion = async (cedula, token) => {
 
 exports.obtenerProductosAportesAhorros = async (cedula, token) => {
     const urlFetch = construirUrlConParams(API_URL_PRODUCTOS_APORTES_AHORROS, { cedula, pag: 1 });
-    const data = await requestApi(urlFetch, { token });
+    const data = await requestApi(urlFetch, { tokenWeb: token });
 
     return normalizarTabla(data).map(normalizarProducto);
 };
 
 exports.obtenerTiposAhorrosPermitidos = async (cedula, token) => {
     const urlFetch = construirUrlConParams(API_URL_TIPOS_AHORROS_PERMITIDOS, { cedula });
-    const data = await requestApi(urlFetch, { token });
+    const data = await requestApi(urlFetch, { tokenWeb: token });
 
     return normalizarTiposPermitidos(data);
 };
 
 exports.obtenerUltimosCambiosCuota = async (cedula, token) => {
     const urlFetch = construirUrlConParams(API_URL_VALIDA_ULTIMO_CAMBIO, { cedula });
-    const data = await requestApi(urlFetch, { token });
+    const data = await requestApi(urlFetch, { tokenWeb: token });
 
     return normalizarBloqueosCambio(data);
 };

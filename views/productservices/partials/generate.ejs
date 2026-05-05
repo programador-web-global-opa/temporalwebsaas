@@ -1,3 +1,35 @@
+<style>
+  .app-field.campo-invalido .app-input,
+  .app-field.campo-invalido .app-select {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 1px #ef4444;
+  }
+  .app-field.campo-invalido label { color: #ef4444; }
+
+  .app-field.campo-valido .app-input,
+  .app-field.campo-valido .app-select {
+    border-color: #22c55e;
+    box-shadow: 0 0 0 1px #22c55e;
+  }
+  .app-field.campo-valido label { color: #22c55e; }
+
+  .ps-tooltip-btn {
+    flex-shrink: 0;
+    background: #fff;
+    border: 1px solid var(--grey-400, #c4c4c4);
+    border-left: none;
+    border-radius: 0 8px 8px 0;
+    padding: 0 10px;
+    cursor: help;
+    color: #1c6bff;
+    font-weight: 700;
+    font-size: 14px;
+    min-width: 36px;
+    transition: background 0.2s;
+  }
+  .ps-tooltip-btn:hover { background: #f0f4ff; }
+</style>
+
 <div class="container-details">
 
   <%# Paso 1: selección de producto %>

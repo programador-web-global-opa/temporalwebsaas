@@ -1,6 +1,13 @@
-const buildHeaders = (token) => {
+const buildAuthHeader = ({ token, tokenWeb } = {}) => {
+  if (tokenWeb) return `Bearer ${tokenWeb}`;
+  if (token) return token;
+  return null;
+};
+
+const buildHeaders = ({ token, tokenWeb } = {}) => {
   const headers = { "Content-Type": "application/json" };
-  if (token) headers.Authorization = `Bearer ${token}`;
+  const auth = buildAuthHeader({ token, tokenWeb });
+  if (auth) headers.Authorization = auth;
   return headers;
 };
 
@@ -33,17 +40,20 @@ const construirUrlConParams = (url, params = {}) => {
 
 /**
  * @param {string} url
- * @param {{ method?: string, token?: string, body?: object, formBody?: URLSearchParams }} options
+ * @param {{ method?: string, token?: string, tokenWeb?: string, body?: object, formBody?: URLSearchParams }} options
+ * token    → Authorization: <token>          (sin Bearer, API legacy)
+ * tokenWeb → Authorization: Bearer <token>   (REST API)
  */
-const requestApi = async (url, { method = "GET", token, body, formBody } = {}) => {
+const requestApi = async (url, { method = "GET", token, tokenWeb, body, formBody } = {}) => {
   let headers, bodyData;
 
   if (formBody) {
     headers = { "Content-Type": "application/x-www-form-urlencoded" };
-    if (token) headers.Authorization = `Bearer ${token}`;
+    const auth = buildAuthHeader({ token, tokenWeb });
+    if (auth) headers.Authorization = auth;
     bodyData = formBody;
   } else {
-    headers = buildHeaders(token);
+    headers = buildHeaders({ token, tokenWeb });
     bodyData = body ? JSON.stringify(body) : undefined;
   }
 

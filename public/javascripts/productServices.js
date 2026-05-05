@@ -36,11 +36,90 @@
     return val === 'S' || val === 's' || val === true || val === 1;
   }
 
+  function checkIcon(oblig) {
+    if (!oblig) return '';
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="11" fill="#22c55e"/>
+      <path d="M7 12l3.5 3.5L17 9" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    </svg>`;
+  }
+
+  function tooltipBtn(desc) {
+    if (!desc) return '';
+    return `<button type="button" class="ps-tooltip-btn"
+      data-bs-toggle="tooltip" data-bs-placement="right"
+      title="💡 ${escapeHTML(desc)}">?</button>`;
+  }
+
+  function initTooltips($container) {
+    if (!window.bootstrap?.Tooltip) return;
+    $container.find('[data-bs-toggle="tooltip"]').each(function () {
+      new bootstrap.Tooltip(this, { trigger: 'hover' });
+    });
+  }
+
+  function validarCampo(el) {
+    const $el = $(el);
+    const $field = $el.closest('.app-field');
+    const required = $el.prop('required');
+    const val = ($el.val() || '').trim();
+    const tipo = ($el.attr('type') || 'text').toLowerCase();
+
+    let valid = true;
+    if (!val) {
+      valid = !required;
+    } else {
+      if (tipo === 'email') valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+      else if (tipo === 'number') valid = !isNaN(Number(val));
+    }
+
+    $field.toggleClass('campo-invalido', !valid);
+    $field.toggleClass('campo-valido', valid && !!val);
+  }
+
   function formatDate(dateStr) {
     if (!dateStr) return '';
     const d = new Date(dateStr);
     if (isNaN(d)) return escapeHTML(dateStr);
     return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+  }
+
+  function confirmarModal(mensaje, onConfirm) {
+    $('#confirmarModalTemp').remove();
+    $('body').append(`
+      <div class="modal fade app-modal" id="confirmarModalTemp" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+          <div class="modal-content app-modal__content">
+            <div class="app-modal__header justify-content-center border-0 pb-0">
+              <div style="width:64px;height:64px;border-radius:50%;border:3px solid #3b82f6;color:#3b82f6;
+                display:flex;align-items:center;justify-content:center;font-size:1.6rem;font-weight:700;">?</div>
+            </div>
+            <div class="app-modal__body text-center pt-3" style="font-size:18px;">${escapeHTML(mensaje)}</div>
+            <div class="app-modal__footer justify-content-center border-0 pt-0 gap-2">
+              <button type="button" class="app-button" id="confirmar-modal-cancelar" data-bs-dismiss="modal">Cancelar</button>
+              <button type="button" class="app-button primary" id="confirmar-modal-ok">Confirmar</button>
+            </div>
+          </div>
+        </div>
+      </div>`);
+
+    const $el = $('#confirmarModalTemp');
+    if (!window.bootstrap?.Modal) {
+      if (confirm(mensaje) && typeof onConfirm === 'function') onConfirm();
+      $el.remove();
+      return;
+    }
+    const modal = new bootstrap.Modal($el[0]);
+    modal.show();
+    $el.on('click', '#confirmar-modal-ok', function () {
+      $el.data('confirmed', true);
+      modal.hide();
+    });
+    $el.on('hidden.bs.modal', function () {
+      const confirmed = $(this).data('confirmed');
+      $(this).remove();
+      if (confirmed && typeof onConfirm === 'function') onConfirm();
+    });
   }
 
   function infoModal(mensaje, tipo, onClose) {
@@ -181,17 +260,23 @@
     $('#seccion-adjuntos').show();
     adjuntos.forEach(function (adj, i) {
       const oblig = esObligatorio(adj.EsObligatorio);
+      const desc = adj.descripcion || adj.NomAdj || '';
       $lista.append(`
         <div class="row mb-3 align-items-center">
-          <label class="col-sm-4 col-form-label" for="adjunto_${i + 1}">${escapeHTML(adj.NomAdj || adj.descripcion || '')}</label>
+          <label class="col-sm-4 col-form-label" for="btn-adjuntos${i + 1}">${escapeHTML(adj.NomAdj || adj.descripcion || '')}</label>
           <div class="col-sm-5">
-            <input type="file" class="form-control" name="adjuntos${i + 1}" id="btn-adjuntos${i + 1}" ${oblig ? ' required' : ''}>
+            <div class="d-flex align-items-stretch gap-1">
+              <input type="file" accept="application/pdf,image/*" class="form-control flex-grow-1"
+                name="adjuntos${i + 1}" id="btn-adjuntos${i + 1}"${oblig ? ' required' : ''}>
+              ${tooltipBtn(desc)}
+            </div>
             <input type="hidden" name="IdAdj${i + 1}" value="${escapeHTML(String(adj.idProSerAdj ?? ''))}">
           </div>
-          <div class="col-sm-3 text-center">${oblig ? 'Sí' : 'No'}</div>
+          <div class="col-sm-3 text-center">${checkIcon(oblig)}</div>
         </div>`);
     });
     $lista.append(`<input type="hidden" name="contAdjuntos" value="${adjuntos.length}">`);
+    initTooltips($lista);
   }
 
   // ── Render campos dinámicos ────────────────────────────────────────────────
@@ -203,6 +288,7 @@
     campos.forEach(function (campo, i) {
       const oblig = esObligatorio(campo.obligatorio);
       const label = escapeHTML(campo.nombre || campo.descripcion || '');
+      const desc  = campo.descripcion || campo.nombre || '';
       const cid   = escapeHTML(String(campo.idCamForDim ?? i));
       let inputHtml;
 
@@ -211,18 +297,24 @@
           return `<option value="${escapeHTML(String(o.ContenidoDeLaLista ?? ''))}">${escapeHTML(o.ContenidoDeLaLista ?? '')}</option>`;
         }).join('');
         inputHtml = `
-          <div class="app-field select mb-0">
-            <select class="app-select campo-dinamico" data-campo-id="${cid}" id="campo_${i}"${oblig ? ' required' : ''}>
-              <option value="" disabled selected hidden></option>${opts}
-            </select>
-            <label for="campo_${i}">${label}</label>
+          <div class="d-flex align-items-stretch gap-1">
+            <div class="app-field select mb-0 flex-grow-1">
+              <select class="app-select campo-dinamico" data-campo-id="${cid}" id="campo_${i}"${oblig ? ' required' : ''}>
+                <option value="" disabled selected hidden></option>${opts}
+              </select>
+              <label for="campo_${i}">${label}</label>
+            </div>
+            ${tooltipBtn(desc)}
           </div>`;
       } else {
         inputHtml = `
-          <div class="app-field mb-0">
-            <input type="${campo.tipoCampo}" class="app-input campo-dinamico"
-              data-campo-id="${cid}" id="campo_${i}" placeholder=" "${oblig ? ' required' : ''}>
-            <label for="campo_${i}">${label}</label>
+          <div class="d-flex align-items-stretch gap-1">
+            <div class="app-field mb-0 flex-grow-1">
+              <input type="${campo.tipoCampo}" class="app-input campo-dinamico"
+                data-campo-id="${cid}" id="campo_${i}" placeholder=" "${oblig ? ' required' : ''}>
+              <label for="campo_${i}">${label}</label>
+            </div>
+            ${tooltipBtn(desc)}
           </div>`;
       }
 
@@ -230,9 +322,10 @@
         <div class="row mb-3 align-items-center">
           <div class="col-sm-4 col-form-label">${label}</div>
           <div class="col-sm-5">${inputHtml}</div>
-          <div class="col-sm-3 text-center">${oblig ? 'Sí' : 'No'}</div>
+          <div class="col-sm-3 text-center">${checkIcon(oblig)}</div>
         </div>`);
     });
+    initTooltips($lista);
   }
 
   // ── Paso 2 → Regresar ──────────────────────────────────────────────────────
@@ -262,7 +355,14 @@
     e.preventDefault();
     if (!this.checkValidity()) { this.reportValidity(); return; }
 
-    const formData = new FormData(this);
+    const form = this;
+    confirmarModal('¿Confirmas el envío de la solicitud?', function () {
+      enviarSolicitud(form);
+    });
+  });
+
+  function enviarSolicitud(form) {
+    const formData = new FormData(form);
     formData.append('idtipo', productoActual.id);
 
     const contenidoCampos = {};
@@ -308,6 +408,16 @@
     .always(function () {
       $btn.prop('disabled', false).text('Enviar Solicitud');
     });
+  }
+
+  // ── Validación en tiempo real de campos dinámicos ─────────────────────────
+
+  $(document).on('blur change', '#lista-campos .campo-dinamico', function () {
+    validarCampo(this);
+  });
+
+  $(document).on('input', '#lista-campos .campo-dinamico', function () {
+    if ($(this).val()) validarCampo(this);
   });
 
   // ── Estado de solicitudes ──────────────────────────────────────────────────

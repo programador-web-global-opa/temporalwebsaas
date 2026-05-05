@@ -69,7 +69,7 @@ exports.obtenerConsecutivoAhorro = async ({ cedula, tipoAhorro, codLinea } = {},
             tipoAhorro,
             codLinea
         });
-        const data = await requestApi(urlFetch, { token });
+        const data = await requestApi(urlFetch, { tokenWeb: token });
         const registro = normalizarTabla(data)[0] || {};
         const numeroCuenta = String(registro.numeroCuenta ?? "").trim();
 
@@ -90,7 +90,7 @@ exports.obtenerTasaAhorro = async ({ tipoAhorro, codLinea } = {}, token) => {
             tipoAhorro,
             codLinea
         });
-        const data = await requestApi(urlFetch, { token });
+        const data = await requestApi(urlFetch, { tokenWeb: token });
         const registro = normalizarTabla(data)[0] || {};
         const tasaEfectiva = registro.tasaEfectiva;
 

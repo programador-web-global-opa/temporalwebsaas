@@ -31,7 +31,7 @@ const extraerEsquemaActualizacion = (responseData) => {
 exports.obtenerInformacionAsociado = async (Cedula, token) => {
     try {
         const urlFetch = construirUrlConParams(API_URL, Cedula ? { Cedula } : {});
-        return await requestApi(urlFetch, { token });
+        return await requestApi(urlFetch, { tokenWeb: token });
     } catch (error) {
         console.error("Error obteniendo la informacion del asociado:", error);
         throw error;
@@ -41,7 +41,7 @@ exports.obtenerInformacionAsociado = async (Cedula, token) => {
 exports.obtenerInformacionConyugue = async (Cedula, token) => {
     try {
         const urlFetch = construirUrlConParams(API_URL_CONYUGUE, Cedula ? { Cedula } : {});
-        return await requestApi(urlFetch, { token });
+        return await requestApi(urlFetch, { tokenWeb: token });
     } catch (error) {
         console.error("Error obteniendo la informacion del conyugue:", error);
         return null;
@@ -51,7 +51,7 @@ exports.obtenerInformacionConyugue = async (Cedula, token) => {
 exports.obtenerInformacionOtrosDatosAdicionales = async (Cedula, token) => {
     try {
         const urlFetch = construirUrlConParams(API_URL_OTROSDATOS, Cedula ? { Cedula } : {});
-        return await requestApi(urlFetch, { token });
+        return await requestApi(urlFetch, { tokenWeb: token });
     } catch (error) {
         console.error("Error obteniendo la informacion de otros datos adicionales:", error);
         return [[], [], []];
@@ -60,7 +60,7 @@ exports.obtenerInformacionOtrosDatosAdicionales = async (Cedula, token) => {
 
 exports.obtenerAutorizaciones = async (token) => {
     try {
-        return await requestApi(API_URL_AUTORIZACIONES, { token });
+        return await requestApi(API_URL_AUTORIZACIONES, { tokenWeb: token });
     } catch (error) {
         console.error("Error obteniendo las autorizaciones:", error);
         return null;
@@ -70,7 +70,7 @@ exports.obtenerAutorizaciones = async (token) => {
 exports.obtenerUltimasRespuestasAutorizacion = async (Cedula, token) => {
     try {
         const urlFetch = construirUrlConParams(API_URL_ULTIMAS_RESPUESTAS_AUTORIZACION, { Cedula: Cedula || "", Tipo: "" });
-        return await requestApi(urlFetch, { token });
+        return await requestApi(urlFetch, { tokenWeb: token });
     } catch (error) {
         console.error("Error obteniendo las ultimas respuestas de autorizacion:", error);
         return [];
@@ -80,7 +80,7 @@ exports.obtenerUltimasRespuestasAutorizacion = async (Cedula, token) => {
 exports.obtenerReferencias = async (Cedula, token) => {
     try {
         const urlFetch = construirUrlConParams(API_URL_REFERENCIAS, Cedula ? { Cedula } : {});
-        return await requestApi(urlFetch, { token });
+        return await requestApi(urlFetch, { tokenWeb: token });
     } catch (error) {
         console.error("Error obteniendo las referencias:", error);
         return null;
@@ -90,7 +90,7 @@ exports.obtenerReferencias = async (Cedula, token) => {
 exports.obtenerPersonasCargo = async (Cedula, token) => {
     try {
         const urlFetch = construirUrlConParams(API_URL_PERSONASCARGO, Cedula ? { Cedula } : {});
-        return await requestApi(urlFetch, { token });
+        return await requestApi(urlFetch, { tokenWeb: token });
     } catch (error) {
         console.error("Error obteniendo las personas a cargo:", error);
         return null;
@@ -100,7 +100,7 @@ exports.obtenerPersonasCargo = async (Cedula, token) => {
 exports.obtenerFamiliaresPeps = async (Cedula, token) => {
     try {
         const urlFetch = construirUrlConParams(API_URL_FAMILIARPEPS, Cedula ? { Cedula } : {});
-        return await requestApi(urlFetch, { token });
+        return await requestApi(urlFetch, { tokenWeb: token });
     } catch (error) {
         console.error("Error obteniendo los familiares peps:", error);
         return null;
@@ -109,7 +109,7 @@ exports.obtenerFamiliaresPeps = async (Cedula, token) => {
 
 exports.obtenerAdjuntosGenerales = async (token) => {
     try {
-        return await requestApi(API_URL_ADJUNTOSGENERALES, { token });
+        return await requestApi(API_URL_ADJUNTOSGENERALES, { tokenWeb: token });
     } catch (error) {
         console.error("Error obteniendo los adjuntos generales:", error);
         return null;
@@ -120,7 +120,7 @@ exports.obtenerAdjuntosRelacionados = async (Cedula, token) => {
     try {
         const form = new URLSearchParams();
         form.append("Cedula", Cedula);
-        return await requestApi(API_URL_ADJUNTOSRELACIONADOS, { method: "POST", token, formBody: form });
+        return await requestApi(API_URL_ADJUNTOSRELACIONADOS, { method: "POST", tokenWeb: token, formBody: form });
     } catch (error) {
         console.error("Error obteniendo los adjuntos relacionados:", error);
         return null;
@@ -130,7 +130,7 @@ exports.obtenerAdjuntosRelacionados = async (Cedula, token) => {
 exports.obtenerActualizacionPendiente = async (Cedula, token) => {
     try {
         const urlFetch = construirUrlConParams(API_URL_ACTUALIZACION_PENDIENTE, Cedula ? { cedula: Cedula } : {});
-        const data = await requestApi(urlFetch, { token });
+        const data = await requestApi(urlFetch, { tokenWeb: token });
 
         if (!data || data?.name === "RequestError") return false;
         if (Array.isArray(data)) return data.length > 0;
@@ -164,7 +164,7 @@ exports.obtenerEsquemaOcupaciones = async () => {
 
 exports.guardarActualizacion = async (payload = {}, token) => {
     try {
-        return await requestApi(API_URL_GUARDAR, { method: "POST", token, body: payload }) ?? {};
+        return await requestApi(API_URL_GUARDAR, { method: "POST", tokenWeb: token, body: payload }) ?? {};
     } catch (error) {
         console.error("Error guardando la actualizacion de datos:", error);
         throw error;

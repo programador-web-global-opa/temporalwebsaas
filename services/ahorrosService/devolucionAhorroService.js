@@ -448,42 +448,42 @@ const construirContextoDevolucion = async ({
 
 exports.obtenerProductosAportesAhorros = async (cedula, token) => {
     const urlFetch = construirUrlConParams(API_URL_PRODUCTOS_APORTES_AHORROS, { cedula, pag: 1 });
-    const data = await requestApi(urlFetch, { token });
+    const data = await requestApi(urlFetch, { tokenWeb: token });
 
     return normalizarTabla(data).map(normalizarProducto);
 };
 
 exports.obtenerCreditos = async (cedula, token) => {
     const urlFetch = construirUrlConParams(API_URL_CREDITOS, { cedula, pag: 1 });
-    const data = await requestApi(urlFetch, { token });
+    const data = await requestApi(urlFetch, { tokenWeb: token });
 
     return normalizarTabla(data).map(normalizarCredito);
 };
 
 exports.obtenerInformacionAsociado = async (cedula, token) => {
     const urlFetch = construirUrlConParams(API_URL_INFO_ASOCIADO, { cedula });
-    const data = await requestApi(urlFetch, { token });
+    const data = await requestApi(urlFetch, { tokenWeb: token });
 
     return normalizarInfoAsociado(data);
 };
 
 exports.obtenerParametrosDevolucion = async (token) => {
-    const data = await requestApi(API_URL_PARAMETROS_DEVOLUCION, { token });
+    const data = await requestApi(API_URL_PARAMETROS_DEVOLUCION, { tokenWeb: token });
     return normalizarParametrosDevolucion(data);
 };
 
 exports.obtenerAhorrosDisponiblesParaRetiro = async (token) => {
-    const data = await requestApi(API_URL_AHORROS_DISPONIBLES_RETIRO, { token });
+    const data = await requestApi(API_URL_AHORROS_DISPONIBLES_RETIRO, { tokenWeb: token });
     return normalizarLineas(data);
 };
 
 exports.obtenerLineasDisponibilidadAhorros = async (token) => {
-    const data = await requestApi(API_URL_DISPONIBILIDAD_AHORROS, { token });
+    const data = await requestApi(API_URL_DISPONIBILIDAD_AHORROS, { tokenWeb: token });
     return normalizarLineas(data);
 };
 
 exports.obtenerCreditosDisponibilidad = async (token) => {
-    const data = await requestApi(API_URL_DISPONIBILIDAD_CREDITOS, { token });
+    const data = await requestApi(API_URL_DISPONIBILIDAD_CREDITOS, { tokenWeb: token });
     return normalizarCreditosDisponibilidad(data);
 };
 
@@ -493,14 +493,14 @@ exports.obtenerPendientesRetiro = async ({ cedula, codlinea, numerocuenta } = {}
         linea: codlinea,
         cuenta: numerocuenta
     });
-    const data = await requestApi(urlFetch, { token });
+    const data = await requestApi(urlFetch, { tokenWeb: token });
 
     return normalizarPendientes(data);
 };
 
 exports.validarTiempoNuevaSolicitud = async (cedula, horas, token) => {
     const urlFetch = construirUrlConParams(API_URL_TIEMPO_NUEVA_SOLICITUD, { cedula });
-    const data = await requestApi(urlFetch, { token });
+    const data = await requestApi(urlFetch, { tokenWeb: token });
     const registro = normalizarTiempoSolicitud(data);
     const minutosMinimos = numero(horas) * 60;
 
@@ -520,14 +520,14 @@ exports.validarTiempoNuevaSolicitud = async (cedula, horas, token) => {
 };
 
 exports.obtenerSolicitudRetiroId = async (token) => {
-    const data = await requestApi(API_URL_SOLICITUD_RETIRO_ID, { token });
+    const data = await requestApi(API_URL_SOLICITUD_RETIRO_ID, { tokenWeb: token });
     return normalizarSolicitudRetiroId(data);
 };
 
 exports.guardarSolicitudRetiro = async (payload = {}, token) => {
     const data = await requestApi(API_URL_SOLICITUD_RETIRO, {
         method: "POST",
-        token,
+        tokenWeb: token,
         body: payload
     });
 

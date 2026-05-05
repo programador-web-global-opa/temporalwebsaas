@@ -103,7 +103,7 @@ const MAPA_TIPOS_CAMPO = { C: "text", N: "number", E: "email", L: "select" };
 
 exports.obtenerProductosServicios = async (token) => {
   try {
-    const data = await requestApi(API_PARAMETROS, { token });
+    const data = await requestApi(API_PARAMETROS, { tokenWeb: token });
     return normalizarTabla(data).map((item) => ({
       ...item,
       nombre: fullUpper(item.nombre),
@@ -118,7 +118,7 @@ exports.obtenerProductosServicios = async (token) => {
 exports.obtenerAdjuntos = async (idProductoServicio, token) => {
   try {
     const url = construirUrlConParams(API_ADJUNTOS, { idProductoServicio });
-    const data = await requestApi(url, { token });
+    const data = await requestApi(url, { tokenWeb: token });
     return normalizarTabla(data).map((item) => ({
       ...item,
       descripcion: ucFirst(fullLower(item.descripcion ?? "")),
@@ -133,7 +133,7 @@ exports.obtenerAdjuntos = async (idProductoServicio, token) => {
 exports.obtenerCamposDinamicos = async (idProductoServicio, token) => {
   try {
     const url = construirUrlConParams(API_CAMPOS_DINAMICOS, { idProductoServicio });
-    const data = await requestApi(url, { token });
+    const data = await requestApi(url, { tokenWeb: token });
     const campos = normalizarTabla(data).filter(
       (c) => c.existe !== null && c.estadolista !== "I",
     );
@@ -171,7 +171,7 @@ exports.obtenerEstadoSolicitudes = async (cedula, token) => {
       idProductoServicio: "",
       cedula,
     });
-    const data = await requestApi(url, { token });
+    const data = await requestApi(url, { tokenWeb: token });
     return normalizarTabla(data).map((item) => ({
       ...item,
       EstadoActual: traducirEstado(item.EstadoActual),
@@ -185,7 +185,7 @@ exports.obtenerEstadoSolicitudes = async (cedula, token) => {
 exports.obtenerSeguimientoSolicitud = async (idSolicitud, token) => {
   try {
     const url = construirUrlConParams(API_SEGUIMIENTO, { idSolicitud });
-    const data = await requestApi(url, { token });
+    const data = await requestApi(url, { tokenWeb: token });
     const registros = normalizarTabla(data);
 
     if (!registros.length)
@@ -203,7 +203,7 @@ exports.obtenerSeguimientoSolicitud = async (idSolicitud, token) => {
 
 exports.obtenerNumeroSolicitud = async (token) => {
   try {
-    const data = await requestApi(API_NUMSOLICITUD, { token });
+    const data = await requestApi(API_NUMSOLICITUD, { tokenWeb: token });
     const registro = normalizarTabla(data)[0] ?? {};
     const ultimo = registro.numeroSolicitud;
 
@@ -226,13 +226,13 @@ exports.obtenerNumeroSolicitud = async (token) => {
 exports.controlarNumeroSolicitudes = async (idProducto, cedula, token) => {
   try {
     const [productosData, solicitudesData] = await Promise.all([
-      requestApi(API_PARAMETROS, { token }),
+      requestApi(API_PARAMETROS, { tokenWeb: token }),
       requestApi(
         construirUrlConParams(API_CONSULTAR_SOL, {
           idProductoServicio: idProducto,
           cedula,
         }),
-        { token },
+        { tokenWeb: token },
       ),
     ]);
 
@@ -291,7 +291,7 @@ exports.guardarSolicitud = async (
   try {
     const data = await requestApi(API_GUARDAR, {
       method: "POST",
-      token,
+      tokenWeb: token,
       body: {
         numeroSolicitud,
         Cedula: cedula,

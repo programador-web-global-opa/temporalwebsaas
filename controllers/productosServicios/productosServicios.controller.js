@@ -168,8 +168,6 @@ const guardarSolicitud = async (req, res) => {
 
     const numeroSolicitud = await productosServiciosService.obtenerNumeroSolicitud(token);
 
-    await fs.mkdir(ADJUNTOS_DIR, { recursive: true });
-
     const archivosMap = {};
     const listaArchivos = Array.isArray(req.files)
       ? req.files
