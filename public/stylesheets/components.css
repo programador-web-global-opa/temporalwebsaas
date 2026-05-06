@@ -24,6 +24,14 @@
   padding-bottom: 50px;
 }
 
+/* override bootstrap .offcanvas */
+.offcanvas {
+  z-index: 999;
+}
+
+.offcanvas-backdrop {
+  z-index: 998;
+}
 
 /* =========================================================
    NAVBAR
