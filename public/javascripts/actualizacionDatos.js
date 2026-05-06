@@ -50,6 +50,7 @@
         await inicializarCombos($contenido);
         await initTabs();
         hydrateTab(tab);
+        recalcularCamposDerivados();
         evaluarTabsDinamicas();
         validarCamposDeshabilitados();
 
@@ -66,6 +67,7 @@
             evaluarContenidoOtrosDatosAdicionales();
         }
     }
+
 
     async function cargarTab(tab, $tab) {
         await conLoader("Cargando seccion...", async function () {
@@ -148,8 +150,25 @@
         normalizarNumerosFormState();
         sanitizarObjeto(formState);
     }
+    
+    function obtenerTextoSelect(selector, value) {
+        if (value === null || value === undefined || value === "") {
+            return "";
+        }
 
-    // Restricciones migradas del legacy: el usuario ve formato, el estado guarda limpio.
+        const texto = $(selector)
+            .find("option")
+            .filter(function () {
+                return String($(this).val()) === String(value);
+            })
+            .first()
+            .text()
+            .trim();
+
+        return texto || String(value);
+    }
+
+    
     const CAMPOS_MONEDA = {
         honorarios: 13,
         arriendos: 13,
@@ -1191,6 +1210,22 @@
         "tajetaCredito",
         "otrosPrestamos"
     ];
+    const camposPatrimonio = [
+        "totalActivos",
+        "totalPasivos"
+    ];
+    const camposPatrimonioRepresentanteLegal = [
+        "totalActivosRepresentanteLegal",
+        "totalPasivosRepresentanteLegal"
+    ];
+    const camposObligaciones = [
+        "saldoALaFecha",
+        "cooperativasSaldos",
+        "entidadesFinancierasCuotas",
+        "cooperativasCuotas",
+        "otrasObligacionesSaldos",
+        "otrasObligacionesCuotas"
+    ];
 
      function toNumber(value) {
         if (value === null || value === undefined || value === "") return 0;
@@ -1224,6 +1259,43 @@
         pintarCampoMoneda("#totalEgresos", i.totalEgresos);
     }
 
+    function recalcularTotalPatrimonio() {
+        const i = formState.ingresosEgresos;
+        const total = toNumber(i.totalActivos) - toNumber(i.totalPasivos);
+
+        i.totalPatrimonio = String(total);
+        pintarCampoMoneda("#totalPatrimonio", i.totalPatrimonio);
+    }
+
+    function recalcularTotalOtrasObligaciones() {
+        const i = formState.ingresosEgresos;
+        const total =
+            toNumber(i.saldoALaFecha) +
+            toNumber(i.cooperativasSaldos) +
+            toNumber(i.otrasObligacionesSaldos);
+
+        i.totalOtrasObligaciones = String(total);
+        pintarCampoMoneda("#totalOtrasObligaciones", i.totalOtrasObligaciones);
+    }
+
+    function recalcularTotalPatrimonioRepresentanteLegal() {
+        const o = formState.otrosDatosAdicionales;
+        const total =
+            toNumber(o.totalActivosRepresentanteLegal) -
+            toNumber(o.totalPasivosRepresentanteLegal);
+
+        o.totalPatrimonioRepresentanteLegal = String(total);
+        pintarCampoMoneda("#totalPatrimonioRepresentanteLegal", o.totalPatrimonioRepresentanteLegal);
+    }
+
+    function recalcularCamposDerivados() {
+        recalcularTotalIngresos();
+        recalcularTotalEgresos();
+        recalcularTotalPatrimonio();
+        recalcularTotalOtrasObligaciones();
+        recalcularTotalPatrimonioRepresentanteLegal();
+    }
+
     function sincronizarSueldoDesdeSalario() {
         const salario = formState?.datosLaborales?.salario ?? "";
 
@@ -1242,6 +1314,18 @@
             if (camposSumanEgresos.includes(name)) {
                 recalcularTotalEgresos();
             }
+
+            if (camposPatrimonio.includes(name)) {
+                recalcularTotalPatrimonio();
+            }
+
+            if (camposObligaciones.includes(name)) {
+                recalcularTotalOtrasObligaciones();
+            }
+        }
+
+        if (tab === "otrosDatosAdicionales" && camposPatrimonioRepresentanteLegal.includes(name)) {
+            recalcularTotalPatrimonioRepresentanteLegal();
         }
 
         if (tab === "datosLaborales" && name === "salario") {
@@ -2009,6 +2093,7 @@
     //INICIALIZA TODA LA SECUENCIA DE CARGADO
     async function initPersonasACargo() {
         peopleInChargeReal = await cargarPersonasACargoBackend();
+        actualizarContadorPersonasACargo();
         renderPeopleInChargeReal();
         renderPeopleInChargeNew();
     }
@@ -2087,6 +2172,9 @@
                 </section>
         `);
         $.each(peopleInChargeNew, function (_, peopleInCharge) {
+            const parentescoTexto = obtenerTextoSelect("#parentescoPersonaACargo", peopleInCharge.parentesco);
+            const generoTexto = obtenerTextoSelect("#generoPersonaACargo", peopleInCharge.genero);
+
             $peopleInChargeNew.append(
                 `<div class="app-paper elevation-3 p-3 mb-3">
                 <div class="row align-items-center text-md-center">
@@ -2105,13 +2193,13 @@
                     <!-- PARENTESCO -->
                     <div class="col-12 col-md-2">
                         <span class="d-md-none fw-bold">Parentesco</span>
-                        ${peopleInCharge.parentesco}
+                        ${parentescoTexto}
                     </div>
 
                     <!-- GENERO -->
                     <div class="col-12 col-md-2">
                         <span class="d-md-none fw-bold">Genero</span>
-                        ${peopleInCharge.genero}
+                        ${generoTexto}
                     </div>
 
                     <!-- ACCIONES -->
@@ -2135,10 +2223,14 @@
     }
 
     //ID COUNTER PARA NUEVAS PERSONAS A CARGO
-    let peopleInChargeIdCounter = Math.max(
-        ...peopleInChargeReal.map(r => r.id),
-        0
-    ) + 1;
+    let peopleInChargeIdCounter = 1;
+    function actualizarContadorPersonasACargo() {
+        peopleInChargeIdCounter = Math.max(
+            0,
+            ...peopleInChargeReal.map(r => Number(r.id) || 0),
+            ...peopleInChargeNew.map(r => Number(r.id) || 0)
+        ) + 1;
+    }
 
     //AGREGAR PERSONA A CARGO NUEVA O EDITADA
     $(document).on('submit', '#formAgregarPersonaACargo', function (e) {
@@ -2407,6 +2499,7 @@
                 </section>
         `);
         $.each(referencesNew, function (_, reference) {
+            const tipoReferenciaTexto = obtenerTextoSelect("#tipoReferencia", reference.tipoReferencia);
             $referencesNew.append(
                 `<div class="app-paper elevation-3 p-3 mb-3">
                 <div class="row align-items-center text-md-center">
@@ -2420,7 +2513,7 @@
                     </div>
                     <div class="col-12 col-md-2">
                         <span class="d-md-none fw-bold">Tipo de referencia</span>
-                        ${reference.tipoReferencia}
+                        ${tipoReferenciaTexto}
                     </div>
                     <div class="col-12 col-md-2">
                         <span class="d-md-none fw-bold">Numero de contacto</span>
@@ -2656,9 +2749,11 @@
     //INICIALIZA TODO EL FLUJO DE CARGADO
     async function initFamiliaresPeps() {
         familiarPepsReal = await cargarFamiliaresPepsBackend();
+        actualizarContadorFamiliaresPeps();
         renderFamiliarPepsReal();
         renderFamiliarPepsNew();
     }
+
 
     //RENDERIZAR FAMILIARES PEPS EXISTENTES
     function renderFamiliarPepsReal() {
@@ -2732,6 +2827,7 @@
         `);
 
         $.each(familiarPepsNew, function (_, familiarPeps) {
+            const parentescoTexto = obtenerTextoSelect("#parentescoFamiliarPeps", familiarPeps.parentesco);
             $familiarPepsNew.append(
                 `<div class="app-paper elevation-3 p-3 mb-3">
                 <div class="row align-items-center text-md-center">
@@ -2745,7 +2841,7 @@
                     </div>
                     <div class="col-12 col-md-3">
                         <span class="d-md-none fw-bold">Parentesco</span>
-                        ${familiarPeps.parentesco}
+                        ${parentescoTexto}
                     </div>
                     <div class="col-12 col-md-3 mt-3 mt-md-0 d-flex flex-row justify-content-center gap-2 text-md-center">
                         <button type="button" class="app-button app-btn--warning w-75 btn-cambiar mb-2" data-id="${familiarPeps.id}" data-source="new" data-bs-toggle="modal" data-bs-target="#modalAgregarFamiliarPeps" id="btnEditarFamiliarPeps">
@@ -2762,10 +2858,14 @@
     }
 
     //ID COUNTER FAMILIARES PEPS
-    let familiarPepsIdCounter = Math.max(
-        ...familiarPepsReal.map(r => r.id),
-        0
-    ) + 1;
+    let familiarPepsIdCounter = 1;
+    function actualizarContadorFamiliaresPeps() {
+        familiarPepsIdCounter = Math.max(
+            0,
+            ...familiarPepsReal.map(r => Number(r.id) || 0),
+            ...familiarPepsNew.map(r => Number(r.id) || 0)
+        ) + 1;
+    }
 
     //EDITAR O AGREGAR FAMILIAR PEP
     $(document).on('submit', '#formAgregarFamiliarPeps', function (e) {
@@ -2961,6 +3061,12 @@
             email: null,
             celular: null,
             telefono: null,
+            telefono2: null,
+            ext2: null,
+            agencia: null,
+            segmento: null,
+            divisionciiu: null,
+            deduceocasional: null,
 
         },
 
@@ -3275,6 +3381,7 @@
                 savedPeopleInCharge.forEach(person => {
                     peopleInChargeNew.push(person);
                 });
+                actualizarContadorPersonasACargo();
             }
 
             if (referencesData) {
@@ -3290,7 +3397,10 @@
                 savedFamiliarPeps.forEach(familiarPep => {
                     familiarPepsNew.push(familiarPep);
                 });
+                actualizarContadorFamiliaresPeps();
             }
+
+            recalcularCamposDerivados();
 
         } catch (error) {
             console.error("Error cargando sessionStorage:", error);
@@ -3334,6 +3444,7 @@
                     ...formState,
                     ...datosFormulario
                 };
+                recalcularCamposDerivados();
                 console.log("Datos del backend asignados a formState:", formState);
             } else {
                 console.log("No hay datos backend");

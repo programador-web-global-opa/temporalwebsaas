@@ -39,6 +39,26 @@ function sanitizarNumero(valor) {
     return texto;
 }
 
+function numeroSeguro(valor) {
+    const sanitizado = sanitizarNumero(valor);
+    const numero = Number(sanitizado);
+    return Number.isFinite(numero) ? numero : 0;
+}
+
+function calcularTotalPatrimonio(activos, pasivos) {
+    return String(numeroSeguro(activos) - numeroSeguro(pasivos));
+}
+
+function calcularTotalObligaciones(ingresosEgresos = {}) {
+    const total =
+        numeroSeguro(ingresosEgresos.saldoALaFecha) +
+        numeroSeguro(ingresosEgresos.cooperativasSaldos) +
+        numeroSeguro(ingresosEgresos.otrasObligacionesSaldos);
+
+    return String(total);
+}
+
+
 //SE VALIDA SI LA FECHA TIENE EL FORMATO CORRECTO
 function fechaValida(texto, separador) {
     const partes = String(texto || "").trim().split(separador);
@@ -250,6 +270,11 @@ function mapearDatosBase(formState = {}, contexto = {}) {
     const datosLaborales = formState.datosLaborales || {};
     const otrosDatos = formState.otrosDatos || {};
     const ingresosEgresos = formState.ingresosEgresos || {};
+    const totalPatrimonioCalculado = calcularTotalPatrimonio(
+        ingresosEgresos.totalActivos,
+        ingresosEgresos.totalPasivos
+    );
+    const totalObligacionesCalculado = calcularTotalObligaciones(ingresosEgresos);
 
     return {
         cedula: contexto.cedula,
@@ -259,7 +284,7 @@ function mapearDatosBase(formState = {}, contexto = {}) {
         nombre1: sanitizarTexto(datosPersonales.primerNombre),
         nombre2: sanitizarTexto(datosPersonales.segundoNombre),
         fechanacimiento: sanitizarFecha(datosPersonales.fechaNacimiento),
-        agencia: 1, //FALTA ESTE DATO
+        agencia: sanitizarTexto(datosPersonales.agencia, "1"),
 
         codpaiscedula: sanitizarTexto(datosPersonales.paisDocumento),
         coddptocedula: sanitizarTexto(datosPersonales.departamentoDocumento),
@@ -276,17 +301,17 @@ function mapearDatosBase(formState = {}, contexto = {}) {
         codbarriovive: sanitizarTexto(datosPersonales.barrioResidencia),
 
         telefono1: sanitizarTexto(datosPersonales.telefono),
-        ext1: "",
-        telefono2: "",
-        ext2: "",
+        ext1: "", //TODO decidir que hacer con este dato
+        telefono2: sanitizarTexto(datosPersonales.telefono2),
+        ext2: sanitizarTexto(datosPersonales.ext2),
         celular: sanitizarTexto(datosPersonales.celular),
         email: sanitizarTexto(datosPersonales.email),
         estrato: sanitizarTexto(datosPersonales.estratoResidencia),
         enviodctos: sanitizarTexto(datosPersonales.envioDocumentos),
         ciiu: sanitizarTexto(datosPersonales.ciiu),
         nacionalidad: sanitizarTexto(datosPersonales.nacionalidad),
-        divisionciiu: "",
-        segmento: "",
+        divisionciiu: sanitizarTexto(datosPersonales.divisionciiu),
+        segmento: sanitizarTexto(datosPersonales.segmento),
 
         inghonorarios: sanitizarNumero(ingresosEgresos.honorarios),
         ingcomisiones: sanitizarNumero(ingresosEgresos.comisiones),
@@ -316,9 +341,17 @@ function mapearDatosBase(formState = {}, contexto = {}) {
 
         totalactivos: sanitizarNumero(ingresosEgresos.totalActivos),
         totalpasivos: sanitizarNumero(ingresosEgresos.totalPasivos),
-        totalpatrimonio: sanitizarNumero(ingresosEgresos.totalPatrimonio),
+        totalpatrimonio: sanitizarNumero(totalPatrimonioCalculado),
+        EntidadFinanSaldoFecha: sanitizarNumero(ingresosEgresos.saldoALaFecha),
+        EntidadFinanCuotaMensual: sanitizarNumero(ingresosEgresos.entidadesFinancierasCuotas),
+        CooFonSaldoFecha: sanitizarNumero(ingresosEgresos.cooperativasSaldos),
+        CooFonCoutaMensual: sanitizarNumero(ingresosEgresos.cooperativasCuotas),
+        OtrasObligacionesSaldoFecha: sanitizarNumero(ingresosEgresos.otrasObligacionesSaldos),
+        OtrasObligacionesCoutaMensual: sanitizarNumero(ingresosEgresos.otrasObligacionesCuotas),
+        TotalObligaciones: sanitizarNumero(totalObligacionesCalculado),
         descripotrosingresos: sanitizarTexto(ingresosEgresos.conceptoOtrosIngresos || ""), 
         descripotrosegresos: sanitizarTexto(ingresosEgresos.conceptoOtrosEgresos || ""),
+
 
         cuentasmonedaextranjera: sanitizarTexto(otrosDatos.poseeCuentasMonedaExtranjera),
         cualesoperaciones: sanitizarTexto(otrosDatos.cualesOperacionesMonedaExtranjera),
@@ -346,9 +379,10 @@ function mapearDatosBase(formState = {}, contexto = {}) {
         tipocontrato: sanitizarTexto(datosLaborales.tipoContrato || null),
         cargo: sanitizarTexto(datosLaborales.cargoTrabajo),
         salario: sanitizarNumero(datosLaborales.salario),
-        deduceocasional:"SI", //FALTA ESTE DATO
+        deduceocasional: sanitizarTexto(datosPersonales.deduceocasional),
         codempresalabora: sanitizarTexto(datosLaborales.empresaTrabajo),
         periododeduce: sanitizarTexto(String(datosLaborales.periodoDeduccion || "").trim().substring(0, 1)),
+
 
         numerocuenta: sanitizarTexto(otrosDatos.numeroCuenta),
         tipocuenta: sanitizarTexto(otrosDatos.tipoCuenta),
@@ -539,6 +573,10 @@ function mapearOtrosDatosAdicionales(formState = {}) {
     const celularRepresentante = usarApoderado
         ? sanitizarTexto(otros.movilApoderado)
         : sanitizarTexto(otros.movilRepresentanteLegal);
+    const totalPatrimonioRepresentanteCalculado = calcularTotalPatrimonio(
+        otros.totalActivosRepresentanteLegal,
+        otros.totalPasivosRepresentanteLegal
+    );
 
     const payload = {
         tipoPersonaJuridica: sanitizarTexto(otros.tipoPersonaJuridica),
@@ -550,7 +588,7 @@ function mapearOtrosDatosAdicionales(formState = {}) {
         detalleEmpresa: sanitizarTexto(otros.detalleEmpresaRepresentanteLegal),
         totalActivos: sanitizarNumero(otros.totalActivosRepresentanteLegal),
         totalPasivos: sanitizarNumero(otros.totalPasivosRepresentanteLegal),
-        totalPatrimonio: sanitizarNumero(otros.totalPatrimonioRepresentanteLegal),
+        totalPatrimonio: sanitizarNumero(totalPatrimonioRepresentanteCalculado),
         descripotrosingresos: sanitizarTexto(otros.conceptoOtrosIngresos),
         descripotrosegresos: sanitizarTexto(otros.conceptoOtrosEgresos),
         cedulaRepresentante,
@@ -598,6 +636,7 @@ function mapearOtrosDatosAdicionales(formState = {}) {
 
     return payload;
 }
+
 
 
 function mapearReferencias(references = []) {

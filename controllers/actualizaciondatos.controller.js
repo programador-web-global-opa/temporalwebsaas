@@ -183,37 +183,6 @@ const resolverEstadoIngresoActualizacion = async (req, { consumirConfirmacion = 
     };
 };
 
-const combinarRegistros = (registrosActuales = [], registrosEditados = []) => {
-    const actuales = Array.isArray(registrosActuales) ? registrosActuales : [];
-    const editados = Array.isArray(registrosEditados) ? registrosEditados : [];
-    const idsActuales = new Set(actuales.map(item => String(item?.id ?? "")));
-    const actualizadosPorId = new Map(
-        editados
-            .filter(item => item && item.originalId !== null && item.originalId !== undefined && String(item.originalId).trim() !== "")
-            .map(item => [String(item.originalId), item])
-    );
-
-    const resultado = actuales.map(item => {
-        const reemplazo = actualizadosPorId.get(String(item?.id ?? ""));
-        return reemplazo || item;
-    });
-
-    const edicionesSinBase = editados.filter(item =>
-        item &&
-        item.originalId !== null &&
-        item.originalId !== undefined &&
-        String(item.originalId).trim() !== "" &&
-        !idsActuales.has(String(item.originalId))
-    );
-
-    const nuevos = editados.filter(item =>
-        item &&
-        (item.originalId === null || item.originalId === undefined || String(item.originalId).trim() === "")
-    );
-
-    return [...resultado, ...edicionesSinBase, ...nuevos];
-};
-
 exports.renderActualizacionDatos = async (req, res) => {
     try {
         const estadoIngreso = await resolverEstadoIngresoActualizacion(req);
@@ -420,7 +389,13 @@ const mapearInformacionAsociado = (jsonInfoAsociado) => {
             estratoResidencia: parseVal(data.estrato),
             email: parseVal(data.email),
             celular: parseVal(data.celular),
-            telefono: parseVal(data.telefono1)
+            telefono: parseVal(data.telefono1),
+            telefono2: parseVal(data.telefono2),
+            ext2: parseVal(data.extencion2),
+            agencia: parseVal(data.agencia),
+            segmento: parseVal(data.codsegmento),
+            divisionciiu: parseVal(data.coddivision),
+            deduceocasional: parseVal(data.deduceocacional)
         },
         datosLaborales: {
             empresaTrabajo: parseVal(data.codempresalabora),
@@ -741,7 +716,7 @@ const mapearFamiliaresPeps = (jsonFamiliaresPeps) => {
     }
 
     return jsonFamiliaresPeps[0].map((familiar) => ({
-        id: familiar.idfamiliarpeps,
+        id: parseVal(familiar.idotrosdatos) || parseVal(familiar.idfamiliarpeps),
         identification: parseVal(familiar.cedula),
         tipoDocumento: parseVal(familiar.tipoidentificacion),
         firstName: parseVal(familiar.nombre1familiarpeps),
@@ -953,40 +928,22 @@ exports.guardarActualizacionDatos = async (req, res) => {
         }
 
         const [
-            datosCrudosReferencias,
-            datosCrudosPersonasCargo,
-            datosCrudosFamiliaresPeps,
             datosCrudosAutorizaciones,
             datosCrudosUltimasRespuestasAutorizacion
         ] = await Promise.all([
-            actualizaciondatosService.obtenerReferencias(cedula, token),
-            actualizaciondatosService.obtenerPersonasCargo(cedula, token),
-            actualizaciondatosService.obtenerFamiliaresPeps(cedula, token),
             actualizaciondatosService.obtenerAutorizaciones(token),
             actualizaciondatosService.obtenerUltimasRespuestasAutorizacion(cedula, token)
         ]);
 
         if (
-            datosCrudosReferencias === null ||
-            datosCrudosPersonasCargo === null ||
-            datosCrudosFamiliaresPeps === null ||
             datosCrudosAutorizaciones === null
         ) {
             throw new Error("No fue posible consolidar la informacion actual del asociado antes del guardado");
         }
 
-        const referenciasFinales = combinarRegistros(
-            mapearReferencias(datosCrudosReferencias),
-            references
-        );
-        const personasCargoFinales = combinarRegistros(
-            mapearPersonasCargo(datosCrudosPersonasCargo),
-            peopleInCharge
-        );
-        const familiaresPepsFinales = combinarRegistros(
-            mapearFamiliaresPeps(datosCrudosFamiliaresPeps),
-            familiarPeps
-        );
+        const referenciasFinales = Array.isArray(references) ? references : [];
+        const personasCargoFinales = Array.isArray(peopleInCharge) ? peopleInCharge : [];
+        const familiaresPepsFinales = Array.isArray(familiarPeps) ? familiarPeps : [];
         const autorizacionesCatalogo = mapearAutorizaciones(
             datosCrudosAutorizaciones,
             datosCrudosUltimasRespuestasAutorizacion
@@ -1038,7 +995,7 @@ exports.guardarActualizacionDatos = async (req, res) => {
                     ...payload,
                     cedula,
                     fechaSistema: formatearFechaSistema(),
-                    codigoAgencia: 1,
+                    codigoAgencia: payload.agencia,
                     autorizacionesCatalogo
                 },
                 token
