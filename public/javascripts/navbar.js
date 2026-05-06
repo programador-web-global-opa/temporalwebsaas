@@ -1,3 +1,12 @@
+$(document).ajaxComplete(function (event, xhr) {
+  try {
+    const res = JSON.parse(xhr.responseText);
+    if (res?.sessionExpired === true) {
+      window.location.replace('/auth/login');
+    }
+  } catch (_) {}
+});
+
 $(document).ready(function () {
 
   const $informacion = $("#Meta-informacion");
@@ -85,8 +94,4 @@ $(document).ready(function () {
   $btnNotificaciones.on("click", function () {
     renderNotificaciones(notificaciones);
   });
-
-
-  // renderInfo();
-
 });

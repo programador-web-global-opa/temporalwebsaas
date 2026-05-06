@@ -1,4 +1,5 @@
 const config = require("../config/config");
+const { manejarError } = require("../helpers/controllerUtils");
 const actualizaciondatosService = require("../services/actualizaciondatosService");
 const actualizaciondatosGuardarHelper = require("../services/actualizaciondatosGuardarHelper");
 const actualizaciondatosInformeService = require("../services/actualizaciondatosInformeService");
@@ -827,7 +828,7 @@ exports.getInformacionAsociado = async (req, res) => {
         res.status(200).json(datosAsociadoCompleto);
     } catch (error) {
         console.error("Error en getInformacionAsociado:", error);
-        res.status(500).json({ error: error.message || "Error interno al obtener asociado" });
+        return manejarError(req, res, error);
     }
 };
 
@@ -848,7 +849,7 @@ exports.getAutorizaciones = async (req, res) => {
         res.status(200).json(autorizacionesMapeadas);
     } catch (error) {
         console.error("Error en getAutorizaciones:", error);
-        res.status(500).json({ error: error.message || "Error interno al obtener autorizaciones" });
+        return manejarError(req, res, error);
     }
 };
 
@@ -865,9 +866,7 @@ exports.getReferencias = async (req, res) => {
         res.status(200).json(referencias);
     } catch (error) {
         console.error("Error en getReferencias:", error);
-        res.status(500).json({
-            error: error.message || "Error al obtener referencias"
-        });
+        return manejarError(req, res, error);
     }
 };
 
@@ -883,9 +882,7 @@ exports.getPersonasCargo = async (req, res) => {
         res.status(200).json(personasCargo);
     } catch (error) {
         console.error("Error en getPersonasCargo:", error);
-        res.status(500).json({
-            error: error.message || "Error al obtener personas a cargo"
-        });
+        return manejarError(req, res, error);
     }
 };
 
@@ -901,9 +898,7 @@ exports.getFamiliaresPeps = async (req, res) => {
         res.status(200).json(familiaresPeps);
     } catch (error) {
         console.error("Error en getFamiliaresPeps:", error);
-        res.status(500).json({
-            error: error.message || "Error al obtener familiares peps"
-        });
+        return manejarError(req, res, error);
     }
 };
 
@@ -918,9 +913,7 @@ exports.getAdjuntos = async (req, res) => {
         res.status(200).json(adjuntos);
     } catch (error) {
         console.error("Error en getAdjuntos:", error);
-        res.status(500).json({
-            error: error.message || "Error al obtener adjuntos"
-        });
+        return manejarError(req, res, error);
     }
 };
 
@@ -930,9 +923,7 @@ exports.getGrupoProteccion = async (req, res) => {
         res.status(200).json(Array.isArray(grupoProteccion) ? grupoProteccion : []);
     } catch (error) {
         console.error("Error en getGrupoProteccion:", error);
-        res.status(500).json({
-            error: error.message || "Error al obtener el esquema de grupo de proteccion"
-        });
+        return manejarError(req, res, error);
     }
 };
 
@@ -1103,11 +1094,7 @@ exports.guardarActualizacionDatos = async (req, res) => {
         });
     } catch (error) {
         console.error("Error en guardarActualizacionDatos:", error);
-
-        return res.status(500).json({
-            estado: false,
-            mensaje: error.message || "Error procesando la solicitud de guardado"
-        });
+        return manejarError(req, res, error);
     }
 };
 

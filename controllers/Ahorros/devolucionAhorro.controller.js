@@ -1,4 +1,5 @@
 const devolucionAhorroService = require("../../services/ahorrosService/devolucionAhorroService");
+const { manejarError } = require("../../helpers/controllerUtils");
 
 const obtenerUsuarioSession = (req) => req.session?.user || {};
 
@@ -10,15 +11,6 @@ const obtenerCedulaSesion = (req) => {
 const obtenerTokenWebSesion = (req) => {
     const usuario = obtenerUsuarioSession(req);
     return usuario.tokenWeb || req.session?.tokenWeb || null;
-};
-
-const respuestaError = (res, error, status = 500) => {
-    const mensaje = error?.message || "Ocurrio un error procesando la solicitud";
-
-    return res.status(error?.status || status).json({
-        estado: false,
-        msj: mensaje
-    });
 };
 
 const validarCampoTexto = (valor) => typeof valor === "string" && valor.trim().length > 0;
@@ -63,7 +55,7 @@ exports.obtenerProductosDevolucion = async (req, res) => {
         });
     } catch (error) {
         console.error("Error obteniendo productos para devolucion:", error);
-        return respuestaError(res, error, 500);
+        return manejarError(req, res, error, 500);
     }
 };
 
@@ -106,7 +98,7 @@ exports.obtenerValorDisponible = async (req, res) => {
     } catch (error) {
         console.error("Error calculando valor disponible para devolucion:", error);
         const status = /ahorro|cuenta|linea|disponible|producto/i.test(error?.message || "") ? 400 : 500;
-        return respuestaError(res, error, status);
+        return manejarError(req, res, error, status);
     }
 };
 
@@ -156,6 +148,6 @@ exports.solicitarDevolucion = async (req, res) => {
     } catch (error) {
         console.error("Error guardando solicitud de devolucion:", error);
         const status = /retiro|solicitud|ahorro|valor|minimo|GMF|esperar|cuenta|linea/i.test(error?.message || "") ? 400 : 500;
-        return respuestaError(res, error, status);
+        return manejarError(req, res, error, status);
     }
 };

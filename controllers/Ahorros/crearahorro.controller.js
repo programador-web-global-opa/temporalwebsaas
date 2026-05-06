@@ -1,4 +1,5 @@
 const crearAhorroService = require("../../services/ahorrosService/crearAhorroService");
+const { manejarError } = require("../../helpers/controllerUtils");
 
 const obtenerUsuarioSession = (req) => req.session?.user || {};
 
@@ -12,14 +13,6 @@ const obtenerTokenWebSesion = (req) => {
     return usuario.tokenWeb || req.session?.tokenWeb || null;
 };
 
-const respuestaError = (res, error, status = 500) => {
-    const mensaje = error?.message || "Ocurrio un error procesando la solicitud";
-
-    return res.status(error?.status || status).json({
-        estado: false,
-        msj: mensaje
-    });
-};
 
 exports.renderCrearAhorro = (req, res) => {
     res.render("crearAhorrolayout", {
@@ -38,7 +31,7 @@ exports.obtenerLineasAhorro = async (req, res) => {
         });
     } catch (error) {
         console.error("Error obteniendo lineas de ahorro:", error);
-        return respuestaError(res, error, 500);
+        return manejarError(req, res, error, 500);
     }
 };
 
@@ -75,6 +68,6 @@ exports.crearAhorro = async (req, res) => {
         console.error("Error creando ahorro:", error);
 
         const status = /cuota|linea|ingresar/i.test(error?.message || "") ? 400 : 500;
-        return respuestaError(res, error, status);
+        return manejarError(req, res, error, status);
     }
 };

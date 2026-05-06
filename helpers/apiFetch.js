@@ -1,3 +1,25 @@
+class TokenExpiredError extends Error {
+  constructor() {
+    super('Tu sesión ha expirado. Por favor inicia sesión nuevamente.');
+    this.code = 'TOKEN_EXPIRED';
+    this.status = 401;
+  }
+}
+
+const esTokenExpiradoBody = (data) => {
+  // API app: [[{ Codigo: '401', tipoMensaje: 'E' }]]
+  if (Array.isArray(data) && Array.isArray(data[0])) {
+    const item = data[0][0];
+    if (item?.Codigo === '401' && item?.tipoMensaje === 'E') return true;
+  }
+  // API web: { mensaje: 'Token no encontrado o revocado' | 'El token ha expirado' }
+  if (data?.mensaje) {
+    const msg = String(data.mensaje).toLowerCase();
+    if (msg.includes('expirad') || msg.includes('revocad') || msg.includes('no encontrad')) return true;
+  }
+  return false;
+};
+
 const buildAuthHeader = ({ token, tokenWeb } = {}) => {
   if (tokenWeb) return `Bearer ${tokenWeb}`;
   if (token) return token;
@@ -60,7 +82,10 @@ const requestApi = async (url, { method = "GET", token, tokenWeb, body, formBody
   const response = await fetch(url, { method, headers, body: bodyData });
   const data = await parseResponse(response);
 
+  if (esTokenExpiradoBody(data)) throw new TokenExpiredError();
+
   if (!response.ok) {
+    if (response.status === 401 || response.status === 403) throw new TokenExpiredError();
     const error = new Error(extraerMensajeError(data, `Error HTTP: ${response.status}`));
     error.status = response.status;
     error.responseData = data;
@@ -70,4 +95,4 @@ const requestApi = async (url, { method = "GET", token, tokenWeb, body, formBody
   return data;
 };
 
-module.exports = { requestApi, buildHeaders, parseResponse, extraerMensajeError, construirUrlConParams };
+module.exports = { requestApi, buildHeaders, parseResponse, extraerMensajeError, construirUrlConParams, TokenExpiredError };

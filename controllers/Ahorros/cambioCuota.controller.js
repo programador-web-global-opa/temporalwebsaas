@@ -1,4 +1,5 @@
 const cambioCuotaService = require("../../services/ahorrosService/cambioCuotaService");
+const { manejarError } = require("../../helpers/controllerUtils");
 
 const obtenerUsuarioSession = (req) => req.session?.user || {};
 
@@ -10,15 +11,6 @@ const obtenerCedulaSesion = (req) => {
 const obtenerTokenWebSesion = (req) => {
     const usuario = obtenerUsuarioSession(req);
     return usuario.tokenWeb || req.session?.tokenWeb || null;
-};
-
-const respuestaError = (res, error, status = 500) => {
-    const mensaje = error?.message || "Ocurrio un error procesando la solicitud";
-
-    return res.status(error?.status || status).json({
-        estado: false,
-        msj: mensaje
-    });
 };
 
 const validarCampoTexto = (valor) => typeof valor === "string" && valor.trim().length > 0;
@@ -64,7 +56,7 @@ exports.obtenerProductosCambioCuota = async (req, res) => {
         });
     } catch (error) {
         console.error("Error obteniendo productos para cambio de cuota:", error);
-        return respuestaError(res, error, 500);
+        return manejarError(req, res, error, 500);
     }
 };
 
@@ -131,6 +123,6 @@ exports.cambiarCuota = async (req, res) => {
         console.error("Error cambiando cuota de ahorro:", error);
 
         const status = /cuota|producto|ahorro|periodo|esperar|linea/i.test(error?.message || "") ? 400 : 500;
-        return respuestaError(res, error, status);
+        return manejarError(req, res, error, status);
     }
 };
